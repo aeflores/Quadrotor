@@ -1,10 +1,6 @@
-int status = -1;
-// Vcc-->3.3V
-// Gnd-->Gnd
-// SDA--> A4
-// SCL--> A5
+#include "Acelerometro.h"
 
-void IMU_ini() {
+void Acelerometro::initialize() {
   while (status < 0) {
     status = IMU.begin();
     if (status < 0) {
@@ -18,7 +14,7 @@ void IMU_ini() {
   }
 }
 
-void IMU_default_cal() {
+void Acelerometro::default_cal() {
 
   // Magnetometer settings
   // X-axis bias and scale factor
@@ -46,7 +42,7 @@ void IMU_default_cal() {
   IMU.setGyroBiasZ_rads(gzb);
 }
 
-void IMU_settings() {
+void Acelerometro::settings() {
   // Low Pass Filter configuration
   // Digital Low Pass Filter (DLPF) bandwidth.
   // By default, if this function is not called, a DLPF bandwidth of 184 Hz is
@@ -55,8 +51,8 @@ void IMU_settings() {
 
   // This function sets the accelerometer full scale range to the given value.
   // By default, if this function is not called, a full scale range of +/- 16 g
-  // will be used. The enumerated accelerometer full scale ranges are: +/- 2g,+/-
-  // 4g,+/- 8g,+/- 16g,
+  // will be used. The enumerated accelerometer full scale ranges are: +/-
+  // 2g,+/- 4g,+/- 8g,+/- 16g,
   status = IMU.setAccelRange(MPU9250::ACCEL_RANGE_16G);
 
   // This function sets the gyroscope full scale range to the given value.
@@ -66,7 +62,7 @@ void IMU_settings() {
   status = IMU.setGyroRange(MPU9250::GYRO_RANGE_2000DPS);
 }
 
-void Magnetometro_cal() {
+void Acelerometro::magnetometro_cal() {
   status = -1;
   while (status < 0) {
     Serial.println("IMU Magnetometer calibration starting in 2 seconds, please "
@@ -108,7 +104,7 @@ void Magnetometro_cal() {
   }
 }
 
-void Acelerometro_cal() {
+void Acelerometro::acelerometro_cal() {
   status = -1;
   while (status < 0) {
     Serial.println("IMU Accelerometer calibration starting in 2 seconds, do "
@@ -151,7 +147,7 @@ void Acelerometro_cal() {
   }
 }
 
-void Gyroscope_cal() {
+void Acelerometro::gyroscope_cal() {
 
   status = -1;
   while (status < 0) {
@@ -181,7 +177,7 @@ void Gyroscope_cal() {
   }
 }
 
-float *get_raw_val() {
+float *Acelerometro::get_raw_val() {
   static float Acc_val[9];
   // Read the sensor
   IMU.readSensor();

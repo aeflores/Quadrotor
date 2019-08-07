@@ -1,7 +1,6 @@
-#include "MPU9250.h"
-// an MPU9250 object with the MPU-9250 sensor on I2C bus 0 with address 0x68
-MPU9250 IMU(Wire, 0x68);
 #include "Acelerometro.h"
+
+Acelerometro acelerometro;
 
 // unsigned long tiempo=millis();
 float radtodeg = 180 / acos(-1);
@@ -15,17 +14,17 @@ float *yawpitchroll;
 void setup() {
   Serial.begin(115200);
   // start communication with IMU
-  IMU_ini();
-  IMU_default_cal();
-  IMU_settings();
-  // Acelerometro_cal();
-  // Magnetometro_cal();
-  // Gyroscope_cal();
+  acelerometro.initialize();
+  acelerometro.default_cal();
+  acelerometro.settings();
+  // acelerometro.acelerometro_cal();
+  // acelerometro.magnetometro_cal();
+  // acelerometro.gyroscope_cal();
 }
 
 void loop() {
 
-  Acc_raw_val = get_raw_val();
+  Acc_raw_val = acelerometro.get_raw_val();
   yawpitchroll_triad = get_ypr_triad(Acc_raw_val);
 
   if (first_iteration <= 10) {
