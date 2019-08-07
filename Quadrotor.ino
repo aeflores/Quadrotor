@@ -30,7 +30,7 @@ void loop() {
 
   if (first_iteration <= 10) {
     yawpitchroll_int = Integrator(Acc_raw_val, yawpitchroll_triad);
-    first_iteration = first_iteration + 1;
+    first_iteration++;
   } else {
     yawpitchroll_int = Integrator(Acc_raw_val, yawpitchroll_int);
   }

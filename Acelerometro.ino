@@ -79,18 +79,12 @@ void Magnetometro_cal() {
       Serial.println(status);
     } else {
       Serial.println("IMU calibration successful");
-      float hxb;
-      hxb = IMU.getMagBiasX_uT();
-      float hxs;
-      hxs = IMU.getMagScaleFactorX();
-      float hyb;
-      hyb = IMU.getMagBiasY_uT();
-      float hys;
-      hys = IMU.getMagScaleFactorY();
-      float hzb;
-      hzb = IMU.getMagBiasZ_uT();
-      float hzs;
-      hzs = IMU.getMagScaleFactorZ();
+      float hxb = IMU.getMagBiasX_uT();
+      float hxs = IMU.getMagScaleFactorX();
+      float hyb = IMU.getMagBiasY_uT();
+      float hys = IMU.getMagScaleFactorY();
+      float hzb = IMU.getMagBiasZ_uT();
+      float hzs = IMU.getMagScaleFactorZ();
       Serial.print("MagBiasX: ");
       Serial.print(hxb, 6);
       Serial.print("  ");
@@ -127,19 +121,12 @@ void Acelerometro_cal() {
       Serial.println(status);
     } else {
       Serial.println("IMU calibration successful");
-      float axb;
-      axb = IMU.getAccelBiasX_mss();
-      float axs;
-      axs = IMU.getAccelScaleFactorX();
-
-      float ayb;
-      ayb = IMU.getAccelBiasY_mss();
-      float ays;
-      ays = IMU.getAccelScaleFactorY();
-      float azb;
-      azb = IMU.getAccelBiasZ_mss();
-      float azs;
-      azs = IMU.getAccelScaleFactorZ();
+      float axb = IMU.getAccelBiasX_mss();
+      float axs = IMU.getAccelScaleFactorX();
+      float ayb = IMU.getAccelBiasY_mss();
+      float ays = IMU.getAccelScaleFactorY();
+      float azb = IMU.getAccelBiasZ_mss();
+      float azs = IMU.getAccelScaleFactorZ();
       Serial.print("AccBiasX: ");
       Serial.print(axb, 6);
       Serial.print("  ");
@@ -172,19 +159,15 @@ void Gyroscope_cal() {
         "IMU Gyroscope calibration starting in 2 seconds, do not move the IMU");
     delay(2000);
     status = IMU.calibrateGyro();
-    ;
     if (status < 0) {
       Serial.println("IMU calibration unsuccessful");
       Serial.print("Status: ");
       Serial.println(status);
     } else {
       Serial.println("IMU calibration successful");
-      float gxb;
-      gxb = IMU.getGyroBiasX_rads();
-      float gyb;
-      gyb = IMU.getGyroBiasY_rads();
-      float gzb;
-      gzb = IMU.getGyroBiasZ_rads();
+      float gxb = IMU.getGyroBiasX_rads();
+      float gyb = IMU.getGyroBiasY_rads();
+      float gzb = IMU.getGyroBiasZ_rads();
       Serial.print("GyroBiasX: ");
       Serial.print(gxb, 6);
       Serial.print("  ");
