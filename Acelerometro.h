@@ -4,5 +4,4 @@ void Magnetometro_cal();
 void Acelerometro_cal();
 void Gyroscope_cal();
 void IMU_default_cal();
-float* get_raw_val();
-
+float *get_raw_val();
