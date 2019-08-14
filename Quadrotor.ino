@@ -1,6 +1,7 @@
+
 #include "Acelerometro.h"
 
-Acelerometro acelerometro;
+Acelerometro acelerometro(Wire);
 
 // unsigned long tiempo=millis();
 float radtodeg = 180 / acos(-1);
