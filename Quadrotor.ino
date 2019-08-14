@@ -23,7 +23,36 @@ void setup() {
   // acelerometro.gyroscope_cal();
 }
 
+// possible states
+enum state{CALIBRATION,READY,FLY,ABORT};
+
+//current state initialized to CALIBRATION
+state curr_state=CALIBRATION;
+
 void loop() {
+  switch(curr_state){
+    case CALIBRATION:
+      //do calibration
+      if( 0/*some condition*/)
+         curr_state=READY;
+      break;
+    case READY:
+      // do ready stuff
+      if( 0/*right button has been pressed*/)
+        curr_state=FLY;
+      break;
+    case FLY:
+      //read sensors
+      //read controls
+      // compute actions
+      // do actions
+      if( 0/* abort control*/)
+        curr_state=ABORT;
+      break;
+    case ABORT:
+      // do emegency landing
+      break;
+  }
 
   Acc_raw_val = acelerometro.get_raw_val();
   yawpitchroll_triad = get_ypr_triad(Acc_raw_val);
