@@ -1,9 +1,11 @@
 
 #include "Acelerometro.h"
+#include "Radio.h"
 
 Acelerometro acelerometro(Wire);
+Radio RadioCOM;
 
-// unsigned long tiempo=millis();
+//unsigned long tiempo;
 float radtodeg = 180 / acos(-1);
 int first_iteration = 0;
 
@@ -11,6 +13,7 @@ float *Acc_raw_val;
 float *yawpitchroll_int;
 float *yawpitchroll_triad;
 float *yawpitchroll;
+float *control;
 
 void setup() {
   Serial.begin(115200);
@@ -18,42 +21,14 @@ void setup() {
   acelerometro.initialize();
   acelerometro.default_cal();
   acelerometro.settings();
+  RadioCOM.initialize();
   // acelerometro.acelerometro_cal();
   // acelerometro.magnetometro_cal();
   // acelerometro.gyroscope_cal();
 }
 
-// possible states
-enum state{CALIBRATION,READY,FLY,ABORT};
-
-//current state initialized to CALIBRATION
-state curr_state=CALIBRATION;
-
 void loop() {
-  switch(curr_state){
-    case CALIBRATION:
-      //do calibration
-      if( 0/*some condition*/)
-         curr_state=READY;
-      break;
-    case READY:
-      // do ready stuff
-      if( 0/*right button has been pressed*/)
-        curr_state=FLY;
-      break;
-    case FLY:
-      //read sensors
-      //read controls
-      // compute actions
-      // do actions
-      if( 0/* abort control*/)
-        curr_state=ABORT;
-      break;
-    case ABORT:
-      // do emegency landing
-      break;
-  }
-
+  // Lectura de los sensores
   Acc_raw_val = acelerometro.get_raw_val();
   yawpitchroll_triad = get_ypr_triad(Acc_raw_val);
 
@@ -63,60 +38,31 @@ void loop() {
   } else {
     yawpitchroll_int = Integrator(Acc_raw_val, yawpitchroll_int);
   }
-
   yawpitchroll = filter(Acc_raw_val, yawpitchroll_triad, yawpitchroll_int);
-
-  //  Serial.print("Yaw: ");
-  //  Serial.print(yawpitchroll_triad[0]*radtodeg,3);
-  //  Serial.print("  ");
-  //  Serial.print("Pitch: ");
-  //  Serial.print(yawpitchroll_triad[1]*radtodeg,3);
-  //  Serial.print("  ");
-  //  Serial.print("Roll: ");
-  //  Serial.print(yawpitchroll_triad[2]*radtodeg,3);
+  //Envio de telemetria por radio
+  RadioCOM.radiosend(yawpitchroll);
+  // Recepcion de Telecomandos por radio
+  control = RadioCOM.radiolisten();
   //
-  //  Serial.print("Yaw: ");
-  //  Serial.print(yawpitchroll_int[0]*radtodeg,3);
-  //  Serial.print("  ");
-  //  Serial.print("Pitch: ");
-  //  Serial.print(yawpitchroll_int[1]*radtodeg,3);
-  //  Serial.print("  ");
-  //  Serial.print("Roll: ");
-  //  Serial.println(yawpitchroll_int[2]*radtodeg,3);
+  Serial.print("JSRX= " );
+  Serial.print(control[0]);
+  Serial.print("  JSRY= " );
+  Serial.print(control[1]);
+  Serial.print("  JSLX= " );
+  Serial.print(control[2]);
+  Serial.print("  JSLY= " );
+  Serial.print(control[3]);
+  Serial.print("  Delta Time  ");
+  Serial.println(millis());
 
-  Serial.print("Yaw: ");
-  Serial.print(yawpitchroll[0] * radtodeg, 3);
-  Serial.print("  ");
-  Serial.print("Pitch: ");
-  Serial.print(yawpitchroll[1] * radtodeg, 3);
-  Serial.print("  ");
-  Serial.print("Roll: ");
-  Serial.println(yawpitchroll[2] * radtodeg, 3);
 
-  //  Serial.print("AccelX: ");
-  //  Serial.print(Acc_raw_val[0],3);
-  //  Serial.print("  ");
-  //  Serial.print("AccelY: ");
-  //  Serial.print(Acc_raw_val[1],3);
-  //  Serial.print("  ");
-  //  Serial.print("AccelZ: ");
-  //  Serial.println(Acc_raw_val[2],3);
+//  Serial.print("Yaw: ");
+//  Serial.print(yawpitchroll_triad[0]*radtodeg,3);
+//  Serial.print("  ");
+//  Serial.print("Pitch: ");
+//  Serial.print(yawpitchroll_triad[1]*radtodeg,3);
+//  Serial.print("  ");
+//  Serial.print("Roll: ");
+//  Serial.print(yawpitchroll_triad[2]*radtodeg,3);
 
-  //  Serial.print("GyroX: ");
-  //  Serial.print(Acc_raw_val[3],6);
-  //  Serial.print("  ");
-  //  Serial.print("GyroY: ");
-  //  Serial.print(Acc_raw_val[4],6);
-  //  Serial.print("  ");
-  //  Serial.print("GyroZ: ");
-  //  Serial.println(Acc_raw_val[5],6);
-  ////
-  //  Serial.print("MagX: ");
-  //  Serial.print(Acc_raw_val[6],6);
-  //  Serial.print("  ");
-  //  Serial.print("MagY: ");
-  //  Serial.print(Acc_raw_val[7],6);
-  //  Serial.print("  ");
-  //  Serial.print("MagZ: ");
-  //  Serial.println(Acc_raw_val[8],6);
 }
