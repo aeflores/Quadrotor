@@ -1,6 +1,5 @@
 
 
-
 #ifndef ACELEROMETRO_H_
 #define ACELEROMETRO_H_
 #include <MPU9250.h>
@@ -16,7 +15,7 @@ private:
   MPU9250 IMU;
 
 public:
-  Acelerometro(TwoWire Wire): IMU(Wire,0x68){};
+  Acelerometro(TwoWire Wire) : IMU(Wire, 0x68){};
   void initialize();
   void default_cal();
   void magnetometro_cal();
