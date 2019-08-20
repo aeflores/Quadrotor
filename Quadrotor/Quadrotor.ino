@@ -14,7 +14,7 @@ float *yawpitchroll_int;
 float *yawpitchroll_triad;
 float *yawpitchroll;
 float *control;
-
+// comment
 // possible states
 enum state { STANDBY = 0, CALIBRATION = 1, FLYMODE = 2, ABORT = 3 };
 // current state initialized to STANDBY

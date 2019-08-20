@@ -1,5 +1,6 @@
 #include "Acelerometro.h"
 
+
 void Acelerometro::initialize() {
   while (status < 0) {
     status = IMU.begin();
