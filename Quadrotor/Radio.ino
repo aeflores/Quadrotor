@@ -19,17 +19,16 @@ void Radio::radiosend(float datos[]) {
   datos[0] = datos[0] * radtodeg;
   datos[1] = datos[1] * radtodeg;
   datos[2] = datos[2] * radtodeg;
-
-  // radio.write(datos, sizeof(datos));
+  radio.stopListening();
   radio.write(datos, sizeof(data));
-  // radio.write(, sizeof(datos));
+  radio.startListening();
 }
 
-float *Radio::radiolisten() {
-  static float datos[4];
+int *Radio::radiolisten() {
+  static int datos[5];
   // RECEPCION DE DATOS
   // Empezamos a escuchar por el canal
-  radio.startListening();
+  //radio.startListening();
   unsigned long started_waiting_at = millis();
   bool timeout = false;
   while (!radio.available() && !timeout) { // Esperamos 200ms
@@ -42,6 +41,6 @@ float *Radio::radiolisten() {
     // Leemos los datos y los guardamos en la variable datos[]
     radio.read(datos, sizeof(datos));
   }
-  radio.stopListening();
+  //radio.stopListening();
   return datos;
 }

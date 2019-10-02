@@ -7,9 +7,13 @@ float *get_ypr_triad(float Acc_raw_val[]) {
   //  float Mag_y_I=-0.1469 ;
   //  float Mag_z_I=36.8374;
   // Almeria
-  float Mag_x_I = 27.4347;
-  float Mag_y_I = -0.0751;
-  float Mag_z_I = 33.9364;
+//  float Mag_x_I = 27.4347;
+//  float Mag_y_I = -0.0751;
+//  float Mag_z_I = 33.9364;
+  // Paris, Palaiseau
+  float Mag_x_I = 20.9587;
+  float Mag_y_I = 0.3459;
+  float Mag_z_I = 43.3234;
   float Mag_mod_I = sqrt(pow(Mag_x_I, 2) + pow(Mag_y_I, 2) + pow(Mag_z_I, 2));
   // Gravity components in the inertial system reference m/s2
   float Acc_x_I = 0;

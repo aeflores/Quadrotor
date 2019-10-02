@@ -1,4 +1,7 @@
-#include "Acelerometro.h"
+#include "MPU9250.h"
+// an MPU9250 object with the MPU-9250 sensor on I2C bus 0 with address 0x68
+MPU9250 IMU(Wire, 0x68);
+
 
 void Acelerometro::initialize() {
   while (status < 0) {
@@ -152,7 +155,7 @@ void Acelerometro::gyroscope_cal() {
   status = -1;
   while (status < 0) {
     Serial.println(
-        "IMU Gyroscope calibration starting in 2 seconds, do not move the IMU");
+      "IMU Gyroscope calibration starting in 2 seconds, do not move the IMU");
     delay(2000);
     status = IMU.calibrateGyro();
     if (status < 0) {
@@ -217,3 +220,4 @@ float *Acelerometro::get_raw_val() {
 // MagBiasX: -4.876480  MagSFX: 1.030752  MagBiasY: 27.517288  MagSFY: 0.959087
 // MagBiasZ: 3.004229  MagSFZ: 1.012990 MagBiasX: 10.368086  MagSFX: 1.615734
 // MagBiasY: 32.904544  MagSFY: 0.650060  MagBiasZ: 19.129512  MagSFZ: 1.186567
+

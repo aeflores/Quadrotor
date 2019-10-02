@@ -21,7 +21,7 @@ public:
   Radio() : radio(CE_PIN, CSN_PIN){};
   void initialize();
   void radiosend(float datos[]);
-  float *radiolisten();
+  int *radiolisten();
 };
 
 #endif /* RADIO_H */
