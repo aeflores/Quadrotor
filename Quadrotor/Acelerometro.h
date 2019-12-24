@@ -3,6 +3,9 @@
 // SDA--> A4
 // SCL--> A5
 
+#ifndef ACELEROMETRO_H_
+#define ACELEROMETRO_H_
+
 class Acelerometro {
   private:
     int status = -1;
@@ -16,3 +19,4 @@ class Acelerometro {
     float *get_raw_val();
 };
 
+#endif

@@ -8,6 +8,8 @@
 #include "Acelerometro.h"
 #include "Radio.h"
 #include "Distancia.h"
+#include "Signal.h"
+
 // Defining objects
 Acelerometro acelerometro;
 Radio RadioCOM;
@@ -21,7 +23,8 @@ float *yawpitchroll_triad; // Yaw pitch roll angles from Triad algorithm
 float *yawpitchroll; // Filtered yaw pitch roll angles
 int *control; // Control telecomands
 float ref_pitch, ref_roll, ref_yaw_rate, ref_altitude_rate;
-float Yaw[4], Yaw_rate[4], Height[4], Height_rate[4];
+Signal Yaw(0.98,0.05);
+Signal Height(0.1, 0.5);
 
 
 
@@ -58,33 +61,6 @@ state next_state() {
 // --------------------------------- Functions --------------------------------
 // ----------------------------------------------------------------------------
 
-// Low pass filter
-
-float LPF(float dato, float alpha, float filtered){
-   float output;
-   output = alpha*dato + (1 - alpha)*filtered;
-   return output;
-}
-
-// Derivative
-
-void derivative(){
-  tiempo = millis();
-  delta_t=tiempo-tiempo0;
-  tiempo0=tiempo;
-  
-  Height_rate[0] = (Height[1]-Height[2])*1000/delta_t;
-  Height_rate[1] = LPF(Height_rate[0], Height_rate[3], Height_rate[1]);
-  Height[2]=Height[1];
-  
-  Yaw_rate[0] = (Yaw[1]-Yaw[2])*1000/delta_t;
-  Yaw_rate[1] = LPF(Yaw_rate[0], Yaw_rate[3], Yaw_rate[1]);
-  Yaw[2]=Yaw[1];
-
-}
-
-
-
 void read_sensors() {
   // Lectura de los sensores
   // Lectura de los valores raw de la IMU 9 DOF
@@ -102,15 +78,16 @@ void read_sensors() {
   //Aplicacion del filtro que combina ambas medidas
   yawpitchroll = filter(Acc_raw_val, yawpitchroll_triad, yawpitchroll_int);
   
-  Yaw[0]=yawpitchroll[0];
+  Yaw.update(yawpitchroll[0], delta_t);
+  Height.update(Dist_sensor.update_distance(),delta_t);
   // Lectura del dato de altura  
   //Height[0]=Dist_sensor.update_distance();
   // Transformamos la altura medida en altura con respecto al suelo
   //Height[0]=Height[0]*cos(yawpitchroll[1])*cos(yawpitchroll[2]);
   //Filtering signals
   //Height[1]=LPF(Height[0],Height[3], Height[1]);  
-  Yaw[1]=LPF(Yaw[0], Yaw[3], Yaw[1]);    
-  derivative();
+
+
 
 }
 
@@ -144,9 +121,9 @@ void Print_data() {
   Serial.print("  Ref roll=  ");
   Serial.print(ref_roll);
   Serial.print("  Yaw=  ");
-  Serial.print(Yaw[1]);
+  Serial.print(Yaw.value);
   Serial.print("  Yaw rate=  ");
-  Serial.print(Yaw_rate[1]);
+  Serial.print(Yaw.derivative);
 //  Serial.print("  Height =  ");
 //  Serial.print(Height[1]);
 //  Serial.print("  Height raw = ");
@@ -170,15 +147,6 @@ void setup() {
   acelerometro.settings();
   RadioCOM.initialize();
   Dist_sensor.initialize();
-  
-  // Asigning filtering parameters for signals
-  Height[3]=0.1;
-  Height_rate[3]=0.5;
-  Yaw[3]=0.98;
-  Yaw_rate[3]=0.05;
-  // Asigning initial values to Height_prev and Yaw_prev
-  Height[2]=0.0;
-  Yaw[2]=0.0;
 }
 
 // -----------------------------------------------------------------------------
