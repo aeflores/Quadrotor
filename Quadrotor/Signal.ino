@@ -14,6 +14,7 @@ float Signal::compute_derivative(float prev, float current, float delta_t){
 }
 
 void Signal::update(float new_value, float delta_t){
+    raw=new_value;
     float new_filtered = compute_LPF(value,new_value,raw_alpha);
     float new_derivative = compute_derivative(value, new_filtered, delta_t);
     derivative = compute_LPF(derivative, new_derivative, derivative_alpha);

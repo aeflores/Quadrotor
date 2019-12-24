@@ -31,7 +31,7 @@ Signal Height(0.1, 0.5);
 // Constants
 float radtodeg = 180 / acos(-1); // Radtodeg conversion
 int first_iteration = 0;
-unsigned long tiempo, tiempo0=0;
+unsigned long tiempo, tiempo0;
 int delta_t;
 
 
@@ -77,8 +77,7 @@ void read_sensors() {
   }
   //Aplicacion del filtro que combina ambas medidas
   yawpitchroll = filter(Acc_raw_val, yawpitchroll_triad, yawpitchroll_int);
-  
-  Yaw.update(yawpitchroll[0], delta_t);
+  Yaw.update(yawpitchroll[0]*radtodeg, delta_t);
   Height.update(Dist_sensor.update_distance(),delta_t);
   // Lectura del dato de altura  
   //Height[0]=Dist_sensor.update_distance();
@@ -104,6 +103,19 @@ void Reference(){
 }
 
 void Print_data() {
+    Serial.print("Yaw triad= ");
+    Serial.print(yawpitchroll_triad[0]*radtodeg);
+    Serial.print("   Pitch triad = ");
+    Serial.print(yawpitchroll_triad[1]*radtodeg);
+    Serial.print("   Roll triad = ");
+    Serial.print(yawpitchroll_triad[2]*radtodeg);
+    
+    Serial.print("Yaw = ");
+    Serial.print(yawpitchroll[0]*radtodeg);
+    Serial.print("   Pitch = ");
+    Serial.print(yawpitchroll[1]*radtodeg);
+    Serial.print("   Roll = ");
+    Serial.print(yawpitchroll[2]*radtodeg);
 //  Serial.print("JSRX= ");
 //  Serial.print(control[0]);
 //  Serial.print("  JSRY= ");
@@ -114,16 +126,18 @@ void Print_data() {
 //  Serial.print(control[3]);
 //  Serial.print("  state= ");
 //  Serial.print(control[4]);
-  Serial.print("  Delta Time  ");
-  Serial.println(millis());
-  Serial.print("  Ref pitch=  ");
-  Serial.print(ref_pitch);
-  Serial.print("  Ref roll=  ");
-  Serial.print(ref_roll);
-  Serial.print("  Yaw=  ");
-  Serial.print(Yaw.value);
-  Serial.print("  Yaw rate=  ");
-  Serial.print(Yaw.derivative);
+//  Serial.print("  Delta Time  ");
+//  Serial.println(millis());
+//  Serial.print("  Ref pitch=  ");
+//  Serial.print(ref_pitch);
+//  Serial.print("  Ref roll=  ");
+//  Serial.print(ref_roll);
+//  Serial.print("  Yaw raw=  ");
+//  Serial.print(Yaw.raw);
+//  Serial.print("  Yaw=  ");
+//  Serial.print(Yaw.value);
+//  Serial.print("  Yaw rate=  ");
+//  Serial.print(Yaw.derivative);
 //  Serial.print("  Height =  ");
 //  Serial.print(Height[1]);
 //  Serial.print("  Height raw = ");
@@ -154,6 +168,9 @@ void setup() {
 // -----------------------------------------------------------------------------
 
 void loop() {
+  tiempo = millis();
+  delta_t = tiempo - tiempo0;
+  tiempo0 = tiempo;
   switch (curr_state) {
   case STANDBY:
     Serial.print("STANDBY   ");
