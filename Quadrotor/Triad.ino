@@ -3,17 +3,17 @@ unsigned long t_0 = 0;
 float *get_ypr_triad(float Acc_raw_val[]) {
   // Magnetic field components in the inertial system reference uT
   // Madrid
-  //  float Mag_x_I = 25.6547;
-  //  float Mag_y_I=-0.1469 ;
-  //  float Mag_z_I=36.8374;
+    float Mag_x_I = 25.6547;
+    float Mag_y_I=-0.1469 ;
+    float Mag_z_I=36.8374;
   // Almeria
 //  float Mag_x_I = 27.4347;
 //  float Mag_y_I = -0.0751;
 //  float Mag_z_I = 33.9364;
   // Paris, Palaiseau
-  float Mag_x_I = 20.9587;
-  float Mag_y_I = 0.3459;
-  float Mag_z_I = 43.3234;
+//  float Mag_x_I = 20.9587;
+//  float Mag_y_I = 0.3459;
+//  float Mag_z_I = 43.3234;
   float Mag_mod_I = sqrt(pow(Mag_x_I, 2) + pow(Mag_y_I, 2) + pow(Mag_z_I, 2));
   // Gravity components in the inertial system reference m/s2
   float Acc_x_I = 0;
@@ -195,8 +195,9 @@ float *filter(float Acc_raw_val[], float yawpitchroll_triad[],
                           pow(Acc_raw_val[5], 2));
   float dinamic_coef = 1 / (1 + exp(-(pqr_module - rotation_treshold / 2)));
 
-  yawpitchroll[0] = (1 - dinamic_coef) * yawpitchroll_triad[0] +
-                    dinamic_coef * yawpitchroll_int[0];
+  //yawpitchroll[0] = (1 - dinamic_coef) * yawpitchroll_triad[0] +
+  //                  dinamic_coef * yawpitchroll_int[0];
+  yawpitchroll[0]=yawpitchroll_int[0];
   yawpitchroll[1] = (1 - dinamic_coef) * yawpitchroll_triad[1] +
                     dinamic_coef * yawpitchroll_int[1];
   yawpitchroll[2] = (1 - dinamic_coef) * yawpitchroll_triad[2] +
