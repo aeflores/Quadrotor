@@ -24,8 +24,7 @@ void Radio::radiosend(float datos[]) {
   radio.startListening();
 }
 
-int *Radio::radiolisten() {
-  static int datos[5];
+void Radio::radiolisten(int (&datos)[5]) {
   // RECEPCION DE DATOS
   // Empezamos a escuchar por el canal
   //radio.startListening();
@@ -42,5 +41,4 @@ int *Radio::radiolisten() {
     radio.read(datos, sizeof(datos));
   }
   //radio.stopListening();
-  return datos;
 }

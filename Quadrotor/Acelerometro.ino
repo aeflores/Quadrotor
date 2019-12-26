@@ -180,8 +180,7 @@ void Acelerometro::gyroscope_cal() {
   }
 }
 
-float *Acelerometro::get_raw_val() {
-  static float Acc_val[9];
+void Acelerometro::get_raw_val(float (&Acc_val)[9]) {
   // Read the sensor
   IMU.readSensor();
   // Get Acceleration
@@ -205,7 +204,6 @@ float *Acelerometro::get_raw_val() {
   Acc_val[6] = Mag_x;
   Acc_val[7] = Mag_y;
   Acc_val[8] = Mag_z;
-  return Acc_val;
   //  Serial.print("Temperature in C: ");
   //  Serial.println(IMU.getTemperature_C(),6);
   //  Serial.println();

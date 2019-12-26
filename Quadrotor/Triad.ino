@@ -1,6 +1,5 @@
-unsigned long t_0 = 0;
 
-float *get_ypr_triad(float Acc_raw_val[]) {
+void get_ypr_triad(float Acc_raw_val[],float (&yawpitchroll)[3]) {
   // Magnetic field components in the inertial system reference uT
   // Madrid
     float Mag_x_I = 25.6547;
@@ -120,19 +119,12 @@ float *get_ypr_triad(float Acc_raw_val[]) {
   R[2][1] = A[2][0] * B[1][0] + A[2][1] * B[1][1] + A[2][2] * B[1][2];
   R[2][2] = A[2][0] * B[2][0] + A[2][1] * B[2][1] + A[2][2] * B[2][2];
 
-  static float yawpitchroll[3];
   yawpitchroll[0] = atan2(R[0][1], R[0][0]);
   yawpitchroll[1] = atan2(-R[0][2], sqrt(pow(R[1][2], 2) + pow(R[2][2], 2)));
   yawpitchroll[2] = atan2(R[1][2], R[2][2]);
-  return yawpitchroll;
 }
 
-float *Integrator(float Acc_raw_val[], float yawpitchroll[]) {
-  unsigned long t_1 = millis();
-  static float yawpitchroll_integrator[3];
-  double delta_t;
-  delta_t = (t_1 - t_0) / 1000.;
-  // Serial.println(delta_t,6);
+void integrator(float Acc_raw_val[], float yawpitchroll[],float delta_t,float (&yawpitchroll_integrator)[3]) {
 
   float p = Acc_raw_val[3]; // gyro_x
   float q = Acc_raw_val[4]; // gyro_y
@@ -183,13 +175,10 @@ float *Integrator(float Acc_raw_val[], float yawpitchroll[]) {
   yawpitchroll_integrator[0] = yaw_angle;
   yawpitchroll_integrator[1] = pitch_angle;
   yawpitchroll_integrator[2] = roll_angle;
-  t_0 = t_1;
-  return yawpitchroll_integrator;
 }
 
-float *filter(float Acc_raw_val[], float yawpitchroll_triad[],
-              float yawpitchroll_int[]) {
-  static float yawpitchroll[3];
+void filter(float Acc_raw_val[], float yawpitchroll_triad[],
+              float yawpitchroll_int[],float (&yawpitchroll)[3]) {
   float rotation_treshold = 10; // rad/s;
   float pqr_module = sqrt(pow(Acc_raw_val[3], 2) + pow(Acc_raw_val[4], 2) +
                           pow(Acc_raw_val[5], 2));
@@ -207,5 +196,4 @@ float *filter(float Acc_raw_val[], float yawpitchroll_triad[],
   //  yawpitchroll[1]=0.5*yawpitchroll_triad[1]+0.5*yawpitchroll_int[1];
   //  yawpitchroll[2]=0.5*yawpitchroll_triad[2]+0.5*yawpitchroll_int[2];
 
-  return yawpitchroll;
 }

@@ -16,7 +16,7 @@ class Acelerometro {
     void initialize();
     void default_cal();
     void settings();
-    float *get_raw_val();
+    void get_raw_val(float (&Acc_val)[9]);
 };
 
 #endif

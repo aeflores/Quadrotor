@@ -17,22 +17,22 @@ Distancia Dist_sensor;
 
 
 // Global variables
-float *Acc_raw_val; // Raw IMU measurements accelerometer, magnetometer and gyroscope
-float *yawpitchroll_int; // Yaw pitch roll angles from integrator
-float *yawpitchroll_triad; // Yaw pitch roll angles from Triad algorithm
-float *yawpitchroll; // Filtered yaw pitch roll angles
-int *control; // Control telecomands
+float Acc_raw_val[9]; // Raw IMU measurements accelerometer, magnetometer and gyroscope
+float yawpitchroll_int[3]; // Yaw pitch roll angles from integrator
+float yawpitchroll_triad[3]; // Yaw pitch roll angles from Triad algorithm
+float yawpitchroll[3]; // Filtered yaw pitch roll angles
+int control[5]; // Control telecomands
 float ref_pitch, ref_roll, ref_yaw_rate, ref_altitude_rate;
 Signal Yaw(0.98,0.05);
 Signal Height(0.1, 0.5);
-
+int first_iteration = 0;
+unsigned long tiempo, tiempo0;
+int delta_t;
 
 
 // Constants
 float radtodeg = 180 / acos(-1); // Radtodeg conversion
-int first_iteration = 0;
-unsigned long tiempo, tiempo0;
-int delta_t;
+
 
 
 
@@ -64,19 +64,19 @@ state next_state() {
 void read_sensors() {
   // Lectura de los sensores
   // Lectura de los valores raw de la IMU 9 DOF
-  Acc_raw_val = acelerometro.get_raw_val();
+  acelerometro.get_raw_val(Acc_raw_val);
   // Determinacion de los angulos de Euler utilizando el algoritmo TRIAD
-  yawpitchroll_triad = get_ypr_triad(Acc_raw_val);
+  get_ypr_triad(Acc_raw_val,yawpitchroll_triad);
 
   // Determinación de los angulos de Euler utilizando el integrador
   if (first_iteration <= 20){
-    yawpitchroll_int = Integrator(Acc_raw_val, yawpitchroll_triad);
+    integrator(Acc_raw_val, yawpitchroll_triad,delta_t / 1000.0, yawpitchroll_int);
     first_iteration++;
   } else {
-    yawpitchroll_int = Integrator(Acc_raw_val, yawpitchroll_int);
+    integrator(Acc_raw_val, yawpitchroll_int, delta_t / 1000.0, yawpitchroll_int);
   }
   //Aplicacion del filtro que combina ambas medidas
-  yawpitchroll = filter(Acc_raw_val, yawpitchroll_triad, yawpitchroll_int);
+  filter(Acc_raw_val, yawpitchroll_triad, yawpitchroll_int, yawpitchroll);
   Yaw.update(yawpitchroll[0]*radtodeg, delta_t);
   Height.update(Dist_sensor.update_distance(),delta_t);
   // Lectura del dato de altura  
@@ -174,7 +174,7 @@ void loop() {
   switch (curr_state) {
   case STANDBY:
     Serial.print("STANDBY   ");
-    control = RadioCOM.radiolisten();
+    RadioCOM.radiolisten(control);
     read_sensors();
     RadioCOM.radiosend(yawpitchroll);
     curr_state = next_state();
@@ -182,7 +182,7 @@ void loop() {
 
   case CALIBRATION:
     Serial.print("CALIBRATION   ");
-    control = RadioCOM.radiolisten();
+    RadioCOM.radiolisten(control);
     read_sensors();
     RadioCOM.radiosend(yawpitchroll);
     // acelerometro.acelerometro_cal();
@@ -193,14 +193,14 @@ void loop() {
 
   case FLYMODE:
     Serial.print("FLYMODE   ");
-    control = RadioCOM.radiolisten();
+    RadioCOM.radiolisten(control);
     read_sensors();
     RadioCOM.radiosend(yawpitchroll);
     curr_state = next_state();
     break;
   case ABORT:
     Serial.print("ABORT  ");
-    control = RadioCOM.radiolisten();
+    RadioCOM.radiolisten(control);
     read_sensors();
     RadioCOM.radiosend(yawpitchroll);
     curr_state = next_state();
