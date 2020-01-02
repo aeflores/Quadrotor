@@ -4,19 +4,32 @@
 #define ENGINE_CONTROL_H_
 
 #include <Servo.h> 
+#include "Triad.h"
 
 const int MIN_SPEED=1000;
 const int MAX_SPEED=2000;
 
+struct ControlReference
+{
+    float pitch, roll, yaw_rate, altitude_rate;
+};
+
 class EngineControl{
 private:
     const short engine_port[4]={3,9,5,6};
-    int engine_speed[4]={MIN_SPEED,MIN_SPEED,MIN_SPEED,MIN_SPEED};
     Servo engine[4];
+
+    void computeReference(const int control[5]);
+    int altitudeRate2Power(float altitude_rate);
 public:
+    int power;
+    float error_pitch, error_roll;
+    int engine_speed[4]={MIN_SPEED,MIN_SPEED,MIN_SPEED,MIN_SPEED};
+    ControlReference reference;
     void init();
     void updateEngines();
-    void testControl(int control[5]);
+    void testControl(const int control[5]);
+    void proportionalControl(const int control[5],const Attitude &yawpitchroll);
     void stop();
 
 };

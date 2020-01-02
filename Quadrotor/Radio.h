@@ -1,10 +1,13 @@
+
+
+#ifndef RADIO_H_
+#define RADIO_H_
+
 #include <RF24.h>
 #include <RF24_config.h>
 #include <SPI.h>
 #include <nRF24L01.h>
-
-#ifndef RADIO_H_
-#define RADIO_H_
+#include "Triad.h"
 
 // Declaremos los pines CE y el CSN
 #define CE_PIN 7
@@ -20,7 +23,7 @@ private:
 public:
   Radio() : radio(CE_PIN, CSN_PIN){};
   void initialize();
-  void radiosend(float datos[]);
+  void radiosend(const Attitude &datos);
   void radiolisten(int (&datos)[5]);
 };
 

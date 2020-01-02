@@ -1,5 +1,5 @@
 
-void get_ypr_triad(float Acc_raw_val[],float (&yawpitchroll)[3]) {
+void get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll) {
   // Magnetic field components in the inertial system reference uT
   // Madrid
     float Mag_x_I = 25.6547;
@@ -119,12 +119,12 @@ void get_ypr_triad(float Acc_raw_val[],float (&yawpitchroll)[3]) {
   R[2][1] = A[2][0] * B[1][0] + A[2][1] * B[1][1] + A[2][2] * B[1][2];
   R[2][2] = A[2][0] * B[2][0] + A[2][1] * B[2][1] + A[2][2] * B[2][2];
 
-  yawpitchroll[0] = atan2(R[0][1], R[0][0]);
-  yawpitchroll[1] = atan2(-R[0][2], sqrt(pow(R[1][2], 2) + pow(R[2][2], 2)));
-  yawpitchroll[2] = atan2(R[1][2], R[2][2]);
+  yawpitchroll.yaw = atan2(R[0][1], R[0][0]);
+  yawpitchroll.pitch = atan2(-R[0][2], sqrt(pow(R[1][2], 2) + pow(R[2][2], 2)));
+  yawpitchroll.roll = atan2(R[1][2], R[2][2]);
 }
 
-void integrator(float Acc_raw_val[], float yawpitchroll[],float delta_t,float (&yawpitchroll_integrator)[3]) {
+void integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float delta_t, Attitude &yawpitchroll_integrator) {
 
   float p = Acc_raw_val[3]; // gyro_x
   float q = Acc_raw_val[4]; // gyro_y
@@ -136,9 +136,9 @@ void integrator(float Acc_raw_val[], float yawpitchroll[],float delta_t,float (&
   //  Serial.print("   ");
   //  Serial.println(r,6);
 
-  float yaw_angle = yawpitchroll[0];
-  float pitch_angle = yawpitchroll[1];
-  float roll_angle = yawpitchroll[2];
+  float yaw_angle = yawpitchroll.yaw;
+  float pitch_angle = yawpitchroll.pitch;
+  float roll_angle = yawpitchroll.roll;
 
   //  Serial.print(yaw_angle,6);
   //  Serial.print("   ");
@@ -172,13 +172,13 @@ void integrator(float Acc_raw_val[], float yawpitchroll[],float delta_t,float (&
   pitch_angle = pitch_angle + delta_angle;
   roll_angle = roll_angle + delta_roll;
 
-  yawpitchroll_integrator[0] = yaw_angle;
-  yawpitchroll_integrator[1] = pitch_angle;
-  yawpitchroll_integrator[2] = roll_angle;
+  yawpitchroll_integrator.yaw = yaw_angle;
+  yawpitchroll_integrator.pitch = pitch_angle;
+  yawpitchroll_integrator.roll = roll_angle;
 }
 
-void filter(float Acc_raw_val[], float yawpitchroll_triad[],
-              float yawpitchroll_int[],float (&yawpitchroll)[3]) {
+void filter(float Acc_raw_val[], const Attitude yawpitchroll_triad,
+              const Attitude &yawpitchroll_int, Attitude &yawpitchroll) {
   float rotation_treshold = 10; // rad/s;
   float pqr_module = sqrt(pow(Acc_raw_val[3], 2) + pow(Acc_raw_val[4], 2) +
                           pow(Acc_raw_val[5], 2));
@@ -186,11 +186,11 @@ void filter(float Acc_raw_val[], float yawpitchroll_triad[],
 
   //yawpitchroll[0] = (1 - dinamic_coef) * yawpitchroll_triad[0] +
   //                  dinamic_coef * yawpitchroll_int[0];
-  yawpitchroll[0]=yawpitchroll_int[0];
-  yawpitchroll[1] = (1 - dinamic_coef) * yawpitchroll_triad[1] +
-                    dinamic_coef * yawpitchroll_int[1];
-  yawpitchroll[2] = (1 - dinamic_coef) * yawpitchroll_triad[2] +
-                    dinamic_coef * yawpitchroll_int[2];
+  yawpitchroll.yaw=yawpitchroll_int.yaw;
+  yawpitchroll.pitch = (1 - dinamic_coef) * yawpitchroll_triad.pitch +
+                    dinamic_coef * yawpitchroll_int.pitch;
+  yawpitchroll.roll = (1 - dinamic_coef) * yawpitchroll_triad.roll +
+                    dinamic_coef * yawpitchroll_int.roll;
 
   //  yawpitchroll[0]=0.5*yawpitchroll_triad[0]+0.5*yawpitchroll_int[0];
   //  yawpitchroll[1]=0.5*yawpitchroll_triad[1]+0.5*yawpitchroll_int[1];

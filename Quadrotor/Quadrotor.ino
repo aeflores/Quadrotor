@@ -10,6 +10,7 @@
 #include "Radio.h"
 #include "Distancia.h"
 #include "Signal.h"
+#include "Triad.h"
 
 // Defining objects
 Acelerometro acelerometro;
@@ -19,11 +20,10 @@ Distancia Dist_sensor;
 
 // Global variables
 float Acc_raw_val[9]; // Raw IMU measurements accelerometer, magnetometer and gyroscope
-float yawpitchroll_int[3]; // Yaw pitch roll angles from integrator
-float yawpitchroll_triad[3]; // Yaw pitch roll angles from Triad algorithm
-float yawpitchroll[3]; // Filtered yaw pitch roll angles
+Attitude yawpitchroll_int; // Yaw pitch roll angles from integrator
+Attitude yawpitchroll_triad; // Yaw pitch roll angles from Triad algorithm
+Attitude yawpitchroll; // Filtered yaw pitch roll angles
 int control[5]; // Control telecomands
-float ref_pitch, ref_roll, ref_yaw_rate, ref_altitude_rate;
 Signal Yaw(0.90,0.75);
 //Signal Height(0.1, 0.5);
 int first_iteration = 0;
@@ -78,7 +78,7 @@ void read_sensors() {
   }
   //Aplicacion del filtro que combina ambas medidas
   filter(Acc_raw_val, yawpitchroll_triad, yawpitchroll_int, yawpitchroll);
-  Yaw.update(yawpitchroll[0]*radtodeg, delta_t);
+  Yaw.update(yawpitchroll.yaw*radtodeg, delta_t);
   //Height.update(Dist_sensor.update_distance(),delta_t);
   // Lectura del dato de altura  
   //Height[0]=Dist_sensor.update_distance();
@@ -90,25 +90,13 @@ void read_sensors() {
 
 }
 
-
-
-void Reference(){
-  // Calculating the pitch and roll references from the joystick data
-  ref_pitch = (-float(control[3])+515.)/1024.*30.;
-  ref_roll = (-float(control[2])+502.)/1024.*30.;
-  // Calculating the height rate and the roll variation rate references from data
-  ref_altitude_rate = (-float(control[1])+518.)/1024.*20.; // º/s
-  ref_yaw_rate = (-float(control[0])+518.)/1024.*10.; // cm/s
-
-}
-
 void Print_data() {      
 //    Serial.print("Yaw = ");
 //    Serial.print(yawpitchroll[0]*radtodeg);
-//    Serial.print("   Pitch = ");
-//    Serial.print(yawpitchroll[1]*radtodeg);
-//    Serial.print("   Roll = ");
-//    Serial.print(yawpitchroll[2]*radtodeg);
+    Serial.print("   Pitch = ");
+    Serial.print(yawpitchroll.pitch*radtodeg);
+    Serial.print("   Roll = ");
+    Serial.print(yawpitchroll.roll*radtodeg);
 //    Serial.print("JSRX= ");
 //    Serial.print(control[0]);
 //    Serial.print("  JSRY= ");
@@ -122,13 +110,19 @@ void Print_data() {
 //  Serial.print("  Delta Time  ");
 //  Serial.println(millis());
   Serial.print("  Ref pitch=  ");
-  Serial.print(ref_pitch);
+  Serial.print(engines.reference.pitch);
   Serial.print("  Ref roll=  ");
-  Serial.print(ref_roll);
-  Serial.print("  Ref vertical speed=  ");
-  Serial.print(ref_altitude_rate);
-  Serial.print("  Ref yaw rate=  ");
-  Serial.print(ref_yaw_rate);
+  Serial.print(engines.reference.roll);
+  //Serial.print("  Ref vertical speed=  ");
+  //Serial.print(engines.reference.altitude_rate);
+  //Serial.print("  Ref yaw rate=  ");
+  //Serial.print(engines.reference.yaw_rate);
+  Serial.print(" Error pitch");
+  Serial.print(engines.error_pitch);
+  Serial.print(" Error roll");
+  Serial.print(engines.error_roll);
+  Serial.print(" Base power");
+  Serial.print(engines.power);
 //  Serial.print("  Yaw raw=  ");
 //  Serial.print(Yaw.raw);
 //  Serial.print("  Yaw=  ");
@@ -187,7 +181,7 @@ void loop() {
     Serial.print("FLYMODE   ");
     RadioCOM.radiolisten(control);
     read_sensors();
-    engines.testControl(control);
+    engines.proportionalControl(control, yawpitchroll);
     RadioCOM.radiosend(yawpitchroll);
     curr_state = next_state();
     break;
@@ -200,7 +194,6 @@ void loop() {
     curr_state = next_state();
     break;
   }
-  Reference();
   Print_data();
   engines.updateEngines();
 

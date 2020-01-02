@@ -13,12 +13,12 @@ void Radio::initialize() {
   radio.startListening();
 }
 
-void Radio::radiosend(float datos[]) {
+void Radio::radiosend(const Attitude& datos) {
   // EMISION DE DATOS
   float data[3];
-  data[0] = datos[0] * radtodeg;
-  data[1] = datos[1] * radtodeg;
-  data[2] = datos[2] * radtodeg;
+  data[0] = datos.yaw * radtodeg;
+  data[1] = datos.pitch * radtodeg;
+  data[2] = datos.roll * radtodeg;
   radio.stopListening();
   radio.write(data, sizeof(data));
   radio.startListening();
