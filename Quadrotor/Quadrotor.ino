@@ -6,6 +6,7 @@
 
 // Including libraries
 #include "Acelerometro.h"
+#include "EngineControl.h"
 #include "Radio.h"
 #include "Distancia.h"
 #include "Signal.h"
@@ -28,7 +29,7 @@ Signal Yaw(0.90,0.75);
 int first_iteration = 0;
 unsigned long tiempo, tiempo0;
 int delta_t;
-
+EngineControl engines;
 
 // Constants
 float radtodeg = 180 / acos(-1); // Radtodeg conversion
@@ -148,6 +149,7 @@ void setup() {
   acelerometro.default_cal();
   acelerometro.settings();
   RadioCOM.initialize();
+  engines.init();
   //Dist_sensor.initialize();
 }
 
@@ -164,6 +166,7 @@ void loop() {
     Serial.print("STANDBY   ");
     RadioCOM.radiolisten(control);
     read_sensors();
+    engines.stop();
     RadioCOM.radiosend(yawpitchroll);
     curr_state = next_state();
     break;
@@ -172,6 +175,7 @@ void loop() {
     Serial.print("CALIBRATION   ");
     RadioCOM.radiolisten(control);
     read_sensors();
+    engines.stop();
     RadioCOM.radiosend(yawpitchroll);
     // acelerometro.acelerometro_cal();
     // acelerometro.magnetometro_cal();
@@ -183,6 +187,7 @@ void loop() {
     Serial.print("FLYMODE   ");
     RadioCOM.radiolisten(control);
     read_sensors();
+    engines.testControl(control);
     RadioCOM.radiosend(yawpitchroll);
     curr_state = next_state();
     break;
@@ -190,11 +195,13 @@ void loop() {
     Serial.print("ABORT  ");
     RadioCOM.radiolisten(control);
     read_sensors();
+    engines.stop();
     RadioCOM.radiosend(yawpitchroll);
     curr_state = next_state();
     break;
   }
   Reference();
   Print_data();
+  engines.updateEngines();
 
 }
