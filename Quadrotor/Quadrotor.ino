@@ -129,6 +129,14 @@ void Print_data() {
 //  Serial.print(Yaw.value);
 //  Serial.print("  Yaw rate=  ");
 //  Serial.print(Yaw.derivative);
+  Serial.print(" Engine 1: ");
+  Serial.print(engines.engine_speed[0]);
+  Serial.print(" Engine 2: ");
+  Serial.print(engines.engine_speed[1]);
+  Serial.print(" Engine 3: ");
+  Serial.print(engines.engine_speed[2]);
+  Serial.print(" Engine 4 :");
+  Serial.print(engines.engine_speed[3]);
   Serial.println(" ");
 }
 

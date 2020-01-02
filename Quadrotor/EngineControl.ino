@@ -36,18 +36,35 @@ void EngineControl::computeReference(const int control[5]){
 }
 
 int EngineControl::altitudeRate2Power(float altitude_rate){
-  return altitude_rate * 10 + 1000;
+  int power= altitude_rate * alt2powerCoeff + alt2powerBase;
+  if (power > alt2powerBase + powerRange)
+    return alt2powerBase + powerRange;
+  if (power < alt2powerBase - powerRange)
+    return alt2powerBase - powerRange;
+  return power;
+}
+
+int EngineControl::error2Correction(float error){
+  float unbalance=error * error2CorrectionCoeff;
+  if (unbalance > unbalanceRange)
+    return unbalanceRange;
+  if (unbalance < -unbalanceRange)
+    return -unbalanceRange;
+  return unbalance;
 }
 
 void EngineControl::proportionalControl(const int control[5], const Attitude &yawpitchroll){
     computeReference(control);
-    error_pitch=yawpitchroll.pitch*radtodeg - reference.pitch;
-    error_roll=yawpitchroll.roll*radtodeg - reference.roll;
+    error_pitch= reference.pitch - (yawpitchroll.pitch*radtodeg);
+    error_roll= reference.roll - (yawpitchroll.roll*radtodeg);
+    int unbalance_pitch=error2Correction(error_pitch);
+    int unbalance_roll=error2Correction(error_roll);
     power= altitudeRate2Power(reference.altitude_rate);
-    engine_speed[0]= power + error_pitch + error_roll;
-    engine_speed[1]= power + error_pitch + error_roll;
-    engine_speed[2]= power + error_pitch + error_roll;
-    engine_speed[3]= power + error_pitch + error_roll;
+
+    engine_speed[0]= power - unbalance_pitch - unbalance_roll;
+    engine_speed[1]= power - unbalance_pitch + unbalance_roll;
+    engine_speed[2]= power + unbalance_pitch - unbalance_roll;
+    engine_speed[3]= power + unbalance_pitch + unbalance_roll;
 }
 
 void EngineControl::stop(){

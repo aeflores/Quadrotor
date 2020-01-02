@@ -18,9 +18,15 @@ class EngineControl{
 private:
     const short engine_port[4]={3,9,5,6};
     Servo engine[4];
+    float alt2powerCoeff=10;
+    float alt2powerBase=1200;
+    float powerRange=300;
+    float error2CorrectionCoeff=10;
+    float unbalanceRange=100;
 
     void computeReference(const int control[5]);
     int altitudeRate2Power(float altitude_rate);
+    int error2Correction(float error);
 public:
     int power;
     float error_pitch, error_roll;
