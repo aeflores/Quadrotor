@@ -23,8 +23,8 @@ float yawpitchroll_triad[3]; // Yaw pitch roll angles from Triad algorithm
 float yawpitchroll[3]; // Filtered yaw pitch roll angles
 int control[5]; // Control telecomands
 float ref_pitch, ref_roll, ref_yaw_rate, ref_altitude_rate;
-Signal Yaw(0.98,0.05);
-Signal Height(0.1, 0.5);
+Signal Yaw(0.90,0.75);
+//Signal Height(0.1, 0.5);
 int first_iteration = 0;
 unsigned long tiempo, tiempo0;
 int delta_t;
@@ -70,7 +70,7 @@ void read_sensors() {
 
   // Determinación de los angulos de Euler utilizando el integrador
   if (first_iteration <= 20){
-    integrator(Acc_raw_val, yawpitchroll_triad,delta_t / 1000.0, yawpitchroll_int);
+    integrator(Acc_raw_val, yawpitchroll_triad, delta_t / 1000.0, yawpitchroll_int);
     first_iteration++;
   } else {
     integrator(Acc_raw_val, yawpitchroll_int, delta_t / 1000.0, yawpitchroll_int);
@@ -78,13 +78,12 @@ void read_sensors() {
   //Aplicacion del filtro que combina ambas medidas
   filter(Acc_raw_val, yawpitchroll_triad, yawpitchroll_int, yawpitchroll);
   Yaw.update(yawpitchroll[0]*radtodeg, delta_t);
-  Height.update(Dist_sensor.update_distance(),delta_t);
+  //Height.update(Dist_sensor.update_distance(),delta_t);
   // Lectura del dato de altura  
   //Height[0]=Dist_sensor.update_distance();
   // Transformamos la altura medida en altura con respecto al suelo
   //Height[0]=Height[0]*cos(yawpitchroll[1])*cos(yawpitchroll[2]);
-  //Filtering signals
-  //Height[1]=LPF(Height[0],Height[3], Height[1]);  
+
 
 
 
@@ -102,50 +101,39 @@ void Reference(){
 
 }
 
-void Print_data() {
-    Serial.print("Yaw triad= ");
-    Serial.print(yawpitchroll_triad[0]*radtodeg);
-    Serial.print("   Pitch triad = ");
-    Serial.print(yawpitchroll_triad[1]*radtodeg);
-    Serial.print("   Roll triad = ");
-    Serial.print(yawpitchroll_triad[2]*radtodeg);
-    
-    Serial.print("Yaw = ");
-    Serial.print(yawpitchroll[0]*radtodeg);
-    Serial.print("   Pitch = ");
-    Serial.print(yawpitchroll[1]*radtodeg);
-    Serial.print("   Roll = ");
-    Serial.print(yawpitchroll[2]*radtodeg);
-//  Serial.print("JSRX= ");
-//  Serial.print(control[0]);
-//  Serial.print("  JSRY= ");
-//  Serial.print(control[1]);
-//  Serial.print("  JSLX= ");
-//  Serial.print(control[2]);
-//  Serial.print("  JSLY= ");
-//  Serial.print(control[3]);
+void Print_data() {      
+//    Serial.print("Yaw = ");
+//    Serial.print(yawpitchroll[0]*radtodeg);
+//    Serial.print("   Pitch = ");
+//    Serial.print(yawpitchroll[1]*radtodeg);
+//    Serial.print("   Roll = ");
+//    Serial.print(yawpitchroll[2]*radtodeg);
+//    Serial.print("JSRX= ");
+//    Serial.print(control[0]);
+//    Serial.print("  JSRY= ");
+//    Serial.print(control[1]);
+//    Serial.print("  JSLX= ");
+//    Serial.print(control[2]);
+//    Serial.print("  JSLY= ");
+//    Serial.print(control[3]);
 //  Serial.print("  state= ");
 //  Serial.print(control[4]);
 //  Serial.print("  Delta Time  ");
 //  Serial.println(millis());
-//  Serial.print("  Ref pitch=  ");
-//  Serial.print(ref_pitch);
-//  Serial.print("  Ref roll=  ");
-//  Serial.print(ref_roll);
+  Serial.print("  Ref pitch=  ");
+  Serial.print(ref_pitch);
+  Serial.print("  Ref roll=  ");
+  Serial.print(ref_roll);
+  Serial.print("  Ref vertical speed=  ");
+  Serial.print(ref_altitude_rate);
+  Serial.print("  Ref yaw rate=  ");
+  Serial.print(ref_yaw_rate);
 //  Serial.print("  Yaw raw=  ");
 //  Serial.print(Yaw.raw);
 //  Serial.print("  Yaw=  ");
 //  Serial.print(Yaw.value);
 //  Serial.print("  Yaw rate=  ");
 //  Serial.print(Yaw.derivative);
-//  Serial.print("  Height =  ");
-//  Serial.print(Height[1]);
-//  Serial.print("  Height raw = ");
-//  Serial.print(Height[0]);
-//  Serial.print(" Height rate =  ");
-//  Serial.print(Height_rate[0]);
-//  Serial.print(" Height rate =  ");
-//  Serial.print(Height_rate[1]);
   Serial.println(" ");
 }
 
@@ -160,7 +148,7 @@ void setup() {
   acelerometro.default_cal();
   acelerometro.settings();
   RadioCOM.initialize();
-  Dist_sensor.initialize();
+  //Dist_sensor.initialize();
 }
 
 // -----------------------------------------------------------------------------

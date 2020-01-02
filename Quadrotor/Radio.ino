@@ -10,17 +10,17 @@ void Radio::initialize() {
   radio.openWritingPipe(pipe_send);
   // radio.openReadingPipe(1,direccion);
   radio.openReadingPipe(1, pipe_read);
-  // radio.startListening();
+  radio.startListening();
 }
 
 void Radio::radiosend(float datos[]) {
   // EMISION DE DATOS
   float data[3];
-  datos[0] = datos[0] * radtodeg;
-  datos[1] = datos[1] * radtodeg;
-  datos[2] = datos[2] * radtodeg;
+  data[0] = datos[0] * radtodeg;
+  data[1] = datos[1] * radtodeg;
+  data[2] = datos[2] * radtodeg;
   radio.stopListening();
-  radio.write(datos, sizeof(data));
+  radio.write(data, sizeof(data));
   radio.startListening();
 }
 
