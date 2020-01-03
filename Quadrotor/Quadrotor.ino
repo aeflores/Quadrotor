@@ -210,7 +210,7 @@ void loop() {
     break;
   }
   RadioCOM.radiosend(yawpitchroll, engines, delta_t);
-  Print_data();
+  //Print_data();
   engines.updateEngines();
 
 }

@@ -187,13 +187,13 @@ void filter(float Acc_raw_val[], const Attitude yawpitchroll_triad,
   //yawpitchroll[0] = (1 - dinamic_coef) * yawpitchroll_triad[0] +
   //                  dinamic_coef * yawpitchroll_int[0];
   yawpitchroll.yaw=yawpitchroll_int.yaw;
-  yawpitchroll.pitch = (1 - dinamic_coef) * yawpitchroll_triad.pitch +
-                    dinamic_coef * yawpitchroll_int.pitch;
-  yawpitchroll.roll = (1 - dinamic_coef) * yawpitchroll_triad.roll +
-                    dinamic_coef * yawpitchroll_int.roll;
+  //yawpitchroll.pitch = (1 - dinamic_coef) * yawpitchroll_triad.pitch +
+                    //dinamic_coef * yawpitchroll_int.pitch;
+  //yawpitchroll.roll = (1 - dinamic_coef) * yawpitchroll_triad.roll +
+                    //dinamic_coef * yawpitchroll_int.roll;
 
-  //  yawpitchroll[0]=0.5*yawpitchroll_triad[0]+0.5*yawpitchroll_int[0];
-  //  yawpitchroll[1]=0.5*yawpitchroll_triad[1]+0.5*yawpitchroll_int[1];
-  //  yawpitchroll[2]=0.5*yawpitchroll_triad[2]+0.5*yawpitchroll_int[2];
+  //  yawpitchroll.yaw=0.95*yawpitchroll_triad[0]+0.05*yawpitchroll_int[0];
+    yawpitchroll.pitch=0.9*yawpitchroll_triad.pitch+0.1*yawpitchroll_int.pitch;
+    yawpitchroll.roll=0.9*yawpitchroll_triad.roll+0.1*yawpitchroll_int.roll;
 
 }
