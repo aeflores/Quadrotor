@@ -1,5 +1,10 @@
 
 
+
+
+#ifndef TRANSMIT_DATA_H_
+#define TRANSMIT_DATA_H_
+
 struct TransmitData
 {
     float yawpitchroll[3];
@@ -30,3 +35,12 @@ struct TransmitData
         Serial.print(delta_t);
     }
 };
+
+struct ControllerConfiguration{
+    float error2CorrectionCoeff=10;
+    float upperUnbalanceRange=100;
+    float lowerUnbalanceRange=25;
+};
+
+
+#endif

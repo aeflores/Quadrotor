@@ -5,6 +5,7 @@
 
 #include <Servo.h> 
 #include "Triad.h"
+#include "TransmitData.h"
 
 const int MIN_SPEED=1000;
 const int MAX_SPEED=2000;
@@ -22,14 +23,14 @@ private:
     float alt2powerBase=1000;
     float powerRange=1000;
     //float powerRange=300;
-    float error2CorrectionCoeff=10;
-    float upperUnbalanceRange=100;
-    float lowerUnbalanceRange=25;
 
     void computeReference(const int control[5]);
     int altitudeRate2Power(float altitude_rate);
     int error2Correction(float error);
 public:
+    float error2CorrectionCoeff=10;
+    float upperUnbalanceRange=100;
+    float lowerUnbalanceRange=25;
     int power;
     float error_pitch, error_roll;
     int engine_speed[4]={MIN_SPEED,MIN_SPEED,MIN_SPEED,MIN_SPEED};
@@ -37,6 +38,7 @@ public:
     void init();
     void updateEngines();
     void testControl(const int control[5]);
+    void configure(ControllerConfiguration &conf);
     void proportionalControl(const int control[5],const Attitude &yawpitchroll);
     void stop();
 

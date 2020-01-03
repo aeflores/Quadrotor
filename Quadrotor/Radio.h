@@ -9,6 +9,7 @@
 #include <nRF24L01.h>
 #include "Triad.h"
 #include "EngineControl.h"
+#include "TransmitData.h"
 
 // Declaremos los pines CE y el CSN
 #define CE_PIN 7
@@ -26,6 +27,7 @@ public:
   void initialize();
   void radiosend(const Attitude &datos, const EngineControl &engines, int delta_t);
   void radiolisten(int (&datos)[5]);
+  void radiolisten(ControllerConfiguration& conf);
 };
 
 #endif /* RADIO_H */

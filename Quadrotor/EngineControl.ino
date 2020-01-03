@@ -25,6 +25,11 @@ void EngineControl::testControl(const int control[5]){
     }
 }
 
+void EngineControl::configure(ControllerConfiguration &conf){
+  upperUnbalanceRange=conf.upperUnbalanceRange;
+  lowerUnbalanceRange=conf.lowerUnbalanceRange;
+  error2CorrectionCoeff=conf.error2CorrectionCoeff;
+}
 
 void EngineControl::computeReference(const int control[5]){
     // Calculating the pitch and roll references from the joystick data

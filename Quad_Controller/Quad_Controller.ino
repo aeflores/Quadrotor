@@ -74,43 +74,53 @@ void setup() {
 }
 
 void loop() {
-    switch (curr_state) {
-    case STANDBY:
-      Serial.print("STANDBY   ");
-      datos_send[4] = 0;
-      curr_state = next_state();
-      break;
-
-    case CALIBRATION:
-      Serial.print("CALIBRATION   ");
-      datos_send[4] = 1;
-      curr_state = next_state();
-      break;
-
-    case FLYMODE:
-      Serial.print("FLYMODE   ");
-      datos_send[4] = 2;
-      curr_state = next_state();
-      break;
-    case ABORT:
-      Serial.print("ABORT   ");
-      datos_send[4] = 3;
-      curr_state = next_state();
-      break;
-  }
   // EMISION DE DATOS
   // cargamos los datos en la variable datos[]
   datos_send[0] = analogRead(A0);
   datos_send[1] = analogRead(A1);
   datos_send[2] = analogRead(A2);
   datos_send[3] = analogRead(A3);
-
   datos_send[1]= analogRead(A4);
+
+    switch (curr_state) {
+    case STANDBY:
+      Serial.print("STANDBY   ");
+      datos_send[4] = 0;
+      radio.write(datos_send, sizeof(datos_send));
+      break;
+    case CALIBRATION:
+    {
+      Serial.print("CALIBRATION   ");
+      datos_send[4] = 1;
+      radio.write(datos_send, sizeof(datos_send));
+      // send configuration
+      ControllerConfiguration conf;
+      conf.error2CorrectionCoeff=20;
+      conf.upperUnbalanceRange=150;
+      conf.lowerUnbalanceRange=25;
+      radio.write(&conf,sizeof(conf));
+      Serial.print("written conf: err2correct_coeff= ");
+      Serial.print(conf.error2CorrectionCoeff);
+      Serial.print(" upperRange= ");
+      Serial.print(conf.upperUnbalanceRange);
+      Serial.print(" lowerRange= ");
+      Serial.println(conf.lowerUnbalanceRange);
+      break;
+    }
+    case FLYMODE:
+      Serial.print("FLYMODE   ");
+      datos_send[4] = 2;
+      radio.write(datos_send, sizeof(datos_send));
+      break;
+    case ABORT:
+      Serial.print("ABORT   ");
+      datos_send[4] = 3;
+      radio.write(datos_send, sizeof(datos_send));
+      break;
+  }
+  curr_state = next_state();
   Serial.print("Power= ");
   Serial.print(datos_send[1]);
-  // enviamos los datos
-  radio.write(datos_send, sizeof(datos_send));
-
   // RECEPCION DE DATOS
   // Empezamos a escuchar por el canal
   radio.startListening();

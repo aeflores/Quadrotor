@@ -49,3 +49,20 @@ void Radio::radiolisten(int (&datos)[5]) {
   }
   //radio.stopListening();
 }
+
+void Radio::radiolisten(ControllerConfiguration &conf) {
+  // RECEPCION DE DATOS
+  // Empezamos a escuchar por el canal
+  unsigned long started_waiting_at = millis();
+  bool timeout = false;
+  while (!radio.available() && !timeout) { // Esperamos 200ms
+    if (millis() - started_waiting_at > 200)
+      timeout = true;
+  }
+  if (timeout) {
+    Serial.println("Error, No ha habido respuesta a tiempo");
+  } else {
+    // Leemos los datos y los guardamos en la variable datos[]
+    radio.read(&conf, sizeof(conf));
+  }
+}

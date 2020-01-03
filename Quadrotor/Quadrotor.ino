@@ -127,12 +127,19 @@ void Print_data() {
   //Serial.print(engines.reference.altitude_rate);
   //Serial.print("  Ref yaw rate=  ");
   //Serial.print(engines.reference.yaw_rate);
-  Serial.print(" Error pitch");
+  Serial.print(" Error_pitch");
   Serial.print(engines.error_pitch);
-  Serial.print(" Error roll");
+  Serial.print(" Error_roll");
   Serial.print(engines.error_roll);
   Serial.print(" Base power");
   Serial.print(engines.power);
+
+  Serial.print(" Control_Coeff= ");
+  Serial.print(engines.error2CorrectionCoeff);
+  Serial.print(" upper_range= ");
+  Serial.print(engines.upperUnbalanceRange);
+  Serial.print("lower_range= ");
+  Serial.print(engines.lowerUnbalanceRange);
 //  Serial.print("  Yaw raw=  ");
 //  Serial.print(Yaw.raw);
 //  Serial.print("  Yaw=  ");
@@ -175,33 +182,35 @@ void loop() {
   tiempo0 = tiempo;
   RadioCOM.radiolisten(control);
   read_sensors();
+  curr_state = next_state();
   switch (curr_state) {
   case STANDBY:
     Serial.print("STANDBY   ");
     engines.stop();
-    curr_state = next_state();
     break;
   case CALIBRATION:
+  {
     Serial.print("CALIBRATION   ");
     engines.stop();
+    ControllerConfiguration configuration;
+    RadioCOM.radiolisten(configuration);
+    engines.configure(configuration);
     // acelerometro.acelerometro_cal();
     // acelerometro.magnetometro_cal();
     // acelerometro.gyroscope_cal();
-    curr_state = next_state();
     break;
+  }
   case FLYMODE:
     Serial.print("FLYMODE   ");
     engines.proportionalControl(control, yawpitchroll);
-    curr_state = next_state();
     break;
   case ABORT:
     Serial.print("ABORT  ");
     engines.stop();
-    curr_state = next_state();
     break;
   }
   RadioCOM.radiosend(yawpitchroll, engines, delta_t);
-  //Print_data();
+  Print_data();
   engines.updateEngines();
 
 }
