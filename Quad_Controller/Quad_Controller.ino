@@ -106,8 +106,8 @@ void loop() {
   datos_send[3] = analogRead(A3);
 
   datos_send[1]= analogRead(A4);
-  Serial.print("Power:");
-  Serial.println(datos_send[1]);
+  Serial.print("Power= ");
+  Serial.print(datos_send[1]);
   // enviamos los datos
   radio.write(datos_send, sizeof(datos_send));
 

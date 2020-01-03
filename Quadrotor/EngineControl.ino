@@ -28,7 +28,7 @@ void EngineControl::testControl(const int control[5]){
 
 void EngineControl::computeReference(const int control[5]){
     // Calculating the pitch and roll references from the joystick data
-    reference.pitch = (-float(control[3])+515.)/1024.*30.;
+    reference.pitch = -(-float(control[3])+515.)/1024.*30.;
     reference.roll = (-float(control[2])+502.)/1024.*30.;
     // Calculating the height rate and the roll variation rate references from data
     //reference.altitude_rate = (-float(control[1])+518.)/1024.*20.; // º/s
@@ -47,10 +47,10 @@ int EngineControl::altitudeRate2Power(float altitude_rate){
 
 int EngineControl::error2Correction(float error){
   float unbalance=error * error2CorrectionCoeff;
-  if (unbalance > unbalanceRange)
-    return unbalanceRange;
-  if (unbalance < -unbalanceRange)
-    return -unbalanceRange;
+  if (unbalance > upperUnbalanceRange)
+    return upperUnbalanceRange;
+  if (unbalance < -lowerUnbalanceRange)
+    return -lowerUnbalanceRange;
   return unbalance;
 }
 

@@ -23,7 +23,8 @@ private:
     float powerRange=1000;
     //float powerRange=300;
     float error2CorrectionCoeff=10;
-    float unbalanceRange=100;
+    float upperUnbalanceRange=100;
+    float lowerUnbalanceRange=25;
 
     void computeReference(const int control[5]);
     int altitudeRate2Power(float altitude_rate);

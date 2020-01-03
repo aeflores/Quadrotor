@@ -14,7 +14,7 @@ void Radio::initialize() {
   radio.startListening();
 }
 
-void Radio::radiosend(const Attitude& datos, const EngineControl &engines) {
+void Radio::radiosend(const Attitude& datos, const EngineControl &engines, int delta_t) {
   // EMISION DE DATOS
   TransmitData data;
   data.yawpitchroll[0] = datos.yaw * radtodeg;
@@ -25,6 +25,7 @@ void Radio::radiosend(const Attitude& datos, const EngineControl &engines) {
   }
   data.errors[0] = engines.error_pitch;
   data.errors[1] = engines.error_roll;
+  data.delta_t=delta_t;
   radio.stopListening();
   radio.write(&data, sizeof(data));
   radio.startListening();

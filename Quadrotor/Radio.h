@@ -24,7 +24,7 @@ private:
 public:
   Radio() : radio(CE_PIN, CSN_PIN){};
   void initialize();
-  void radiosend(const Attitude &datos, const EngineControl &engines);
+  void radiosend(const Attitude &datos, const EngineControl &engines, int delta_t);
   void radiolisten(int (&datos)[5]);
 };
 
