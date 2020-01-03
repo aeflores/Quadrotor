@@ -31,7 +31,8 @@ void EngineControl::computeReference(const int control[5]){
     reference.pitch = (-float(control[3])+515.)/1024.*30.;
     reference.roll = (-float(control[2])+502.)/1024.*30.;
     // Calculating the height rate and the roll variation rate references from data
-    reference.altitude_rate = (-float(control[1])+518.)/1024.*20.; // º/s
+    //reference.altitude_rate = (-float(control[1])+518.)/1024.*20.; // º/s
+    reference.altitude_rate = control[1]; // for testing
     reference.yaw_rate = (-float(control[0])+518.)/1024.*10.; // cm/s
 }
 

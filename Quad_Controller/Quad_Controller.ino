@@ -8,6 +8,7 @@
 #include <RF24_config.h>
 #include <SPI.h>
 #include <nRF24L01.h>
+#include "TransmitData.h"
 
 // Declaremos los pines CE y el CSN
 #define CE_PIN 9
@@ -30,7 +31,7 @@ enum state { STANDBY = 0, CALIBRATION = 1, FLYMODE = 2, ABORT = 3 };
 state curr_state = STANDBY;
 
 // Vectores con los datos a enviar
-float datos_rec[3];
+TransmitData datos_rec;
 int datos_send[5];
 
 
@@ -104,6 +105,9 @@ void loop() {
   datos_send[2] = analogRead(A2);
   datos_send[3] = analogRead(A3);
 
+  datos_send[1]= analogRead(A4);
+  Serial.print("Power:");
+  Serial.println(datos_send[1]);
   // enviamos los datos
   radio.write(datos_send, sizeof(datos_send));
 
@@ -120,15 +124,11 @@ void loop() {
     Serial.println("Error, No ha habido respuesta a tiempo");
   } else {
     // Leemos los datos y los guardamos en la variable datos[]
-    radio.read(datos_rec, sizeof(datos_rec));
+    radio.read(&datos_rec, sizeof(datos_rec));
 
     // reportamos por el puerto serial los datos recibidos
-    Serial.print("Yaw = ");
-    Serial.print(datos_rec[0]);
-    Serial.print("   Pitch = ");
-    Serial.print(datos_rec[1]);
-    Serial.print("   Roll = ");
-    Serial.println(datos_rec[2]);
+    datos_rec.print(Serial);
+    Serial.println("");
   }
   radio.stopListening();
 }

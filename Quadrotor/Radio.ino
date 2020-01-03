@@ -1,5 +1,6 @@
 
 #include "Radio.h"
+#include "TransmitData.h"
 
 void Radio::initialize() {
   radio.begin();
@@ -13,14 +14,19 @@ void Radio::initialize() {
   radio.startListening();
 }
 
-void Radio::radiosend(const Attitude& datos) {
+void Radio::radiosend(const Attitude& datos, const EngineControl &engines) {
   // EMISION DE DATOS
-  float data[3];
-  data[0] = datos.yaw * radtodeg;
-  data[1] = datos.pitch * radtodeg;
-  data[2] = datos.roll * radtodeg;
+  TransmitData data;
+  data.yawpitchroll[0] = datos.yaw * radtodeg;
+  data.yawpitchroll[1] = datos.pitch * radtodeg;
+  data.yawpitchroll[2] = datos.roll * radtodeg;
+  for (int i=0; i<4 ; i++){
+    data.engines[i]= engines.engine_speed[i];
+  }
+  data.errors[0] = engines.error_pitch;
+  data.errors[1] = engines.error_roll;
   radio.stopListening();
-  radio.write(data, sizeof(data));
+  radio.write(&data, sizeof(data));
   radio.startListening();
 }
 

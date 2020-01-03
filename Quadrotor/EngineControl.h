@@ -18,9 +18,10 @@ class EngineControl{
 private:
     const short engine_port[4]={3,9,5,6};
     Servo engine[4];
-    float alt2powerCoeff=10;
-    float alt2powerBase=1200;
-    float powerRange=300;
+    float alt2powerCoeff=1;
+    float alt2powerBase=1000;
+    float powerRange=1000;
+    //float powerRange=300;
     float error2CorrectionCoeff=10;
     float unbalanceRange=100;
 

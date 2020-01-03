@@ -22,6 +22,7 @@ Distancia Dist_sensor;
 float Acc_raw_val[9]; // Raw IMU measurements accelerometer, magnetometer and gyroscope
 Attitude yawpitchroll_int; // Yaw pitch roll angles from integrator
 Attitude yawpitchroll_triad; // Yaw pitch roll angles from Triad algorithm
+Attitude yawpitchroll_offset;
 Attitude yawpitchroll; // Filtered yaw pitch roll angles
 int control[5]; // Control telecomands
 Signal Yaw(0.90,0.75);
@@ -72,8 +73,17 @@ void read_sensors() {
   // Determinación de los angulos de Euler utilizando el integrador
   if (first_iteration <= 20){
     integrator(Acc_raw_val, yawpitchroll_triad, delta_t / 1000.0, yawpitchroll_int);
+    if (first_iteration < 20){
+    yawpitchroll_offset.pitch+= yawpitchroll_triad.pitch;
+    yawpitchroll_offset.roll+= yawpitchroll_triad.roll;
+    }else{
+      yawpitchroll_offset.pitch = yawpitchroll_offset.pitch/first_iteration;
+      yawpitchroll_offset.roll = yawpitchroll_offset.roll/first_iteration;
+    }
     first_iteration++;
   } else {
+    yawpitchroll_triad.pitch -= yawpitchroll_offset.pitch;
+    yawpitchroll_triad.roll -= yawpitchroll_offset.roll;
     integrator(Acc_raw_val, yawpitchroll_int, delta_t / 1000.0, yawpitchroll_int);
   }
   //Aplicacion del filtro que combina ambas medidas
@@ -163,45 +173,34 @@ void loop() {
   tiempo = millis();
   delta_t = tiempo - tiempo0;
   tiempo0 = tiempo;
+  RadioCOM.radiolisten(control);
+  read_sensors();
   switch (curr_state) {
   case STANDBY:
     Serial.print("STANDBY   ");
-    RadioCOM.radiolisten(control);
-    read_sensors();
     engines.stop();
-    RadioCOM.radiosend(yawpitchroll);
     curr_state = next_state();
     break;
-
   case CALIBRATION:
     Serial.print("CALIBRATION   ");
-    RadioCOM.radiolisten(control);
-    read_sensors();
     engines.stop();
-    RadioCOM.radiosend(yawpitchroll);
     // acelerometro.acelerometro_cal();
     // acelerometro.magnetometro_cal();
     // acelerometro.gyroscope_cal();
     curr_state = next_state();
     break;
-
   case FLYMODE:
     Serial.print("FLYMODE   ");
-    RadioCOM.radiolisten(control);
-    read_sensors();
     engines.proportionalControl(control, yawpitchroll);
-    RadioCOM.radiosend(yawpitchroll);
     curr_state = next_state();
     break;
   case ABORT:
     Serial.print("ABORT  ");
-    RadioCOM.radiolisten(control);
-    read_sensors();
     engines.stop();
-    RadioCOM.radiosend(yawpitchroll);
     curr_state = next_state();
     break;
   }
+  RadioCOM.radiosend(yawpitchroll, engines);
   Print_data();
   engines.updateEngines();
 

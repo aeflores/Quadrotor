@@ -8,6 +8,7 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include "Triad.h"
+#include "EngineControl.h"
 
 // Declaremos los pines CE y el CSN
 #define CE_PIN 7
@@ -23,7 +24,7 @@ private:
 public:
   Radio() : radio(CE_PIN, CSN_PIN){};
   void initialize();
-  void radiosend(const Attitude &datos);
+  void radiosend(const Attitude &datos, const EngineControl &engines);
   void radiolisten(int (&datos)[5]);
 };
 
