@@ -11,8 +11,8 @@
 #include "TransmitData.h"
 
 // Declaremos los pines CE y el CSN
-#define CE_PIN 9
-#define CSN_PIN 10
+const int CE_PIN=9;
+const int CSN_PIN=10;
 
 // Creamos el objeto radio (NRF24L01)
 RF24 radio(CE_PIN, CSN_PIN);
@@ -25,36 +25,25 @@ const uint64_t pipe_read = 0xF0F0F0F0D2LL;
 unsigned long tiempo;
 const int pinJoyButtonRight = 3;
 const int pinJoyButtonLeft = 2;
-// possible states
-enum state { STANDBY = 0, CALIBRATION = 1, FLYMODE = 2, ABORT = 3 };
+
 // current state initialized to STANDBY
-state curr_state = STANDBY;
+State curr_state = STANDBY;
 
 // Vectores con los datos a enviar
 TransmitData datos_rec;
-int datos_send[5];
+ControlData datos_send;
 
 
-state next_state() {
-  if ((digitalRead(pinJoyButtonLeft) == LOW && curr_state == CALIBRATION && (millis()>=tiempo+150)) || (digitalRead(pinJoyButtonRight) == LOW && curr_state == FLYMODE && (millis()>=tiempo+150))) {
+StateChange stateChange() {
+  if ((digitalRead(pinJoyButtonLeft) == LOW && (millis()>=tiempo+150))) {
     tiempo=millis();
-    return STANDBY;
+    return StateChange::PREV;
   }
-  if (digitalRead(pinJoyButtonRight) == LOW && curr_state == STANDBY && (millis()>=tiempo+150)) {
+  if (digitalRead(pinJoyButtonRight) == LOW && (millis()>=tiempo+150)) {
     tiempo=millis();
-    return CALIBRATION;
+    return StateChange::NEXT;
   }
-
-  if ((digitalRead(pinJoyButtonLeft) == LOW && curr_state == STANDBY && (millis()>=tiempo+150)) || (digitalRead(pinJoyButtonRight) == LOW && curr_state == ABORT && (millis()>=tiempo+150))) {
-    tiempo=millis();    
-    return FLYMODE;
-  }
-  if (digitalRead(pinJoyButtonLeft) == LOW && curr_state == FLYMODE && (millis()>=tiempo+150)) {
-    tiempo=millis();
-    return ABORT;
-  }
-  else
-    return curr_state;
+  return StateChange::NO;
 }
 
 void setup() {
@@ -76,28 +65,22 @@ void setup() {
 void loop() {
   // EMISION DE DATOS
   // cargamos los datos en la variable datos[]
-  datos_send[0] = analogRead(A0);
-  datos_send[1] = analogRead(A1);
-  datos_send[2] = analogRead(A2);
-  datos_send[3] = analogRead(A3);
-  datos_send[1]= analogRead(A4);
+  datos_send.movement[0] = analogRead(A0);
+  datos_send.movement[1] = analogRead(A1);
+  datos_send.movement[2] = analogRead(A2);
+  datos_send.movement[3] = analogRead(A3);
+  // This is for callibrating
+  datos_send.movement[1]= analogRead(A4);
+  datos_send.change= stateChange();
 
-    switch (curr_state) {
-    case STANDBY:
-      Serial.print("STANDBY   ");
-      datos_send[4] = 0;
-      radio.write(datos_send, sizeof(datos_send));
-      break;
-    case CALIBRATION:
-    {
-      Serial.print("CALIBRATION   ");
-      datos_send[4] = 1;
-      radio.write(datos_send, sizeof(datos_send));
+  if(curr_state== CALIBRATION){
+      datos_send.moreData=true;
+      radio.write(&datos_send, sizeof(datos_send));
       // send configuration
       ControllerConfiguration conf;
-      conf.error2CorrectionCoeff=20;
-      conf.upperUnbalanceRange=150;
-      conf.lowerUnbalanceRange=25;
+      conf.error2CorrectionCoeff=10;
+      conf.upperUnbalanceRange=100;
+      conf.lowerUnbalanceRange=70;
       radio.write(&conf,sizeof(conf));
       Serial.print("written conf: err2correct_coeff= ");
       Serial.print(conf.error2CorrectionCoeff);
@@ -105,22 +88,13 @@ void loop() {
       Serial.print(conf.upperUnbalanceRange);
       Serial.print(" lowerRange= ");
       Serial.println(conf.lowerUnbalanceRange);
-      break;
-    }
-    case FLYMODE:
-      Serial.print("FLYMODE   ");
-      datos_send[4] = 2;
-      radio.write(datos_send, sizeof(datos_send));
-      break;
-    case ABORT:
-      Serial.print("ABORT   ");
-      datos_send[4] = 3;
-      radio.write(datos_send, sizeof(datos_send));
-      break;
+  }else{
+      datos_send.moreData=false;
+      radio.write(&datos_send, sizeof(datos_send));
   }
-  curr_state = next_state();
+
   Serial.print("Power= ");
-  Serial.print(datos_send[1]);
+  Serial.print(datos_send.movement[1]);
   // RECEPCION DE DATOS
   // Empezamos a escuchar por el canal
   radio.startListening();
@@ -135,7 +109,7 @@ void loop() {
   } else {
     // Leemos los datos y los guardamos en la variable datos[]
     radio.read(&datos_rec, sizeof(datos_rec));
-
+    curr_state=datos_rec.state;
     // reportamos por el puerto serial los datos recibidos
     datos_rec.print(Serial);
     Serial.println("");

@@ -14,12 +14,13 @@ void Radio::initialize() {
   radio.startListening();
 }
 
-void Radio::radiosend(const Attitude& datos, const EngineControl &engines, int delta_t) {
+void Radio::radiosend(const State curr_state, const Attitude& datos, const EngineControl &engines, int delta_t) {
   // EMISION DE DATOS
   TransmitData data;
-  data.yawpitchroll[0] = datos.yaw * radtodeg;
-  data.yawpitchroll[1] = datos.pitch * radtodeg;
-  data.yawpitchroll[2] = datos.roll * radtodeg;
+  data.state=curr_state;
+  data.yawpitchroll[0] = datos.yaw;
+  data.yawpitchroll[1] = datos.pitch;
+  data.yawpitchroll[2] = datos.roll;
   for (int i=0; i<4 ; i++){
     data.engines[i]= engines.engine_speed[i];
   }
@@ -30,8 +31,7 @@ void Radio::radiosend(const Attitude& datos, const EngineControl &engines, int d
   radio.write(&data, sizeof(data));
   radio.startListening();
 }
-
-void Radio::radiolisten(int (&datos)[5]) {
+void Radio::radiolisten(void *data, int numBytes) {
   // RECEPCION DE DATOS
   // Empezamos a escuchar por el canal
   //radio.startListening();
@@ -45,24 +45,13 @@ void Radio::radiolisten(int (&datos)[5]) {
     Serial.println("Error, No ha habido respuesta a tiempo");
   } else {
     // Leemos los datos y los guardamos en la variable datos[]
-    radio.read(datos, sizeof(datos));
+    radio.read(data, numBytes);
   }
   //radio.stopListening();
 }
 
-void Radio::radiolisten(ControllerConfiguration &conf) {
-  // RECEPCION DE DATOS
-  // Empezamos a escuchar por el canal
-  unsigned long started_waiting_at = millis();
-  bool timeout = false;
-  while (!radio.available() && !timeout) { // Esperamos 200ms
-    if (millis() - started_waiting_at > 200)
-      timeout = true;
-  }
-  if (timeout) {
-    Serial.println("Error, No ha habido respuesta a tiempo");
-  } else {
-    // Leemos los datos y los guardamos en la variable datos[]
-    radio.read(&conf, sizeof(conf));
-  }
+void Radio::radiolisten(ControlData& data, ControllerConfiguration &conf) {
+  radiolisten(&data, sizeof(data));
+  if(data.moreData)
+    radiolisten(&conf, sizeof(conf));
 }

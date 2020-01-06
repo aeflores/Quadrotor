@@ -5,14 +5,42 @@
 #ifndef TRANSMIT_DATA_H_
 #define TRANSMIT_DATA_H_
 
+
+enum State { STANDBY = 0, CALIBRATION = 1, FLYMODE = 2, ABORT = 3 };
+const int NUM_STATES = 4;
+
+enum StateChange{ NO = 0, NEXT = 1, PREV = 2};
+
+struct ControlData
+{
+  int movement[4];
+  StateChange change;
+  bool moreData;
+};
+
 struct TransmitData
 {
+    State state;
     float yawpitchroll[3];
     float errors[2];
     int engines[4];
     int delta_t;
 
     void print(HardwareSerial& Serial){
+       switch (state) {
+        case STANDBY:
+          Serial.print("STANDBY ");
+          break;
+        case CALIBRATION:
+          Serial.print("CALIBRATION ");
+          break;
+        case FLYMODE:
+          Serial.print("FLYMODE ");
+          break;
+        case ABORT:
+          Serial.print("ABORT ");
+          break;
+        }
         Serial.print(" Yaw= ");
         Serial.print(yawpitchroll[0]);
         Serial.print(" Pitch= ");

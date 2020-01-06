@@ -24,7 +24,8 @@ Attitude yawpitchroll_int; // Yaw pitch roll angles from integrator
 Attitude yawpitchroll_triad; // Yaw pitch roll angles from Triad algorithm
 Attitude yawpitchroll_offset;
 Attitude yawpitchroll; // Filtered yaw pitch roll angles
-int control[5]; // Control telecomands
+Attitude yawpitchroll_deg; // yaw pitch roll in degrees
+ControlData control; // Control telecomands
 Signal Yaw(0.90,0.75);
 //Signal Height(0.1, 0.5);
 int first_iteration = 0;
@@ -43,20 +44,17 @@ float radtodeg = 180 / acos(-1); // Radtodeg conversion
 // ----------------------------------------------------------------------------
 // ---------------------------Finite State Machine-----------------------------
 // ----------------------------------------------------------------------------
-// Possible states
-enum state { STANDBY = 0, CALIBRATION = 1, FLYMODE = 2, ABORT = 3 };
+
 // current state initialized to STANDBY
-state curr_state = STANDBY;
+State curr_state = STANDBY;
 // Next state function
-state next_state() {
-  if (control[4] == 0)
-    return STANDBY;
-  if (control[4] == 1)
-    return CALIBRATION;
-  if (control[4] == 2)
-    return FLYMODE;
-  if (control[4] == 3)
-    return ABORT;
+State next_state(State curr_state, StateChange change) {
+  if (change== StateChange::NO)
+    return curr_state;
+  if (change== StateChange::NEXT && curr_state!= ABORT)
+    return (State) ((curr_state+1) % NUM_STATES);
+  if (change== StateChange::PREV && curr_state!= STANDBY)
+     return (State) ((curr_state-1) % NUM_STATES);
 }
 
 // ----------------------------------------------------------------------------
@@ -84,7 +82,7 @@ void read_sensors() {
   } else {
     yawpitchroll_triad.pitch -= yawpitchroll_offset.pitch;
     yawpitchroll_triad.roll -= yawpitchroll_offset.roll;
-    integrator(Acc_raw_val, yawpitchroll_int, delta_t / 1000.0, yawpitchroll_int);
+    integrator(Acc_raw_val, yawpitchroll, delta_t / 1000.0, yawpitchroll_int);
   }
   //Aplicacion del filtro que combina ambas medidas
   filter(Acc_raw_val, yawpitchroll_triad, yawpitchroll_int, yawpitchroll);
@@ -95,7 +93,9 @@ void read_sensors() {
   // Transformamos la altura medida en altura con respecto al suelo
   //Height[0]=Height[0]*cos(yawpitchroll[1])*cos(yawpitchroll[2]);
 
-
+  yawpitchroll_deg.yaw= yawpitchroll.yaw * radtodeg;
+  yawpitchroll_deg.pitch= yawpitchroll.pitch * radtodeg;
+  yawpitchroll_deg.roll= yawpitchroll.roll * radtodeg;
 
 
 }
@@ -104,9 +104,9 @@ void Print_data() {
 //    Serial.print("Yaw = ");
 //    Serial.print(yawpitchroll[0]*radtodeg);
     Serial.print("   Pitch = ");
-    Serial.print(yawpitchroll.pitch*radtodeg);
+    Serial.print(yawpitchroll_deg.pitch);
     Serial.print("   Roll = ");
-    Serial.print(yawpitchroll.roll*radtodeg);
+    Serial.print(yawpitchroll_deg.roll);
 //    Serial.print("JSRX= ");
 //    Serial.print(control[0]);
 //    Serial.print("  JSRY= ");
@@ -180,9 +180,10 @@ void loop() {
   tiempo = millis();
   delta_t = tiempo - tiempo0;
   tiempo0 = tiempo;
-  RadioCOM.radiolisten(control);
+  ControllerConfiguration configuration;
+  RadioCOM.radiolisten(control, configuration);
   read_sensors();
-  curr_state = next_state();
+  curr_state = next_state(curr_state, control.change);
   switch (curr_state) {
   case STANDBY:
     Serial.print("STANDBY   ");
@@ -192,8 +193,6 @@ void loop() {
   {
     Serial.print("CALIBRATION   ");
     engines.stop();
-    ControllerConfiguration configuration;
-    RadioCOM.radiolisten(configuration);
     engines.configure(configuration);
     // acelerometro.acelerometro_cal();
     // acelerometro.magnetometro_cal();
@@ -202,14 +201,17 @@ void loop() {
   }
   case FLYMODE:
     Serial.print("FLYMODE   ");
-    engines.proportionalControl(control, yawpitchroll);
+    if(yawpitchroll_deg.pitch > 25 ||  yawpitchroll_deg.pitch < -25 || yawpitchroll_deg.roll > 25 || yawpitchroll_deg.roll < -25)
+      curr_state = ABORT;
+    else
+      engines.proportionalControl(control.movement, yawpitchroll_deg);
     break;
   case ABORT:
     Serial.print("ABORT  ");
     engines.stop();
     break;
   }
-  RadioCOM.radiosend(yawpitchroll, engines, delta_t);
+  RadioCOM.radiosend(curr_state, yawpitchroll_deg, engines, delta_t);
   //Print_data();
   engines.updateEngines();
 

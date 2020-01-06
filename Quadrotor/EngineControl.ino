@@ -59,10 +59,10 @@ int EngineControl::error2Correction(float error){
   return unbalance;
 }
 
-void EngineControl::proportionalControl(const int control[5], const Attitude &yawpitchroll){
+void EngineControl::proportionalControl(const int control[4], const Attitude &yawpitchroll_deg){
     computeReference(control);
-    error_pitch= reference.pitch - (yawpitchroll.pitch*radtodeg);
-    error_roll= reference.roll - (yawpitchroll.roll*radtodeg);
+    error_pitch= reference.pitch - yawpitchroll_deg.pitch;
+    error_roll= reference.roll - yawpitchroll_deg.roll;
     int unbalance_pitch=error2Correction(error_pitch);
     int unbalance_roll=error2Correction(error_roll);
     power= altitudeRate2Power(reference.altitude_rate);

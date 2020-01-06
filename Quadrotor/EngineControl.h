@@ -39,7 +39,7 @@ public:
     void updateEngines();
     void testControl(const int control[5]);
     void configure(ControllerConfiguration &conf);
-    void proportionalControl(const int control[5],const Attitude &yawpitchroll);
+    void proportionalControl(const int control[4],const Attitude &yawpitchroll);
     void stop();
 
 };
