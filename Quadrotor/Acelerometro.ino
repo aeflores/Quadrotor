@@ -49,20 +49,20 @@ void Acelerometro::settings() {
   // Low Pass Filter configuration
   // Digital Low Pass Filter (DLPF) bandwidth.
   // By default, if this function is not called, a DLPF bandwidth of 184 Hz is
-  // used. The following DLPF bandwidths are supported:
-  status = IMU.setDlpfBandwidth(MPU9250::DLPF_BANDWIDTH_10HZ);
+  // used. The following DLPF bandwidths are supported: 184 Hz, 92 Hz, 41 Hz, 20 Hz, 10 Hz, 5 Hz
+  status = IMU.setDlpfBandwidth(MPU9250::DLPF_BANDWIDTH_5HZ);
 
   // This function sets the accelerometer full scale range to the given value.
   // By default, if this function is not called, a full scale range of +/- 16 g
   // will be used. The enumerated accelerometer full scale ranges are: +/-
   // 2g,+/- 4g,+/- 8g,+/- 16g,
-  status = IMU.setAccelRange(MPU9250::ACCEL_RANGE_16G);
+  status = IMU.setAccelRange(MPU9250::ACCEL_RANGE_2G);
 
   // This function sets the gyroscope full scale range to the given value.
   // By default, if this function is not called, a full scale range of +/- 2000
   // deg/s will be used. The enumerated gyroscope full scale ranges are: +/-
   // 250deg/s,+/- 500deg/s,+/- 1000deg/s,+/- 2000deg/s,
-  status = IMU.setGyroRange(MPU9250::GYRO_RANGE_2000DPS);
+  status = IMU.setGyroRange(MPU9250::GYRO_RANGE_250DPS);
 }
 
 void Acelerometro::magnetometro_cal() {
@@ -218,4 +218,3 @@ void Acelerometro::get_raw_val(float (&Acc_val)[9]) {
 // MagBiasX: -4.876480  MagSFX: 1.030752  MagBiasY: 27.517288  MagSFY: 0.959087
 // MagBiasZ: 3.004229  MagSFZ: 1.012990 MagBiasX: 10.368086  MagSFX: 1.615734
 // MagBiasY: 32.904544  MagSFY: 0.650060  MagBiasZ: 19.129512  MagSFZ: 1.186567
-

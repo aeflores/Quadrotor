@@ -1,0 +1,11 @@
+GyroBiasX: 0.026475  GyroBiasY: 0.025054  GyroBiasZ: -0.017131
+GyroBiasX: 0.026446  GyroBiasY: 0.024857  GyroBiasZ: -0.017166
+GyroBiasX: 0.026648  GyroBiasY: 0.025613  GyroBiasZ: -0.017031
+GyroBiasX: 0.026276  GyroBiasY: 0.024776  GyroBiasZ: -0.016853  
+GyroBiasX: 0.026218  GyroBiasY: 0.024431  GyroBiasZ: -0.017433  
+GyroBiasX: 0.025908  GyroBiasY: 0.024814  GyroBiasZ: -0.017702 
+GyroBiasX: 0.026038  GyroBiasY: 0.024752  GyroBiasZ: -0.017654
+GyroBiasX: 0.026555  GyroBiasY: 0.024685  GyroBiasZ: -0.017566 
+
+Final calibration
+GyroBiasX: 0.026320  GyroBiasY: 0.02487275  GyroBiasZ: -0.017317 

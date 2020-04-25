@@ -1,0 +1,33 @@
+  //MagBiasX: -7.138206  MagSFX: 1.079588  MagBiasY: 18.255805  MagSFY: 0.946956  MagBiasZ: 6.438561  MagSFZ: 0.982602
+  //MagBiasX: 13.060284  MagSFX: 1.174667  MagBiasY: 14.025960  MagSFY: 1.094046  MagBiasZ: 18.988445  MagSFZ: 0.809942
+  //MagBiasX: -4.390320  MagSFX: 0.984479  MagBiasY: 23.044439  MagSFY: 1.076520  MagBiasZ: -2.302750  MagSFZ: 0.947584
+  //MagBiasX: -3.515854  MagSFX: 0.936396  MagBiasY: 27.973655  MagSFY: 1.062817  MagBiasZ: 5.071450  MagSFZ: 1.008898
+  //MagBiasX: -4.876480  MagSFX: 1.030752  MagBiasY: 27.517288  MagSFY: 0.959087  MagBiasZ: 3.004229  MagSFZ: 1.012990
+  //MagBiasX: 10.368086  MagSFX: 1.615734  MagBiasY: 32.904544  MagSFY: 0.650060  MagBiasZ: 19.129512  MagSFZ: 1.186567
+
+
+
+ // Magnetometer settings
+  // X-axis bias and scale factor
+  float hxb = -4.257;    // mag bias in uT
+  float hxs = 0.9838756; // mag scale factor
+  IMU.setMagCalX(hxb, hxs);
+  // Y-axis bias and scale factor
+  float hyb = 27.517288; // mag bias in uT
+  float hys = 1.0328;    // mag scale factor
+  IMU.setMagCalY(hyb, hys);
+  // Z-axis bias and scale factor
+  float hzb = -2.302750; // mag bias in uT
+  float hzs = 1.0;       // mag scale factor
+  IMU.setMagCalZ(hzb, hzs);
+
+  // Gyroscope settings
+  // X-axis bias
+  float gxb = 0.006546; // gyro bias
+  IMU.setGyroBiasX_rads(gxb);
+  // Y-axis bias
+  float gyb = 0.0267601; // gyro bias of 0.001 rad/s
+  IMU.setGyroBiasY_rads(gyb);
+  // Z-axis bias
+  float gzb = -0.012746; // gyro bias of 0.001 rad/s
+  IMU.setGyroBiasZ_rads(gzb);
