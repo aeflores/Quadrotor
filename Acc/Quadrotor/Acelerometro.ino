@@ -24,16 +24,16 @@ void IMU_default_cal(){
 
   //Magnetometer settings
     // X-axis bias and scale factor
-    float hxb = -29.985098; // mag bias in uT
-    float hxs = 1.113529; // mag scale factor
+    float hxb = -7.5; // mag bias in uT
+    float hxs = 1.121387; // mag scale factor
     IMU.setMagCalX(hxb,hxs);
     //Y-axis bias and scale factor
-    float hyb = -16.434606; // mag bias in uT
-    float hys = 1.143686; // mag scale factor
+    float hyb = 9.; // mag bias in uT
+    float hys = 1.164484; // mag scale factor
     IMU.setMagCalY(hyb,hys);
     // Z-axis bias and scale factor
-    float hzb = -57.021679; // mag bias in uT
-    float hzs = 0.828628; // mag scale factor
+    float hzb = -20.; // mag bias in uT
+    float hzs = 0.824261; // mag scale factor
     IMU.setMagCalZ(hzb,hzs);
     
   //Gyroscope settings

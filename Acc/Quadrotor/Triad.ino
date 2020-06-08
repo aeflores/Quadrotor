@@ -1,11 +1,12 @@
 unsigned long t_0=0;
+float pi = acos(-1);
 
 float* get_ypr_triad(float Acc_raw_val[]){
   //Magnetic field components in the inertial system reference uT
   //Madrid
-  float Mag_x_I = 25.6547;
-  float Mag_y_I=-0.1469 ;
-  float Mag_z_I=36.8374;
+  float Mag_x_I = 25.6808;
+  float Mag_y_I= -0.1248 ;
+  float Mag_z_I= 36.8463;
   //Almeria
 //  float Mag_x_I = 27.4347;
 //  float Mag_y_I=-0.0751;
@@ -121,6 +122,11 @@ float* get_ypr_triad(float Acc_raw_val[]){
   yawpitchroll[0]=atan2(R[0][1],R[0][0]);
   yawpitchroll[1]=atan2(-R[0][2],sqrt(pow(R[1][2],2)+pow(R[2][2],2)));
   yawpitchroll[2]=atan2(R[1][2],R[2][2]);
+  if (yawpitchroll[0]<0.0){
+          yawpitchroll[0] = 2*pi + yawpitchroll[0];
+  }
+  
+  
   return yawpitchroll;
 }
 
@@ -143,9 +149,9 @@ float* Integrator(float Acc_raw_val[],float yawpitchroll[]){
 //  Serial.println(r,6);
 
 
-  float yaw_angle=yawpitchroll[0];
-  float pitch_angle=yawpitchroll[1];
-  float roll_angle=yawpitchroll[2];
+  float yaw_angle0=yawpitchroll[0];
+  float pitch_angle0=yawpitchroll[1];
+  float roll_angle0=yawpitchroll[2];
   
 //  Serial.print(yaw_angle,6);
 //  Serial.print("   ");
@@ -153,15 +159,16 @@ float* Integrator(float Acc_raw_val[],float yawpitchroll[]){
 //  Serial.print("   ");
 //  Serial.println(roll_angle,6);
 
-  float yaw_dot=(q*sin(roll_angle)+r*cos(roll_angle))/cos(pitch_angle);
-  float pitch_dot=q*cos(roll_angle)-r*sin(roll_angle);
-  float roll_dot=p+(q*sin(roll_angle)+r*cos(roll_angle))*tan(pitch_angle);
+  float yaw_dot=(q*sin(roll_angle0)+r*cos(roll_angle0))/cos(pitch_angle0);
+  float pitch_dot=q*cos(roll_angle0)-r*sin(roll_angle0);
+  float roll_dot=p+(q*sin(roll_angle0)+r*cos(roll_angle0))*tan(pitch_angle0);
 
 //  Serial.print(yaw_dot,6);
 //  Serial.print("   ");
 //  Serial.print(pitch_dot,6);
 //  Serial.print("   ");
-//  Serial.println(roll_dot,6);
+//  Serial.print(roll_dot,6);
+//  Serial.print("   ");
 
   float delta_yaw=yaw_dot*delta_t;
   float delta_angle=pitch_dot*delta_t;
@@ -173,9 +180,21 @@ float* Integrator(float Acc_raw_val[],float yawpitchroll[]){
 //  Serial.print("   ");
 //  Serial.println(delta_roll,6);
 
-  yaw_angle=yaw_angle+delta_yaw;
-  pitch_angle=pitch_angle+delta_angle;
-  roll_angle=roll_angle+delta_roll;
+
+  float yaw_angle=yaw_angle0+delta_yaw;
+  float pitch_angle=pitch_angle0+delta_angle;
+  float roll_angle=roll_angle0+delta_roll;
+
+  if (yaw_angle0<=2*pi && yaw_angle>2*pi){
+      yaw_angle = yaw_angle - 2*pi;
+  }
+  else if(yaw_angle0 > 0.0 && yaw_angle<=0.0) {
+      yaw_angle = 2*pi + yaw_angle;
+  }
+
+//  yaw_angle=yaw_angle+delta_yaw;
+//  pitch_angle=pitch_angle+delta_angle;
+//  roll_angle=roll_angle+delta_roll;
 
 
   yawpitchroll_integrator[0]=yaw_angle;
@@ -187,18 +206,28 @@ float* Integrator(float Acc_raw_val[],float yawpitchroll[]){
 
 float* filter(float Acc_raw_val[],float yawpitchroll_triad[], float yawpitchroll_int[]){
   static float yawpitchroll[3];
-  float rotation_treshold = 10; //rad/s;
-  float pqr_module=sqrt(pow(Acc_raw_val[3],2)+pow(Acc_raw_val[4],2)+pow(Acc_raw_val[5],2));
-  float dinamic_coef=1/(1+exp(-(pqr_module-rotation_treshold/2)));
+//  float rotation_treshold = 10; //rad/s;
+//  float pqr_module=sqrt(pow(Acc_raw_val[3],2)+pow(Acc_raw_val[4],2)+pow(Acc_raw_val[5],2));
+//  float dinamic_coef=1/(1+exp(-(pqr_module-rotation_treshold/2)));
 
 //  yawpitchroll[0]=(1-dinamic_coef)*yawpitchroll_triad[0]+dinamic_coef*yawpitchroll_int[0];
 //  yawpitchroll[1]=(1-dinamic_coef)*yawpitchroll_triad[1]+dinamic_coef*yawpitchroll_int[1];
 //  yawpitchroll[2]=(1-dinamic_coef)*yawpitchroll_triad[2]+dinamic_coef*yawpitchroll_int[2];
 
-//  yawpitchroll[0]=0.9*yawpitchroll_triad[0]+0.1*yawpitchroll_int[0];
-  yawpitchroll[0]=yawpitchroll_int[0];
-  yawpitchroll[1]=0.8*yawpitchroll_triad[1]+0.2*yawpitchroll_int[1];
-  yawpitchroll[2]=0.8*yawpitchroll_triad[2]+0.2*yawpitchroll_int[2];
+  if (yawpitchroll_triad[0]>pi && yawpitchroll_int[0]<pi){
+      yawpitchroll[0]=yawpitchroll_triad[0];
+  }
+  else if (yawpitchroll_triad[0]<pi && yawpitchroll_int[0]>pi){
+      yawpitchroll[0]=yawpitchroll_triad[0];
+  }
+  else{
+      yawpitchroll[0]=0.1*yawpitchroll_triad[0]+0.9*yawpitchroll_int[0];
+    }
+
+//  yawpitchroll[0]=0.1*yawpitchroll_triad[0]+0.9*yawpitchroll_int[0];
+//  yawpitchroll[0]=yawpitchroll_triad[0];
+  yawpitchroll[1]=0.1*yawpitchroll_triad[1]+0.9*yawpitchroll_int[1];
+  yawpitchroll[2]=0.1*yawpitchroll_triad[2]+0.9*yawpitchroll_int[2];
 
   return yawpitchroll;
   

@@ -55,41 +55,43 @@ void loop() {
 //  Serial.print(yawpitchroll_int[1]*radtodeg,3);
 //  Serial.print("  ");
 //  Serial.print("Roll: ");  
-//  Serial.println(yawpitchroll_int[2]*radtodeg,3);
+//  Serial.print(yawpitchroll_int[2]*radtodeg,3);
 
-  Serial.print("Yaw: ");
+  Serial.print(" Yaw: ");
   Serial.print(yawpitchroll[0]*radtodeg,3);
   Serial.print("  ");
   Serial.print("Pitch: ");  
   Serial.print(yawpitchroll[1]*radtodeg,3);
   Serial.print("  ");
   Serial.print("Roll: ");  
-  Serial.println(yawpitchroll[2]*radtodeg,3);
+  Serial.print(yawpitchroll[2]*radtodeg,3);
   
-//  Serial.print("AccelX: ");
+//  Serial.print("  AccelX: ");
 //  Serial.print(Acc_raw_val[0],3);
 //  Serial.print("  ");
 //  Serial.print("AccelY: ");  
 //  Serial.print(Acc_raw_val[1],3);
 //  Serial.print("  ");
 //  Serial.print("AccelZ: ");  
-//  Serial.println(Acc_raw_val[2],3);
+//  Serial.print(Acc_raw_val[2],3);
 
-//  Serial.print("GyroX: ");
+//  Serial.print("  GyroX: ");
 //  Serial.print(Acc_raw_val[3],6);
 //  Serial.print("  ");
 //  Serial.print("GyroY: ");  
 //  Serial.print(Acc_raw_val[4],6);
 //  Serial.print("  ");
 //  Serial.print("GyroZ: ");  
-//  Serial.println(Acc_raw_val[5],6);
+//  Serial.print(Acc_raw_val[5],6);
 ////
-//  Serial.print("MagX: ");  
-//  Serial.print(Acc_raw_val[6],6);
-//  Serial.print("  ");  
-//  Serial.print("MagY: ");
-//  Serial.print(Acc_raw_val[7],6);
-//  Serial.print("  ");
-//  Serial.print("MagZ: ");  
-//  Serial.println(Acc_raw_val[8],6);
+//    Serial.print("  MagX: ");  
+//    Serial.print(Acc_raw_val[6],6);
+//    Serial.print("  ");  
+//    Serial.print("MagY: ");
+//    Serial.print(Acc_raw_val[7],6);
+//    Serial.print("  ");
+//    Serial.print("MagZ: ");  
+//    Serial.print(Acc_raw_val[8],6);
+
+  Serial.println(" ");
 } 
