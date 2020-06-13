@@ -42,7 +42,7 @@ float* Radio::radiolisten() {
   unsigned long started_waiting_at = millis();
   bool timeout = false;
   while ( ! radio.available() && ! timeout ) { // Esperamos 200ms
-    if (millis() - started_waiting_at > 200 )
+    if (millis() - started_waiting_at > 10 )
       timeout = true;
   }
   if (timeout) {
@@ -56,7 +56,3 @@ float* Radio::radiolisten() {
   return datos;
 
 }
-
-
-
-

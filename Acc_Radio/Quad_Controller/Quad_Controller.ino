@@ -4,8 +4,11 @@
 #include <SPI.h>
 
 //Declaremos los pines CE y el CSN
-#define CE_PIN 9
-#define CSN_PIN 10
+//#define CE_PIN 9
+//#define CSN_PIN 10
+
+#define CE_PIN 7
+#define CSN_PIN 8
 
 //Creamos el objeto radio (NRF24L01)
 RF24 radio(CE_PIN, CSN_PIN);
