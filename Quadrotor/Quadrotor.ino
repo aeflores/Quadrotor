@@ -35,7 +35,7 @@ EngineControl engines;
 
 // Constants
 float radtodeg = 180 / acos(-1); // Radtodeg conversion
-
+float pi = acos(-1);
 
 
 
@@ -86,7 +86,7 @@ void read_sensors() {
   }
   //Aplicacion del filtro que combina ambas medidas
   filter(Acc_raw_val, yawpitchroll_triad, yawpitchroll_int, yawpitchroll);
-  Yaw.update(yawpitchroll.yaw*radtodeg, delta_t);
+  // Yaw.update(yawpitchroll.yaw*radtodeg, delta_t);
   //Height.update(Dist_sensor.update_distance(),delta_t);
   // Lectura del dato de altura  
   //Height[0]=Dist_sensor.update_distance();

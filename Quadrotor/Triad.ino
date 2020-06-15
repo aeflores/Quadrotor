@@ -122,6 +122,10 @@ void get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll) {
   yawpitchroll.yaw = atan2(R[0][1], R[0][0]);
   yawpitchroll.pitch = atan2(-R[0][2], sqrt(pow(R[1][2], 2) + pow(R[2][2], 2)));
   yawpitchroll.roll = atan2(R[1][2], R[2][2]);
+
+  if (yawpitchroll.yaw < 0.0) {
+    yawpitchroll.yaw = 2 * pi + yawpitchroll.yaw;
+  }
 }
 
 void integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float delta_t, Attitude &yawpitchroll_integrator) {
@@ -136,9 +140,9 @@ void integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float delta_t
   //  Serial.print("   ");
   //  Serial.println(r,6);
 
-  float yaw_angle = yawpitchroll.yaw;
-  float pitch_angle = yawpitchroll.pitch;
-  float roll_angle = yawpitchroll.roll;
+  float yaw_angle0 = yawpitchroll.yaw;
+  float pitch_angle0 = yawpitchroll.pitch;
+  float roll_angle0 = yawpitchroll.roll;
 
   //  Serial.print(yaw_angle,6);
   //  Serial.print("   ");
@@ -147,10 +151,10 @@ void integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float delta_t
   //  Serial.println(roll_angle,6);
 
   float yaw_dot =
-      (q * sin(roll_angle) + r * cos(roll_angle)) / cos(pitch_angle);
-  float pitch_dot = q * cos(roll_angle) - r * sin(roll_angle);
+      (q * sin(roll_angle0) + r * cos(roll_angle0)) / cos(pitch_angle0);
+  float pitch_dot = q * cos(roll_angle0) - r * sin(roll_angle0);
   float roll_dot =
-      p + (q * sin(roll_angle) + r * cos(roll_angle)) * tan(pitch_angle);
+      p + (q * sin(roll_angle0) + r * cos(roll_angle0)) * tan(pitch_angle0);
 
   //  Serial.print(yaw_dot,6);
   //  Serial.print("   ");
@@ -168,9 +172,16 @@ void integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float delta_t
   //  Serial.print("   ");
   //  Serial.println(delta_roll,6);
 
-  yaw_angle = yaw_angle + delta_yaw;
-  pitch_angle = pitch_angle + delta_angle;
-  roll_angle = roll_angle + delta_roll;
+  float yaw_angle = yaw_angle0 + delta_yaw;
+  float pitch_angle = pitch_angle0 + delta_angle;
+  float roll_angle = roll_angle0 + delta_roll;
+
+  if (yaw_angle0 <= 2 * pi && yaw_angle > 2 * pi) {
+    yaw_angle = yaw_angle - 2 * pi;
+  }
+  else if (yaw_angle0 > 0.0 && yaw_angle <= 0.0) {
+    yaw_angle = 2 * pi + yaw_angle;
+  }
 
   yawpitchroll_integrator.yaw = yaw_angle;
   yawpitchroll_integrator.pitch = pitch_angle;
@@ -179,21 +190,19 @@ void integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float delta_t
 
 void filter(float Acc_raw_val[], const Attitude yawpitchroll_triad,
               const Attitude &yawpitchroll_int, Attitude &yawpitchroll) {
-  float rotation_treshold = 10; // rad/s;
-  float pqr_module = sqrt(pow(Acc_raw_val[3], 2) + pow(Acc_raw_val[4], 2) +
-                          pow(Acc_raw_val[5], 2));
-  float dinamic_coef = 1 / (1 + exp(-(pqr_module - rotation_treshold / 2)));
 
-  //yawpitchroll[0] = (1 - dinamic_coef) * yawpitchroll_triad[0] +
-  //                  dinamic_coef * yawpitchroll_int[0];
-  yawpitchroll.yaw=yawpitchroll_int.yaw;
-  //yawpitchroll.pitch = (1 - dinamic_coef) * yawpitchroll_triad.pitch +
-                    //dinamic_coef * yawpitchroll_int.pitch;
-  //yawpitchroll.roll = (1 - dinamic_coef) * yawpitchroll_triad.roll +
-                    //dinamic_coef * yawpitchroll_int.roll;
+  if (yawpitchroll_triad.yaw > pi && yawpitchroll_int.yaw < pi) {
+    yawpitchroll.yaw = yawpitchroll_triad.yaw;
+  }
+  else if (yawpitchroll_triad.yaw < pi && yawpitchroll_int.yaw > pi) {
+    yawpitchroll.yaw = yawpitchroll_triad.yaw;
+  }
+  else {
+    yawpitchroll.yaw = 0.1 * yawpitchroll_triad.yaw + 0.9 * yawpitchroll_int.yaw;
+  }
 
   //  yawpitchroll.yaw=0.95*yawpitchroll_triad[0]+0.05*yawpitchroll_int[0];
-    yawpitchroll.pitch=0.9*yawpitchroll_triad.pitch+0.1*yawpitchroll_int.pitch;
-    yawpitchroll.roll=0.9*yawpitchroll_triad.roll+0.1*yawpitchroll_int.roll;
+    yawpitchroll.pitch=0.1*yawpitchroll_triad.pitch+0.9*yawpitchroll_int.pitch;
+    yawpitchroll.roll=0.1*yawpitchroll_triad.roll+0.9*yawpitchroll_int.roll;
 
 }
