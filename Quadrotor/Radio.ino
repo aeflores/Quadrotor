@@ -42,7 +42,7 @@ void Radio::radiolisten(void *data, int numBytes) {
       timeout = true;
   }
   if (timeout) {
-    //Serial.println("Error, No ha habido respuesta a tiempo");
+//    Serial.println("Error, No ha habido respuesta a tiempo");
   } else {
     // Leemos los datos y los guardamos en la variable datos[]
     radio.read(data, numBytes);

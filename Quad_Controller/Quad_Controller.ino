@@ -35,11 +35,11 @@ ControlData datos_send;
 
 
 StateChange stateChange() {
-  if ((digitalRead(pinJoyButtonLeft) == LOW && (millis()>=tiempo+150))) {
+  if ((digitalRead(pinJoyButtonLeft) == LOW && (millis()>=tiempo+100))) {
     tiempo=millis();
     return StateChange::PREV;
   }
-  if (digitalRead(pinJoyButtonRight) == LOW && (millis()>=tiempo+150)) {
+  if (digitalRead(pinJoyButtonRight) == LOW && (millis()>=tiempo+100)) {
     tiempo=millis();
     return StateChange::NEXT;
   }

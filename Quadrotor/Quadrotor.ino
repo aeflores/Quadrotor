@@ -26,8 +26,8 @@ Attitude yawpitchroll_offset;
 Attitude yawpitchroll; // Filtered yaw pitch roll angles
 Attitude yawpitchroll_deg; // yaw pitch roll in degrees
 ControlData control; // Control telecomands
-Signal Yaw(0.90,0.75);
-//Signal Height(0.1, 0.5);
+// Signal Yaw(0.90,0.75);
+// Signal Height(0.1, 0.5);
 int first_iteration = 0;
 unsigned long tiempo, tiempo0;
 int delta_t;
@@ -186,12 +186,12 @@ void loop() {
   curr_state = next_state(curr_state, control.change);
   switch (curr_state) {
   case STANDBY:
-    Serial.print("STANDBY   ");
+    //Serial.print("STANDBY   ");
     engines.stop();
     break;
   case CALIBRATION:
   {
-    Serial.print("CALIBRATION   ");
+    //Serial.print("CALIBRATION   ");
     engines.stop();
     engines.configure(configuration);
     // acelerometro.acelerometro_cal();
@@ -200,19 +200,19 @@ void loop() {
     break;
   }
   case FLYMODE:
-    Serial.print("FLYMODE   ");
+    //Serial.print("FLYMODE   ");
     if(yawpitchroll_deg.pitch > 25 ||  yawpitchroll_deg.pitch < -25 || yawpitchroll_deg.roll > 25 || yawpitchroll_deg.roll < -25)
       curr_state = ABORT;
     else
       engines.proportionalControl(control.movement, yawpitchroll_deg);
     break;
   case ABORT:
-    Serial.print("ABORT  ");
+    //Serial.print("ABORT  ");
     engines.stop();
     break;
   }
   RadioCOM.radiosend(curr_state, yawpitchroll_deg, engines, delta_t);
-  //Print_data();
+//  Print_data();
   engines.updateEngines();
 
 }
