@@ -56,7 +56,7 @@ StateChange stateChange() {
         }
     break;
     case Button::PUSHED:
-       if (millis()>=tiempo+100){
+       if (millis()>=tiempo+200){
           left_button = Button::DONE;
           change = StateChange::PREV;
        }
@@ -78,7 +78,7 @@ StateChange stateChange() {
         }
     break;
     case Button::PUSHED:
-       if (millis()>=tiempo+100){
+       if (millis()>=tiempo+200){
           right_button = Button::DONE;
           change = StateChange::NEXT;
        }
@@ -129,12 +129,15 @@ void loop() {
       radio.write(&datos_send, sizeof(datos_send));
       // send configuration
       ControllerConfiguration conf;
-      conf.error2CorrectionCoeff=10;
+      conf.error2CorrectionCoeff=0;
+      conf.derivativeError2CorrectionCoeff=5;
       conf.upperUnbalanceRange=100;
-      conf.lowerUnbalanceRange=70;
+      conf.lowerUnbalanceRange=75;
       radio.write(&conf,sizeof(conf));
-      Serial.print("written conf: err2correct_coeff= ");
+      Serial.print("  written conf: err2correct_coeff= ");
       Serial.print(conf.error2CorrectionCoeff);
+      Serial.print("  written conf: derivativeError2CorrectionCoeff= ");
+      Serial.print(conf.derivativeError2CorrectionCoeff);
       Serial.print(" upperRange= ");
       Serial.print(conf.upperUnbalanceRange);
       Serial.print(" lowerRange= ");
