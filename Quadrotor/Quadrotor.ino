@@ -128,11 +128,17 @@ void Print_data() {
   Serial.print(engines.error_pitch);
   Serial.print(" Error_roll");
   Serial.print(engines.error_roll);
+  Serial.print(" Derivative_Error_pitch");
+  Serial.print(engines.derivative_error_pitch);
+  Serial.print(" Derivative_Error_roll");
+  Serial.print(engines.derivative_error_roll);
   Serial.print(" Base power");
   Serial.print(engines.power);
 
   Serial.print(" Control_Coeff= ");
   Serial.print(engines.error2CorrectionCoeff);
+  Serial.print(" DerivativeControl_Coeff= ");
+  Serial.print(engines.derivativeError2CorrectionCoeff);
   Serial.print(" upper_range= ");
   Serial.print(engines.upperUnbalanceRange);
   Serial.print("lower_range= ");
