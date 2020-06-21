@@ -126,7 +126,7 @@ void loop() {
       // send configuration
       ControllerConfiguration conf;
       conf.error2CorrectionCoeff=0;
-      conf.derivativeError2CorrectionCoeff=5;
+      conf.derivativeError2CorrectionCoeff=2;
       conf.upperUnbalanceRange=100;
       conf.lowerUnbalanceRange=75;
       radio.write(&conf,sizeof(conf));
@@ -151,7 +151,7 @@ void loop() {
   unsigned long started_waiting_at = millis();
   bool timeout = false;
   while (!radio.available() && !timeout) { // Esperamos 200ms
-    if (millis() - started_waiting_at > 5)
+    if (millis() - started_waiting_at > 100)
       timeout = true;
   }
   if (timeout) {

@@ -72,8 +72,8 @@ void EngineControl::pdControl(const int control[4], const Attitude &yawpitchroll
     error_pitch = reference.pitch - yawpitchroll_deg.pitch;
     error_roll = reference.roll - yawpitchroll_deg.roll;
     // compute derivative
-    derivative_error_pitch = (error_pitch - old_error_pitch) / delta_t;
-    derivative_error_roll = (error_roll - old_error_roll) / delta_t;
+    derivative_error_pitch = (error_pitch - old_error_pitch) *1000 / delta_t;
+    derivative_error_roll = (error_roll - old_error_roll) *1000 / delta_t;
 
     // compute power based on error
     int unbalance_pitch=error2Correction(error_pitch, derivative_error_pitch);

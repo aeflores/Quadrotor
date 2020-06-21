@@ -190,12 +190,12 @@ void loop() {
   curr_state = next_state(curr_state, control.change);
   switch (curr_state) {
   case STANDBY:
-    //Serial.print("STANDBY   ");
+    Serial.print("STANDBY   ");
     engines.stop();
     break;
   case CALIBRATION:
   {
-    //Serial.print("CALIBRATION   ");
+    Serial.print("CALIBRATION   ");
     engines.stop();
     engines.configure(configuration);
     // acelerometro.acelerometro_cal();
@@ -204,19 +204,19 @@ void loop() {
     break;
   }
   case FLYMODE:
-    //Serial.print("FLYMODE   ");
+    Serial.print("FLYMODE   ");
     if(yawpitchroll_deg.pitch > 25 ||  yawpitchroll_deg.pitch < -25 || yawpitchroll_deg.roll > 25 || yawpitchroll_deg.roll < -25)
       curr_state = ABORT;
     else
       engines.pdControl(control.movement, yawpitchroll_deg, delta_t);
     break;
   case ABORT:
-    //Serial.print("ABORT  ");
+    Serial.print("ABORT  ");
     engines.stop();
     break;
   }
   RadioCOM.radiosend(curr_state, yawpitchroll_deg, engines, delta_t);
-//  Print_data();
+  Print_data();
   engines.updateEngines();
 
 }
