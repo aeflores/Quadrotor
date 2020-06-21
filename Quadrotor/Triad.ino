@@ -1,5 +1,7 @@
 
-float **TRIAD_cal(){
+#include "Triad.h"
+
+void Triad::initialize(){
   // Magnetic field components in the inertial system reference uT
   // Madrid
     float Mag_x_I = 25.6547;
@@ -42,8 +44,6 @@ float **TRIAD_cal(){
   r3[0] = r1[1] * r2[2] - r1[2] * r2[1];
   r3[1] = -r1[0] * r2[2] + r1[2] * r2[0];
   r3[2] = r1[0] * r2[1] - r1[1] * r2[0];
-  // B matrix
-  static float B[3][3];
 
   B[0][0] = r1[0];
   B[1][0] = r1[1];
@@ -56,14 +56,12 @@ float **TRIAD_cal(){
   B[0][2] = r3[0];
   B[1][2] = r3[1];
   B[2][2] = r3[2];
-
-  return B;
 }
 
 
 
 
-void get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll, float B[][3]) {
+void Triad::get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll) {
   // Magnetic field components in the inertial system reference uT
   // Madrid
     float Mag_x_I = 25.6547;
@@ -122,8 +120,7 @@ void get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll, float B[][3]) {
   r3[0] = r1[1] * r2[2] - r1[2] * r2[1];
   r3[1] = -r1[0] * r2[2] + r1[2] * r2[0];
   r3[2] = r1[0] * r2[1] - r1[1] * r2[0];
-  // B matrix
-  float B[3][3];
+
 
   B[0][0] = r1[0];
   B[1][0] = r1[1];
@@ -192,7 +189,7 @@ void get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll, float B[][3]) {
   }
 }
 
-void integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float delta_t, Attitude &yawpitchroll_integrator) {
+void Triad::integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float delta_t, Attitude &yawpitchroll_integrator) {
 
   float p = Acc_raw_val[3]; // gyro_x
   float q = Acc_raw_val[4]; // gyro_y
@@ -252,7 +249,7 @@ void integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float delta_t
   yawpitchroll_integrator.roll = roll_angle;
 }
 
-void filter(float Acc_raw_val[], const Attitude yawpitchroll_triad,
+void Triad::filter(const Attitude yawpitchroll_triad,
               const Attitude &yawpitchroll_int, Attitude &yawpitchroll) {
 
   if (yawpitchroll_triad.yaw > pi && yawpitchroll_int.yaw < pi) {

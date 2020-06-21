@@ -7,11 +7,20 @@ struct Attitude{
     float pitch;
     float roll;
 };
-float **TRIAD_cal();
-void get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll, float B[][3]);
-void Integrator(float Acc_raw_val[], Attitude &yawpitchroll, Attitude &yawpitchroll_integrator);
-void filter(float Acc_raw_val[], const Attitude &yawpitchroll_triad,
-              const Attitude &yawpitchroll_int, float delta_t, Attitude &yawpitchroll);
 
+class Triad{
+
+  private:
+
+  float B[3][3];
+
+  public:
+
+  void initialize();
+  void get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll);
+  void integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float delta_t, Attitude &yawpitchroll_integrator);
+  void filter(const Attitude yawpitchroll_triad, const Attitude &yawpitchroll_int, Attitude &yawpitchroll);
+
+};
 
 #endif /* TRIAD_H_ */

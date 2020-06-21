@@ -16,7 +16,7 @@
 Acelerometro acelerometro;
 Radio RadioCOM;
 Distancia Dist_sensor;
-
+Triad triad;
 
 // Global variables
 float Acc_raw_val[9]; // Raw IMU measurements accelerometer, magnetometer and gyroscope
@@ -36,8 +36,6 @@ EngineControl engines;
 // Constants
 float radtodeg = 180 / acos(-1); // Radtodeg conversion
 float pi = acos(-1);
-float** B; //B matrix
-
 
 
 
@@ -49,12 +47,11 @@ float** B; //B matrix
 State curr_state = STANDBY;
 // Next state function
 State next_state(State curr_state, StateChange change) {
-  if (change== StateChange::NO)
-    return curr_state;
   if (change== StateChange::NEXT && curr_state!= ABORT)
     return (State) ((curr_state+1) % NUM_STATES);
   if (change== StateChange::PREV && curr_state!= STANDBY)
      return (State) ((curr_state-1) % NUM_STATES);
+  return curr_state;
 }
 
 // ----------------------------------------------------------------------------
@@ -66,11 +63,11 @@ void read_sensors() {
   // Lectura de los valores raw de la IMU 9 DOF
   acelerometro.get_raw_val(Acc_raw_val);
   // Determinacion de los angulos de Euler utilizando el algoritmo TRIAD
-  get_ypr_triad(Acc_raw_val,yawpitchroll_triad, B);
+  triad.get_ypr_triad(Acc_raw_val,yawpitchroll_triad);
 
   // Determinación de los angulos de Euler utilizando el integrador
   if (first_iteration <= 20){
-    integrator(Acc_raw_val, yawpitchroll_triad, delta_t / 1000.0, yawpitchroll_int);
+    triad.integrator(Acc_raw_val, yawpitchroll_triad, delta_t / 1000.0, yawpitchroll_int);
     if (first_iteration < 20){
     yawpitchroll_offset.pitch+= yawpitchroll_triad.pitch;
     yawpitchroll_offset.roll+= yawpitchroll_triad.roll;
@@ -82,10 +79,10 @@ void read_sensors() {
   } else {
     yawpitchroll_triad.pitch -= yawpitchroll_offset.pitch;
     yawpitchroll_triad.roll -= yawpitchroll_offset.roll;
-    integrator(Acc_raw_val, yawpitchroll, delta_t / 1000.0, yawpitchroll_int);
+    triad.integrator(Acc_raw_val, yawpitchroll, delta_t / 1000.0, yawpitchroll_int);
   }
   //Aplicacion del filtro que combina ambas medidas
-  filter(Acc_raw_val, yawpitchroll_triad, yawpitchroll_int, yawpitchroll);
+  triad.filter(yawpitchroll_triad, yawpitchroll_int, yawpitchroll);
   // Yaw.update(yawpitchroll.yaw*radtodeg, delta_t);
   //Height.update(Dist_sensor.update_distance(),delta_t);
   // Lectura del dato de altura  
@@ -170,7 +167,7 @@ void setup() {
   RadioCOM.initialize();
   engines.init();
   //Dist_sensor.initialize();
-  B = TRIAD_cal();
+  triad.initialize();
 }
 
 // -----------------------------------------------------------------------------
