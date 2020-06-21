@@ -51,6 +51,7 @@ int EngineControl::altitudeRate2Power(float altitude_rate){
 }
 
 int EngineControl::error2Correction(float error){
+  
   float unbalance=error * error2CorrectionCoeff;
   if (unbalance > upperUnbalanceRange)
     return upperUnbalanceRange;

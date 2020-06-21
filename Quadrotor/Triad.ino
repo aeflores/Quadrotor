@@ -1,5 +1,69 @@
 
-void get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll) {
+float **TRIAD_cal(){
+  // Magnetic field components in the inertial system reference uT
+  // Madrid
+    float Mag_x_I = 25.6547;
+    float Mag_y_I = -0.1469 ;
+    float Mag_z_I = 36.8374;
+  // Almeria
+//  float Mag_x_I = 27.4347;
+//  float Mag_y_I = -0.0751;
+//  float Mag_z_I = 33.9364;
+  // Paris, Palaiseau
+//  float Mag_x_I = 20.9587;
+//  float Mag_y_I = 0.3459;
+//  float Mag_z_I = 43.3234;
+  float Mag_mod_I = sqrt(pow(Mag_x_I, 2) + pow(Mag_y_I, 2) + pow(Mag_z_I, 2));
+  // Gravity components in the inertial system reference m/s2
+  float Acc_x_I = 0;
+  float Acc_y_I = 0;
+  float Acc_z_I = 9.81;
+  float Acc_mod_I = sqrt(pow(Acc_x_I, 2) + pow(Acc_y_I, 2) + pow(Acc_z_I, 2));
+
+  float v1[3] = {Mag_x_I / Mag_mod_I, Mag_y_I / Mag_mod_I, Mag_z_I / Mag_mod_I};
+  float v2[3] = {Acc_x_I / Acc_mod_I, Acc_y_I / Acc_mod_I, Acc_z_I / Acc_mod_I};
+
+// Triada R
+  float r1[3], r2[3], r3[3];
+  r1[0] = v1[0];
+  r1[1] = v1[1];
+  r1[2] = v1[2];
+
+  r2[0] = v1[1] * v2[2] - v1[2] * v2[1];
+  r2[1] = -v1[0] * v2[2] + v1[2] * v2[0];
+  r2[2] = v1[0] * v2[1] - v1[1] * v2[0];
+
+  float r2_mod = sqrt(pow(r2[0], 2) + pow(r2[1], 2) + pow(r2[2], 2));
+
+  r2[0] = r2[0] / r2_mod;
+  r2[1] = r2[1] / r2_mod;
+  r2[2] = r2[2] / r2_mod;
+
+  r3[0] = r1[1] * r2[2] - r1[2] * r2[1];
+  r3[1] = -r1[0] * r2[2] + r1[2] * r2[0];
+  r3[2] = r1[0] * r2[1] - r1[1] * r2[0];
+  // B matrix
+  static float B[3][3];
+
+  B[0][0] = r1[0];
+  B[1][0] = r1[1];
+  B[2][0] = r1[2];
+
+  B[0][1] = r2[0];
+  B[1][1] = r2[1];
+  B[2][1] = r2[2];
+
+  B[0][2] = r3[0];
+  B[1][2] = r3[1];
+  B[2][2] = r3[2];
+
+  return B;
+}
+
+
+
+
+void get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll, float B[][3]) {
   // Magnetic field components in the inertial system reference uT
   // Madrid
     float Mag_x_I = 25.6547;

@@ -7,8 +7,8 @@ struct Attitude{
     float pitch;
     float roll;
 };
-
-void get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll);
+float **TRIAD_cal();
+void get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll, float B[][3]);
 void Integrator(float Acc_raw_val[], Attitude &yawpitchroll, Attitude &yawpitchroll_integrator);
 void filter(float Acc_raw_val[], const Attitude &yawpitchroll_triad,
               const Attitude &yawpitchroll_int, float delta_t, Attitude &yawpitchroll);

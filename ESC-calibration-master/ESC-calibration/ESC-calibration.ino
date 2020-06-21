@@ -28,7 +28,7 @@ void setup() {
     Serial.begin(9600);
     
     motA.attach(3, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
-    motB.attach(8, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
+    motB.attach(9, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
     motC.attach(5, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
     motD.attach(6, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
     

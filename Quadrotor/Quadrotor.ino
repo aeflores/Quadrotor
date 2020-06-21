@@ -36,7 +36,7 @@ EngineControl engines;
 // Constants
 float radtodeg = 180 / acos(-1); // Radtodeg conversion
 float pi = acos(-1);
-
+float** B; //B matrix
 
 
 
@@ -66,7 +66,7 @@ void read_sensors() {
   // Lectura de los valores raw de la IMU 9 DOF
   acelerometro.get_raw_val(Acc_raw_val);
   // Determinacion de los angulos de Euler utilizando el algoritmo TRIAD
-  get_ypr_triad(Acc_raw_val,yawpitchroll_triad);
+  get_ypr_triad(Acc_raw_val,yawpitchroll_triad, B);
 
   // Determinación de los angulos de Euler utilizando el integrador
   if (first_iteration <= 20){
@@ -170,6 +170,7 @@ void setup() {
   RadioCOM.initialize();
   engines.init();
   //Dist_sensor.initialize();
+  B = TRIAD_cal();
 }
 
 // -----------------------------------------------------------------------------
