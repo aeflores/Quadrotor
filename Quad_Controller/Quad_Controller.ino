@@ -44,9 +44,9 @@ StateChange stateChange() {
   int right = digitalRead(pinJoyButtonRight);
 
   // Left button state machine
-  // si encontramos un flanco de bajada vamos a PUSHED y empezamos a contar
-  // cambiamos the estado si hemos estado 100 ms con el boton pulsado
-  // Una vez cambiado de estado, no hacemos nada (end DONE) hasta que el boton
+  // si encontramos un flanco de bajada vamos a PUSHED y empezamos a contar tiempo.
+  // Cambiamos the estado si hemos estado 100 ms con el boton pulsado.
+  // Una vez cambiado de estado, no hacemos nada (en el estado DONE) hasta que el boton
   // se deja de pulsar.
   switch (left_button){
     case Button::HI:
