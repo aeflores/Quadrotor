@@ -35,8 +35,7 @@ ControlData datos_send;
 enum Button { HI = 0, PUSHED = 1, DONE = 2};
 
 StateChange stateChange() {
-  static unsigned long tiempo;
-  static int old_left, old_right;
+  static unsigned long tiempo_left, tiempo_right;
   static Button left_button, right_button;
 
   StateChange change= StateChange::NO;
@@ -50,13 +49,13 @@ StateChange stateChange() {
   // se deja de pulsar.
   switch (left_button){
     case Button::HI:
-        if (left != old_left && left == LOW){
+        if (left == LOW){
           left_button = Button::PUSHED;
-          tiempo = millis();
+          tiempo_left = millis();
         }
     break;
     case Button::PUSHED:
-       if (millis()>=tiempo+200){
+       if (millis()>=tiempo_left+200){
           left_button = Button::DONE;
           change = StateChange::PREV;
        }
@@ -72,13 +71,13 @@ StateChange stateChange() {
   // right button state machine
   switch (right_button){
     case Button::HI:
-        if (right != old_right && right == LOW){
+        if (right == LOW){
           right_button = Button::PUSHED;
-          tiempo = millis();
+          tiempo_right = millis();
         }
     break;
     case Button::PUSHED:
-       if (millis()>=tiempo+200){
+       if (millis()>=tiempo_right+200){
           right_button = Button::DONE;
           change = StateChange::NEXT;
        }
@@ -91,9 +90,6 @@ StateChange stateChange() {
     break;
   }
 
-  // updat the old_left and old_right for next iteration.
-  old_left = left;
-  old_right = right;
   return change;
 }
 
