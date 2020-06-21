@@ -21,8 +21,7 @@ RF24 radio(CE_PIN, CSN_PIN);
 const uint64_t pipe_send = 0xE8E8F0F0E1LL;
 const uint64_t pipe_read = 0xF0F0F0F0D2LL;
 
-//Variables necearias para la maquina de estados
-unsigned long tiempo;
+//Variables necesarias para la maquina de estados
 const int pinJoyButtonRight = 3;
 const int pinJoyButtonLeft = 2;
 
@@ -33,17 +32,69 @@ State curr_state = STANDBY;
 TransmitData datos_rec;
 ControlData datos_send;
 
+enum Button { HI = 0, PUSHED = 1, DONE = 2};
 
 StateChange stateChange() {
-  if ((digitalRead(pinJoyButtonLeft) == LOW && (millis()>=tiempo+100))) {
-    tiempo=millis();
-    return StateChange::PREV;
+  static unsigned long tiempo;
+  static int old_left, old_right;
+  static Button left_button, right_button;
+
+  StateChange change= StateChange::NO;
+  int left = digitalRead(pinJoyButtonLeft);
+  int right = digitalRead(pinJoyButtonRight);
+
+  // Left button state machine
+  // si encontramos un flanco de bajada vamos a PUSHED y empezamos a contar
+  // cambiamos the estado si hemos estado 100 ms con el boton pulsado
+  // Una vez cambiado de estado, no hacemos nada (end DONE) hasta que el boton
+  // se deja de pulsar.
+  switch (left_button){
+    case Button::HI:
+        if (left != old_left && left == LOW){
+          left_button = Button::PUSHED;
+          tiempo = millis();
+        }
+    break;
+    case Button::PUSHED:
+       if (millis()>=tiempo+100){
+          left_button = Button::DONE;
+          change = StateChange::PREV;
+       }
+       if(left == HIGH)
+         left_button = Button::HI;
+    break;
+    case Button::DONE:
+      if(left == HIGH)
+         left_button = Button::HI;
+    break;
   }
-  if (digitalRead(pinJoyButtonRight) == LOW && (millis()>=tiempo+100)) {
-    tiempo=millis();
-    return StateChange::NEXT;
+
+  // right button state machine
+  switch (right_button){
+    case Button::HI:
+        if (right != old_right && right == LOW){
+          right_button = Button::PUSHED;
+          tiempo = millis();
+        }
+    break;
+    case Button::PUSHED:
+       if (millis()>=tiempo+100){
+          right_button = Button::DONE;
+          change = StateChange::NEXT;
+       }
+       if(right == HIGH)
+         right_button = Button::HI;
+    break;
+    case Button::DONE:
+      if(right == HIGH)
+         right_button = Button::HI;
+    break;
   }
-  return StateChange::NO;
+
+  // updat the old_left and old_right for next iteration.
+  old_left = left;
+  old_right = right;
+  return change;
 }
 
 void setup() {
