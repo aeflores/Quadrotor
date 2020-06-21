@@ -134,9 +134,9 @@ void loop() {
       conf.upperUnbalanceRange=100;
       conf.lowerUnbalanceRange=75;
       radio.write(&conf,sizeof(conf));
-      Serial.print("  written conf: err2correct_coeff= ");
+      Serial.print("written conf: err2correctCoeff= ");
       Serial.print(conf.error2CorrectionCoeff);
-      Serial.print("  written conf: derivativeError2CorrectionCoeff= ");
+      Serial.print("written conf: derivativeErr2correctCoeff= ");
       Serial.print(conf.derivativeError2CorrectionCoeff);
       Serial.print(" upperRange= ");
       Serial.print(conf.upperUnbalanceRange);
