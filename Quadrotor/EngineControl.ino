@@ -29,6 +29,7 @@ void EngineControl::configure(ControllerConfiguration &conf){
   upperUnbalanceRange=conf.upperUnbalanceRange;
   lowerUnbalanceRange=conf.lowerUnbalanceRange;
   error2CorrectionCoeff=conf.error2CorrectionCoeff;
+  derivativeError2CorrectionCoeff = conf.derivativeError2CorrectionCoeff;
 }
 
 void EngineControl::computeReference(const int control[5]){
@@ -50,9 +51,9 @@ int EngineControl::altitudeRate2Power(float altitude_rate){
   return power;
 }
 
-int EngineControl::error2Correction(float error){
+int EngineControl::error2Correction(float error, float derivative_error){
   
-  float unbalance=error * error2CorrectionCoeff;
+  float unbalance=error * error2CorrectionCoeff + derivative_error * derivativeError2CorrectionCoeff;
   if (unbalance > upperUnbalanceRange)
     return upperUnbalanceRange;
   if (unbalance < -lowerUnbalanceRange)
@@ -60,12 +61,23 @@ int EngineControl::error2Correction(float error){
   return unbalance;
 }
 
-void EngineControl::proportionalControl(const int control[4], const Attitude &yawpitchroll_deg){
+
+void EngineControl::pdControl(const int control[4], const Attitude &yawpitchroll_deg, const int delta_t){
     computeReference(control);
-    error_pitch= reference.pitch - yawpitchroll_deg.pitch;
-    error_roll= reference.roll - yawpitchroll_deg.roll;
-    int unbalance_pitch=error2Correction(error_pitch);
-    int unbalance_roll=error2Correction(error_roll);
+    float old_error_pitch, old_error_roll;
+    // save old values
+    old_error_pitch = error_pitch;
+    old_error_roll = error_roll;
+    // compute new values
+    error_pitch = reference.pitch - yawpitchroll_deg.pitch;
+    error_roll = reference.roll - yawpitchroll_deg.roll;
+    // compute derivative
+    derivative_error_pitch = (error_pitch - old_error_pitch) / delta_t;
+    derivative_error_roll = (error_roll - old_error_roll) / delta_t;
+
+    // compute power based on error
+    int unbalance_pitch=error2Correction(error_pitch, derivative_error_pitch);
+    int unbalance_roll=error2Correction(error_roll, derivative_error_roll);
     power= altitudeRate2Power(reference.altitude_rate);
 
     engine_speed[0]= power - unbalance_pitch - unbalance_roll;

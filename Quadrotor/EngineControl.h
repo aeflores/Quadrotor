@@ -26,20 +26,21 @@ private:
 
     void computeReference(const int control[5]);
     int altitudeRate2Power(float altitude_rate);
-    int error2Correction(float error);
+    int error2Correction(float error, float derivative_error);
 public:
-    float error2CorrectionCoeff=10;
+    float error2CorrectionCoeff = 10;
+    float derivativeError2CorrectionCoeff = 0;
     float upperUnbalanceRange=100;
     float lowerUnbalanceRange=25;
     int power;
-    float error_pitch, error_roll;
+    float error_pitch, error_roll, derivative_error_pitch, derivative_error_roll;
     int engine_speed[4]={MIN_SPEED,MIN_SPEED,MIN_SPEED,MIN_SPEED};
     ControlReference reference;
     void init();
     void updateEngines();
     void testControl(const int control[5]);
     void configure(ControllerConfiguration &conf);
-    void proportionalControl(const int control[4],const Attitude &yawpitchroll);
+    void pdControl(const int control[4], const Attitude &yawpitchroll, const int delta_t);
     void stop();
 
 };

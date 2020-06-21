@@ -202,7 +202,7 @@ void loop() {
     if(yawpitchroll_deg.pitch > 25 ||  yawpitchroll_deg.pitch < -25 || yawpitchroll_deg.roll > 25 || yawpitchroll_deg.roll < -25)
       curr_state = ABORT;
     else
-      engines.proportionalControl(control.movement, yawpitchroll_deg);
+      engines.pdControl(control.movement, yawpitchroll_deg, delta_t);
     break;
   case ABORT:
     //Serial.print("ABORT  ");

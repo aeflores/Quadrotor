@@ -65,9 +65,10 @@ struct TransmitData
 };
 
 struct ControllerConfiguration{
-    float error2CorrectionCoeff=10;
+    float error2CorrectionCoeff=5;
+    float derivativeError2CorrectionCoeff=0;
     float upperUnbalanceRange=100;
-    float lowerUnbalanceRange=25;
+    float lowerUnbalanceRange=75;
 };
 
 
