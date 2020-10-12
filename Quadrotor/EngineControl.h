@@ -28,10 +28,10 @@ private:
     int altitudeRate2Power(float altitude_rate);
     int error2Correction(float error, float derivative_error);
 public:
-    float error2CorrectionCoeff = 10;
+    float error2CorrectionCoeff = 5;
     float derivativeError2CorrectionCoeff = 0;
-    float upperUnbalanceRange=100;
-    float lowerUnbalanceRange=25;
+    float upperUnbalanceRange=50;
+    float lowerUnbalanceRange=20;
     int power;
     float error_pitch, error_roll, derivative_error_pitch, derivative_error_roll;
     int engine_speed[4]={MIN_SPEED,MIN_SPEED,MIN_SPEED,MIN_SPEED};

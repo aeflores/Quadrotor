@@ -125,10 +125,10 @@ void loop() {
       radio.write(&datos_send, sizeof(datos_send));
       // send configuration
       ControllerConfiguration conf;
-      conf.error2CorrectionCoeff=0;
-      conf.derivativeError2CorrectionCoeff=2;
-      conf.upperUnbalanceRange=100;
-      conf.lowerUnbalanceRange=75;
+      conf.error2CorrectionCoeff=5;
+      conf.derivativeError2CorrectionCoeff=0.3;
+      conf.upperUnbalanceRange=50;
+      conf.lowerUnbalanceRange=25;
       radio.write(&conf,sizeof(conf));
       Serial.print("written conf: err2correctCoeff= ");
       Serial.print(conf.error2CorrectionCoeff);

@@ -99,7 +99,7 @@ void read_sensors() {
 
 void Print_data() {      
 //    Serial.print("Yaw = ");
-//    Serial.print(yawpitchroll[0]*radtodeg);
+//    Serial.print(yawpitchroll_deg.yaw);
     Serial.print("   Pitch = ");
     Serial.print(yawpitchroll_deg.pitch);
     Serial.print("   Roll = ");
@@ -114,26 +114,26 @@ void Print_data() {
 //    Serial.print(control[3]);
 //  Serial.print("  state= ");
 //  Serial.print(control[4]);
-//  Serial.print("  Delta Time  ");
-//  Serial.println(millis());
+  Serial.print("  Delta Time  ");
+  Serial.println(millis());
   Serial.print("  Ref pitch=  ");
   Serial.print(engines.reference.pitch);
   Serial.print("  Ref roll=  ");
   Serial.print(engines.reference.roll);
-  //Serial.print("  Ref vertical speed=  ");
-  //Serial.print(engines.reference.altitude_rate);
-  //Serial.print("  Ref yaw rate=  ");
-  //Serial.print(engines.reference.yaw_rate);
-  Serial.print(" Error_pitch");
+  Serial.print("  Ref vertical speed=  ");
+  Serial.print(engines.reference.altitude_rate);
+  Serial.print("  Ref yaw rate=  ");
+  Serial.print(engines.reference.yaw_rate);
+  Serial.print(" Error_pitch  ");
   Serial.print(engines.error_pitch);
-  Serial.print(" Error_roll");
+  Serial.print(" Error_roll  ");
   Serial.print(engines.error_roll);
-  Serial.print(" Derivative_Error_pitch");
+  Serial.print(" Derivative_Error_pitch  ");
   Serial.print(engines.derivative_error_pitch);
-  Serial.print(" Derivative_Error_roll");
+  Serial.print(" Derivative_Error_roll  ");
   Serial.print(engines.derivative_error_roll);
-  Serial.print(" Base power");
-  Serial.print(engines.power);
+//  Serial.print(" Base power  ");
+//  Serial.print(engines.power);
 
   Serial.print(" Control_Coeff= ");
   Serial.print(engines.error2CorrectionCoeff);

@@ -64,17 +64,33 @@ int EngineControl::error2Correction(float error, float derivative_error){
 
 void EngineControl::pdControl(const int control[4], const Attitude &yawpitchroll_deg, const int delta_t){
     computeReference(control);
-    float old_error_pitch, old_error_roll;
+    float old_error_pitch, old_error_roll, old_derivative_error_pitch, old_derivative_error_roll;
     // save old values
     old_error_pitch = error_pitch;
     old_error_roll = error_roll;
+
+    old_derivative_error_pitch = derivative_error_pitch;
+    old_derivative_error_roll = derivative_error_roll;   
+
+    float derivative_pitch_filter_coeff = 0.2;
+    float derivative_roll_filter_coeff = 0.2;
+
+    float pitch_filter_coeff = 0.8;
+    float roll_filter_coeff = 0.05;
+    
     // compute new values
     error_pitch = reference.pitch - yawpitchroll_deg.pitch;
     error_roll = reference.roll - yawpitchroll_deg.roll;
+    // Filtering errors
+    error_pitch = pitch_filter_coeff*error_pitch + (1-pitch_filter_coeff)*old_error_pitch;
+    error_roll = roll_filter_coeff*error_roll + (1-roll_filter_coeff)*old_error_roll;
+    
     // compute derivative
     derivative_error_pitch = (error_pitch - old_error_pitch) *1000 / delta_t;
     derivative_error_roll = (error_roll - old_error_roll) *1000 / delta_t;
-
+    // Filtering error derivatives
+    derivative_error_pitch = derivative_pitch_filter_coeff *derivative_error_pitch + (1 - derivative_pitch_filter_coeff)*old_derivative_error_pitch;
+    derivative_error_roll = derivative_roll_filter_coeff *derivative_error_roll + (1 - derivative_roll_filter_coeff)*old_derivative_error_roll;
     // compute power based on error
     int unbalance_pitch=error2Correction(error_pitch, derivative_error_pitch);
     int unbalance_roll=error2Correction(error_roll, derivative_error_roll);
