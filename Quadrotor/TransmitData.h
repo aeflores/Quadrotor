@@ -69,6 +69,8 @@ struct ControllerConfiguration{
     float derivativeError2CorrectionCoeff=2;
     float upperUnbalanceRange=100;
     float lowerUnbalanceRange=75;
+    float feedforwardunbalance14 = 0;
+    float feedforwardunbalance23 = 10;
 };
 
 

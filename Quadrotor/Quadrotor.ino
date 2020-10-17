@@ -143,6 +143,10 @@ void Print_data() {
   Serial.print(engines.upperUnbalanceRange);
   Serial.print("lower_range= ");
   Serial.print(engines.lowerUnbalanceRange);
+  Serial.print("FFUn14= ");
+  Serial.print(engines.feedforwardunbalance14);
+  Serial.print("FFUn23= ");
+  Serial.print(engines.feedforwardunbalance23);
 //  Serial.print("  Yaw raw=  ");
 //  Serial.print(Yaw.raw);
 //  Serial.print("  Yaw=  ");

@@ -32,6 +32,10 @@ public:
     float derivativeError2CorrectionCoeff = 0;
     float upperUnbalanceRange=50;
     float lowerUnbalanceRange=20;
+    
+    float feedforwardunbalance14 = 0;
+    float feedforwardunbalance23 = 10;
+
     int power;
     float error_pitch, error_roll, derivative_error_pitch, derivative_error_roll;
     int engine_speed[4]={MIN_SPEED,MIN_SPEED,MIN_SPEED,MIN_SPEED};

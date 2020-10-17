@@ -30,6 +30,8 @@ void EngineControl::configure(ControllerConfiguration &conf){
   lowerUnbalanceRange=conf.lowerUnbalanceRange;
   error2CorrectionCoeff=conf.error2CorrectionCoeff;
   derivativeError2CorrectionCoeff = conf.derivativeError2CorrectionCoeff;
+  feedforwardunbalance14 = conf.feedforwardunbalance14;
+  feedforwardunbalance23 = conf.feedforwardunbalance23;
 }
 
 void EngineControl::computeReference(const int control[5]){
@@ -96,10 +98,10 @@ void EngineControl::pdControl(const int control[4], const Attitude &yawpitchroll
     int unbalance_roll=error2Correction(error_roll, derivative_error_roll);
     power= altitudeRate2Power(reference.altitude_rate);
 
-    engine_speed[0]= power - unbalance_pitch - unbalance_roll;
-    engine_speed[1]= power - unbalance_pitch + unbalance_roll;
-    engine_speed[2]= power + unbalance_pitch - unbalance_roll;
-    engine_speed[3]= power + unbalance_pitch + unbalance_roll;
+    engine_speed[0]= power - unbalance_pitch - unbalance_roll + feedforwardunbalance14;
+    engine_speed[1]= power - unbalance_pitch + unbalance_roll + feedforwardunbalance23;
+    engine_speed[2]= power + unbalance_pitch - unbalance_roll - feedforwardunbalance23;
+    engine_speed[3]= power + unbalance_pitch + unbalance_roll - feedforwardunbalance14;
 }
 
 void EngineControl::stop(){

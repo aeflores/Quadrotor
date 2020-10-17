@@ -117,7 +117,7 @@ void loop() {
   datos_send.movement[2] = analogRead(A2);
   datos_send.movement[3] = analogRead(A3);
   // This is for callibrating
-  datos_send.movement[1]= analogRead(A4);
+  datos_send.movement[1]= int(analogRead(A4)*3/4);
   datos_send.change= stateChange();
 
   if(curr_state== CALIBRATION){
@@ -125,15 +125,21 @@ void loop() {
       radio.write(&datos_send, sizeof(datos_send));
       // send configuration
       ControllerConfiguration conf;
-      conf.error2CorrectionCoeff=5;
-      conf.derivativeError2CorrectionCoeff=0.3;
-      conf.upperUnbalanceRange=50;
-      conf.lowerUnbalanceRange=25;
+      conf.error2CorrectionCoeff=20;
+      conf.derivativeError2CorrectionCoeff=0.4;
+      conf.upperUnbalanceRange=100;
+      conf.lowerUnbalanceRange=100;
+      conf.feedforwardunbalance14=0;
+      conf.feedforwardunbalance23=0;
       radio.write(&conf,sizeof(conf));
       Serial.print("written conf: err2correctCoeff= ");
       Serial.print(conf.error2CorrectionCoeff);
       Serial.print("written conf: derivativeErr2correctCoeff= ");
       Serial.print(conf.derivativeError2CorrectionCoeff);
+      Serial.print(" FFUn14= ");
+      Serial.print(conf.feedforwardunbalance14);
+      Serial.print(" FFUn23= ");
+      Serial.print(conf.feedforwardunbalance23);
       Serial.print(" upperRange= ");
       Serial.print(conf.upperUnbalanceRange);
       Serial.print(" lowerRange= ");
@@ -143,8 +149,10 @@ void loop() {
       radio.write(&datos_send, sizeof(datos_send));
   }
 
-  Serial.print("Power= ");
+  Serial.print("Power=  ");
+  Serial.print("\t"); 
   Serial.print(datos_send.movement[1]);
+  Serial.print("\t"); 
   // RECEPCION DE DATOS
   // Empezamos a escuchar por el canal
   radio.startListening();
