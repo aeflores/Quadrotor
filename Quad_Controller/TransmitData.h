@@ -30,6 +30,7 @@ struct TransmitData
        switch (state) {
         case STANDBY:
           Serial.print("STANDBY ");
+          Serial.print("\t"); 
           break;
         case CALIBRATION:
           Serial.print("CALIBRATION ");
@@ -42,24 +43,37 @@ struct TransmitData
           break;
         }
         Serial.print(" Yaw= ");
+        Serial.print("\t"); 
         Serial.print(yawpitchroll[0]);
+        Serial.print("\t"); 
         Serial.print(" Pitch= ");
+        Serial.print("\t");
         Serial.print(yawpitchroll[1]);
+        Serial.print("\t");
         Serial.print(" Roll= ");
+        Serial.print("\t");
         Serial.print(yawpitchroll[2]);
+        Serial.print("\t");
 
         Serial.print(" Error pitch= ");
+        Serial.print("\t");
         Serial.print(errors[0]);
+        Serial.print("\t");
         Serial.print(" Error roll= ");
+        Serial.print("\t");
         Serial.print(errors[1]);
+        Serial.print("\t");
 
         for(int i=0; i<4; i++){
             Serial.print(" Eng");
             Serial.print(i+1);
             Serial.print("= ");
+            Serial.print("\t");
             Serial.print(engines[i]);
         }
+        Serial.print("\t");
         Serial.print("Delta T=");
+        Serial.print("\t");
         Serial.print(delta_t);
     }
 };
