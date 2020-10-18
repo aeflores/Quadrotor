@@ -97,7 +97,7 @@ void read_sensors() {
 
 }
 
-void Print_data() {      
+void Print_data() {
 //    Serial.print("Yaw = ");
 //    Serial.print(yawpitchroll_deg.yaw);
     Serial.print("   Pitch = ");
@@ -115,7 +115,7 @@ void Print_data() {
 //  Serial.print("  state= ");
 //  Serial.print(control[4]);
   Serial.print("  Delta Time  ");
-  Serial.println(millis());
+  Serial.println(delta_t);
   Serial.print("  Ref pitch=  ");
   Serial.print(engines.reference.pitch);
   Serial.print("  Ref roll=  ");
@@ -183,13 +183,20 @@ void setup() {
 // -----------------------------------------------------------------------------
 // ---------------------------------- Main Loop --------------------------------
 // -----------------------------------------------------------------------------
+short cycle_counter;
 
 void loop() {
+  // La radio transmite y recibe cada 15 ciclos
+  cycle_counter = (cycle_counter +1) % 15;
+
   tiempo = millis();
   delta_t = tiempo - tiempo0;
   tiempo0 = tiempo;
   ControllerConfiguration configuration;
-  RadioCOM.radiolisten(control, configuration);
+  // En el ciclo 14 recibe datos
+  if(cycle_counter == 14){
+   RadioCOM.radiolisten(control, configuration);
+  }
   read_sensors();
   curr_state = next_state(curr_state, control.change);
   switch (curr_state) {
@@ -219,7 +226,15 @@ void loop() {
     engines.stop();
     break;
   }
-  RadioCOM.radiosend(curr_state, yawpitchroll_deg, engines, delta_t);
+  // En el ciclo 1 empieza el envio
+  if(cycle_counter == 1){
+     RadioCOM.radiosend(curr_state, yawpitchroll_deg, engines, delta_t);
+  }
+  // En el ciclo 7 termina el envio
+  // y empieza a escuchar hasta el ciclo 14
+  if(cycle_counter == 7){
+    RadioCOM.finishSend();
+  }
   Print_data();
   engines.updateEngines();
 

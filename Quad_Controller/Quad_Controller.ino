@@ -100,6 +100,7 @@ void setup() {
   Serial.begin(115200);
   // Inicializamos el NRF24L01
   radio.begin();
+  radio.setDataRate(RF24_2MBPS);
   // radio.setRetries(15,15);
   // radio.setPayloadSize(8);
   // Abrimos un canal de escritura

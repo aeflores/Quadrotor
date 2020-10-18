@@ -4,6 +4,7 @@
 
 void Radio::initialize() {
   radio.begin();
+  radio.setDataRate(RF24_2MBPS);
   // radio.setRetries(15,15);
   // radio.setPayloadSize(8);
   // Abrimos un canal de escritura
@@ -28,9 +29,14 @@ void Radio::radiosend(const State curr_state, const Attitude& datos, const Engin
   data.errors[1] = engines.error_roll;
   data.delta_t=delta_t;
   radio.stopListening();
-  radio.write(&data, sizeof(data));
+  radio.startWrite(&data, sizeof(data),false);
+}
+
+void Radio::finishSend(){
+  radio.txStandBy();
   radio.startListening();
 }
+
 void Radio::radiolisten(void *data, int numBytes) {
   // RECEPCION DE DATOS
   // Empezamos a escuchar por el canal
