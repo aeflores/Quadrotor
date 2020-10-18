@@ -10,7 +10,7 @@ float Signal::compute_LPF(float prev, float current, float alpha){
 // Derivative
 
 float Signal::compute_derivative(float prev, float current, float delta_t){
-  return (current-prev)*1000/delta_t;
+  return (current-prev)*1000000/delta_t;
 }
 
 void Signal::update(float new_value, float delta_t){

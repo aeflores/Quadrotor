@@ -70,7 +70,7 @@ struct ControllerConfiguration{
     float upperUnbalanceRange=100;
     float lowerUnbalanceRange=75;
     float feedforwardunbalance14 = 0;
-    float feedforwardunbalance23 = 10;
+    float feedforwardunbalance23 = 0;
 };
 
 

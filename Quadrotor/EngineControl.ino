@@ -88,8 +88,8 @@ void EngineControl::pdControl(const int control[4], const Attitude &yawpitchroll
     error_roll = roll_filter_coeff*error_roll + (1-roll_filter_coeff)*old_error_roll;
     
     // compute derivative
-    derivative_error_pitch = (error_pitch - old_error_pitch) *1000 / delta_t;
-    derivative_error_roll = (error_roll - old_error_roll) *1000 / delta_t;
+    derivative_error_pitch = (error_pitch - old_error_pitch) *1000000 / delta_t;
+    derivative_error_roll = (error_roll - old_error_roll) *1000000 / delta_t;
     // Filtering error derivatives
     derivative_error_pitch = derivative_pitch_filter_coeff *derivative_error_pitch + (1 - derivative_pitch_filter_coeff)*old_derivative_error_pitch;
     derivative_error_roll = derivative_roll_filter_coeff *derivative_error_roll + (1 - derivative_roll_filter_coeff)*old_derivative_error_roll;

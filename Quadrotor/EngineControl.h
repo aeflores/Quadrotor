@@ -34,7 +34,7 @@ public:
     float lowerUnbalanceRange=20;
     
     float feedforwardunbalance14 = 0;
-    float feedforwardunbalance23 = 10;
+    float feedforwardunbalance23 = 0;
 
     int power;
     float error_pitch, error_roll, derivative_error_pitch, derivative_error_roll;

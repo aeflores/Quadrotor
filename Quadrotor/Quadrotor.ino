@@ -67,7 +67,7 @@ void read_sensors() {
 
   // Determinación de los angulos de Euler utilizando el integrador
   if (first_iteration <= 20){
-    triad.integrator(Acc_raw_val, yawpitchroll_triad, delta_t / 1000.0, yawpitchroll_int);
+    triad.integrator(Acc_raw_val, yawpitchroll_triad, delta_t / 1000000.0, yawpitchroll_int);
     if (first_iteration < 20){
     yawpitchroll_offset.pitch+= yawpitchroll_triad.pitch;
     yawpitchroll_offset.roll+= yawpitchroll_triad.roll;
@@ -79,7 +79,7 @@ void read_sensors() {
   } else {
     yawpitchroll_triad.pitch -= yawpitchroll_offset.pitch;
     yawpitchroll_triad.roll -= yawpitchroll_offset.roll;
-    triad.integrator(Acc_raw_val, yawpitchroll, delta_t / 1000.0, yawpitchroll_int);
+    triad.integrator(Acc_raw_val, yawpitchroll, delta_t / 1000000.0, yawpitchroll_int);
   }
   //Aplicacion del filtro que combina ambas medidas
   triad.filter(yawpitchroll_triad, yawpitchroll_int, yawpitchroll);
@@ -100,10 +100,10 @@ void read_sensors() {
 void Print_data() {
 //    Serial.print("Yaw = ");
 //    Serial.print(yawpitchroll_deg.yaw);
-    Serial.print("   Pitch = ");
-    Serial.print(yawpitchroll_deg.pitch);
-    Serial.print("   Roll = ");
-    Serial.print(yawpitchroll_deg.roll);
+//    Serial.print("   Pitch = ");
+//    Serial.print(yawpitchroll_deg.pitch);
+//    Serial.print("   Roll = ");
+//    Serial.print(yawpitchroll_deg.roll);
 //    Serial.print("JSRX= ");
 //    Serial.print(control[0]);
 //    Serial.print("  JSRY= ");
@@ -114,16 +114,16 @@ void Print_data() {
 //    Serial.print(control[3]);
 //  Serial.print("  state= ");
 //  Serial.print(control[4]);
-  Serial.print("  Delta Time  ");
-  Serial.println(delta_t);
-  Serial.print("  Ref pitch=  ");
-  Serial.print(engines.reference.pitch);
-  Serial.print("  Ref roll=  ");
-  Serial.print(engines.reference.roll);
-  Serial.print("  Ref vertical speed=  ");
-  Serial.print(engines.reference.altitude_rate);
-  Serial.print("  Ref yaw rate=  ");
-  Serial.print(engines.reference.yaw_rate);
+//  Serial.print("  Delta Time  ");
+//  Serial.println(delta_t);
+//  Serial.print("  Ref pitch=  ");
+//  Serial.print(engines.reference.pitch);
+//  Serial.print("  Ref roll=  ");
+//  Serial.print(engines.reference.roll);
+//  Serial.print("  Ref vertical speed=  ");
+//  Serial.print(engines.reference.altitude_rate);
+//  Serial.print("  Ref yaw rate=  ");
+//  Serial.print(engines.reference.yaw_rate);
   Serial.print(" Error_pitch  ");
   Serial.print(engines.error_pitch);
   Serial.print(" Error_roll  ");
@@ -135,33 +135,33 @@ void Print_data() {
 //  Serial.print(" Base power  ");
 //  Serial.print(engines.power);
 
-  Serial.print(" Control_Coeff= ");
-  Serial.print(engines.error2CorrectionCoeff);
-  Serial.print(" DerivativeControl_Coeff= ");
-  Serial.print(engines.derivativeError2CorrectionCoeff);
-  Serial.print(" upper_range= ");
-  Serial.print(engines.upperUnbalanceRange);
-  Serial.print("lower_range= ");
-  Serial.print(engines.lowerUnbalanceRange);
-  Serial.print("FFUn14= ");
-  Serial.print(engines.feedforwardunbalance14);
-  Serial.print("FFUn23= ");
-  Serial.print(engines.feedforwardunbalance23);
+//  Serial.print(" Control_Coeff= ");
+//  Serial.print(engines.error2CorrectionCoeff);
+//  Serial.print(" DerivativeControl_Coeff= ");
+//  Serial.print(engines.derivativeError2CorrectionCoeff);
+//  Serial.print(" upper_range= ");
+//  Serial.print(engines.upperUnbalanceRange);
+//  Serial.print("lower_range= ");
+//  Serial.print(engines.lowerUnbalanceRange);
+//  Serial.print("FFUn14= ");
+//  Serial.print(engines.feedforwardunbalance14);
+//  Serial.print("FFUn23= ");
+//  Serial.print(engines.feedforwardunbalance23);
 //  Serial.print("  Yaw raw=  ");
 //  Serial.print(Yaw.raw);
 //  Serial.print("  Yaw=  ");
 //  Serial.print(Yaw.value);
 //  Serial.print("  Yaw rate=  ");
 //  Serial.print(Yaw.derivative);
-  Serial.print(" Engine 1: ");
-  Serial.print(engines.engine_speed[0]);
-  Serial.print(" Engine 2: ");
-  Serial.print(engines.engine_speed[1]);
-  Serial.print(" Engine 3: ");
-  Serial.print(engines.engine_speed[2]);
-  Serial.print(" Engine 4 :");
-  Serial.print(engines.engine_speed[3]);
-  Serial.println(" ");
+//  Serial.print(" Engine 1: ");
+//  Serial.print(engines.engine_speed[0]);
+//  Serial.print(" Engine 2: ");
+//  Serial.print(engines.engine_speed[1]);
+//  Serial.print(" Engine 3: ");
+//  Serial.print(engines.engine_speed[2]);
+//  Serial.print(" Engine 4 :");
+//  Serial.print(engines.engine_speed[3]);
+
 }
 
 // -----------------------------------------------------------------------------
@@ -189,16 +189,17 @@ void loop() {
   // La radio transmite y recibe cada 15 ciclos
   cycle_counter = (cycle_counter +1) % 15;
 
-  tiempo = millis();
+  tiempo = micros();
   delta_t = tiempo - tiempo0;
   tiempo0 = tiempo;
   ControllerConfiguration configuration;
   // En el ciclo 14 recibe datos
   if(cycle_counter == 14){
    RadioCOM.radiolisten(control, configuration);
+   curr_state = next_state(curr_state, control.change);
   }
   read_sensors();
-  curr_state = next_state(curr_state, control.change);
+  //curr_state = next_state(curr_state, control.change);
   switch (curr_state) {
   case STANDBY:
     Serial.print("STANDBY   ");
@@ -235,7 +236,7 @@ void loop() {
   if(cycle_counter == 7){
     RadioCOM.finishSend();
   }
-  Print_data();
+  // Print_data();
   engines.updateEngines();
-
+  Serial.println(" ");
 }

@@ -55,7 +55,7 @@ StateChange stateChange() {
         }
     break;
     case Button::PUSHED:
-       if (millis()>=tiempo_left+200){
+       if (millis()>=tiempo_left+50){
           left_button = Button::DONE;
           change = StateChange::PREV;
        }
@@ -77,7 +77,7 @@ StateChange stateChange() {
         }
     break;
     case Button::PUSHED:
-       if (millis()>=tiempo_right+200){
+       if (millis()>=tiempo_right+50){
           right_button = Button::DONE;
           change = StateChange::NEXT;
        }
@@ -150,8 +150,7 @@ void loop() {
       radio.write(&datos_send, sizeof(datos_send));
   }
 
-  Serial.print("Power=  ");
-  Serial.print("\t"); 
+  Serial.print("Power=  "); 
   Serial.print(datos_send.movement[1]);
   Serial.print("\t"); 
   // RECEPCION DE DATOS
@@ -160,7 +159,7 @@ void loop() {
   unsigned long started_waiting_at = millis();
   bool timeout = false;
   while (!radio.available() && !timeout) { // Esperamos 200ms
-    if (millis() - started_waiting_at > 100)
+    if (millis() - started_waiting_at > 50)
       timeout = true;
   }
   if (timeout) {
