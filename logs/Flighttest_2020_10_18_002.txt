@@ -1,5 +1,3 @@
-Flight test drone 2020/10/18
-
 Power=  214	FLYMODE 	 Yaw= 341.58	 Pitch= -1.72	 Roll= 0.79	 Error pitch= 1.71	 Error roll= -0.81	 Eng1= 1210	 Eng2= 1202	 Eng3= 1226	 Eng4= 1218	Delta T=4148
 Power=  214	FLYMODE 	 Yaw= 341.24	 Pitch= -1.47	 Roll= 0.66	 Error pitch= 1.45	 Error roll= -0.73	 Eng1= 1210	 Eng2= 1204	 Eng3= 1224	 Eng4= 1218	Delta T=4140
 Power=  214	FLYMODE 	 Yaw= 340.58	 Pitch= -1.52	 Roll= 0.69	 Error pitch= 1.52	 Error roll= -0.63	 Eng1= 1210	 Eng2= 1204	 Eng3= 1224	 Eng4= 1218	Delta T=4136
