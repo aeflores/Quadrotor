@@ -26,12 +26,12 @@ void EngineControl::testControl(const int control[5]){
 }
 
 void EngineControl::configure(ControllerConfiguration &conf){
-  upperUnbalanceRange=conf.upperUnbalanceRange;
-  lowerUnbalanceRange=conf.lowerUnbalanceRange;
-  error2CorrectionCoeff=conf.error2CorrectionCoeff;
+  upperUnbalanceRange             = conf.upperUnbalanceRange;
+  lowerUnbalanceRange             = conf.lowerUnbalanceRange;
+  error2CorrectionCoeff           = conf.error2CorrectionCoeff;
   derivativeError2CorrectionCoeff = conf.derivativeError2CorrectionCoeff;
-  feedforwardunbalance14 = conf.feedforwardunbalance14;
-  feedforwardunbalance23 = conf.feedforwardunbalance23;
+  feedforwardunbalance14          = conf.feedforwardunbalance14;
+  feedforwardunbalance23          = conf.feedforwardunbalance23;
 }
 
 void EngineControl::computeReference(const int control[5]){

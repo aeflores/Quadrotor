@@ -124,25 +124,25 @@ void Print_data() {
 //  Serial.print(engines.reference.altitude_rate);
 //  Serial.print("  Ref yaw rate=  ");
 //  Serial.print(engines.reference.yaw_rate);
-  Serial.print(" Error_pitch  ");
-  Serial.print(engines.error_pitch);
-  Serial.print(" Error_roll  ");
-  Serial.print(engines.error_roll);
-  Serial.print(" Derivative_Error_pitch  ");
-  Serial.print(engines.derivative_error_pitch);
-  Serial.print(" Derivative_Error_roll  ");
-  Serial.print(engines.derivative_error_roll);
+//  Serial.print(" Error_pitch  ");
+//  Serial.print(engines.error_pitch);
+//  Serial.print(" Error_roll  ");
+//  Serial.print(engines.error_roll);
+//  Serial.print(" Derivative_Error_pitch  ");
+//  Serial.print(engines.derivative_error_pitch);
+//  Serial.print(" Derivative_Error_roll  ");
+//  Serial.print(engines.derivative_error_roll);
 //  Serial.print(" Base power  ");
 //  Serial.print(engines.power);
 
-//  Serial.print(" Control_Coeff= ");
-//  Serial.print(engines.error2CorrectionCoeff);
-//  Serial.print(" DerivativeControl_Coeff= ");
-//  Serial.print(engines.derivativeError2CorrectionCoeff);
-//  Serial.print(" upper_range= ");
-//  Serial.print(engines.upperUnbalanceRange);
-//  Serial.print("lower_range= ");
-//  Serial.print(engines.lowerUnbalanceRange);
+  Serial.print(" Control_Coeff= ");
+  Serial.print(engines.error2CorrectionCoeff);
+  Serial.print(" DerivativeControl_Coeff= ");
+  Serial.print(engines.derivativeError2CorrectionCoeff);
+  Serial.print(" upper_range= ");
+  Serial.print(engines.upperUnbalanceRange);
+  Serial.print("lower_range= ");
+  Serial.print(engines.lowerUnbalanceRange);
 //  Serial.print("FFUn14= ");
 //  Serial.print(engines.feedforwardunbalance14);
 //  Serial.print("FFUn23= ");
@@ -184,6 +184,7 @@ void setup() {
 // ---------------------------------- Main Loop --------------------------------
 // -----------------------------------------------------------------------------
 short cycle_counter;
+ControllerConfiguration configuration;
 
 void loop() {
   // La radio transmite y recibe cada 15 ciclos
@@ -192,7 +193,7 @@ void loop() {
   tiempo = micros();
   delta_t = tiempo - tiempo0;
   tiempo0 = tiempo;
-  ControllerConfiguration configuration;
+
   // En el ciclo 14 recibe datos
   if(cycle_counter == 14){
    RadioCOM.radiolisten(control, configuration);
