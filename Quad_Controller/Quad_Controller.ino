@@ -126,8 +126,8 @@ void loop() {
       radio.write(&datos_send, sizeof(datos_send));
       // send configuration
       ControllerConfiguration conf;
-      conf.error2CorrectionCoeff            = 10;
-      conf.derivativeError2CorrectionCoeff  = 0.1;
+      conf.error2CorrectionCoeff            = 6;
+      conf.derivativeError2CorrectionCoeff  = 0.075;
       conf.upperUnbalanceRange              = 100;
       conf.lowerUnbalanceRange              = 100;
       conf.feedforwardunbalance14           = 0;
