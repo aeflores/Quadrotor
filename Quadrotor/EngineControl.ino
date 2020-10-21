@@ -45,7 +45,8 @@ void EngineControl::computeReference(const int control[5]){
 }
 
 int EngineControl::altitudeRate2Power(float altitude_rate){
-  int power= altitude_rate * alt2powerCoeff + alt2powerBase;
+  // only change power at intervals of 25
+  int power= ((altitude_rate * alt2powerCoeff + alt2powerBase) /25)* 25;
   if (power > alt2powerBase + powerRange)
     return alt2powerBase + powerRange;
   if (power < alt2powerBase - powerRange)
