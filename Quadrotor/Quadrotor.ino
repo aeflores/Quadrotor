@@ -83,6 +83,8 @@ void read_sensors() {
   }
   //Aplicacion del filtro que combina ambas medidas
   triad.filter(yawpitchroll_triad, yawpitchroll_int, yawpitchroll);
+//  yawpitchroll.pitch -= yawpitchroll_offset.pitch;
+//  yawpitchroll.roll -= yawpitchroll_offset.roll;
   // Yaw.update(yawpitchroll.yaw*radtodeg, delta_t);
   //Height.update(Dist_sensor.update_distance(),delta_t);
   // Lectura del dato de altura  
