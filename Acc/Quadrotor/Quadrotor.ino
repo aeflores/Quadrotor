@@ -14,7 +14,7 @@ float *yawpitchroll;
 
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   // start communication with IMU
   IMU_ini();
   IMU_default_cal();
@@ -57,41 +57,42 @@ void loop() {
 //  Serial.print("Roll: ");  
 //  Serial.print(yawpitchroll_int[2]*radtodeg,3);
 
-  Serial.print(" Yaw: ");
-  Serial.print(yawpitchroll[0]*radtodeg,3);
-  Serial.print("  ");
-  Serial.print("Pitch: ");  
-  Serial.print(yawpitchroll[1]*radtodeg,3);
-  Serial.print("  ");
-  Serial.print("Roll: ");  
-  Serial.print(yawpitchroll[2]*radtodeg,3);
-  
+//  Serial.print(" Yaw: ");
+//  Serial.print(yawpitchroll[0]*radtodeg,3);
+//  Serial.print("  ");
+//  Serial.print("Pitch: ");  
+//  Serial.print(yawpitchroll[1]*radtodeg,3);
+//  Serial.print("  ");
+//  Serial.print("Roll: ");  
+//  Serial.print(yawpitchroll[2]*radtodeg,3);
+  Serial.print(micros());
+  Serial.print("\t");
 //  Serial.print("  AccelX: ");
-//  Serial.print(Acc_raw_val[0],3);
-//  Serial.print("  ");
+  Serial.print(Acc_raw_val[0],8);
+  Serial.print("\t");
 //  Serial.print("AccelY: ");  
-//  Serial.print(Acc_raw_val[1],3);
-//  Serial.print("  ");
+  Serial.print(Acc_raw_val[1],8);
+  Serial.print("\t");
 //  Serial.print("AccelZ: ");  
-//  Serial.print(Acc_raw_val[2],3);
-
+  Serial.print(Acc_raw_val[2],8);
+  Serial.print("\t");
 //  Serial.print("  GyroX: ");
-//  Serial.print(Acc_raw_val[3],6);
-//  Serial.print("  ");
-//  Serial.print("GyroY: ");  
-//  Serial.print(Acc_raw_val[4],6);
-//  Serial.print("  ");
-//  Serial.print("GyroZ: ");  
-//  Serial.print(Acc_raw_val[5],6);
-////
-//    Serial.print("  MagX: ");  
-//    Serial.print(Acc_raw_val[6],6);
-//    Serial.print("  ");  
-//    Serial.print("MagY: ");
-//    Serial.print(Acc_raw_val[7],6);
-//    Serial.print("  ");
-//    Serial.print("MagZ: ");  
-//    Serial.print(Acc_raw_val[8],6);
+  Serial.print(Acc_raw_val[3],8);
+  Serial.print("\t");
+  //Serial.print("GyroY: ");  
+  Serial.print(Acc_raw_val[4],8);
+  Serial.print("\t");
+  //Serial.print("GyroZ: ");  
+  Serial.print(Acc_raw_val[5],8);
+  Serial.print("\t");
+  //Serial.print("  MagX: ");  
+  Serial.print(Acc_raw_val[6],8);
+  Serial.print("\t"); 
+  //Serial.print("MagY: ");
+  Serial.print(Acc_raw_val[7],8);
+  Serial.print("\t");
+  //Serial.print("MagZ: ");  
+  Serial.print(Acc_raw_val[8],8);
 
   Serial.println(" ");
 } 

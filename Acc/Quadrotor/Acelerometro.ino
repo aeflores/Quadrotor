@@ -52,17 +52,17 @@ void IMU_settings(){
   //Low Pass Filter configuration
   //Digital Low Pass Filter (DLPF) bandwidth. 
   //By default, if this function is not called, a DLPF bandwidth of 184 Hz is used. The following DLPF bandwidths are supported:
-  status = IMU.setDlpfBandwidth(MPU9250::DLPF_BANDWIDTH_5HZ);
+  status = IMU.setDlpfBandwidth(MPU9250::DLPF_BANDWIDTH_184HZ);
   
   //This function sets the accelerometer full scale range to the given value. 
   //By default, if this function is not called, a full scale range of +/- 16 g will be used. 
   //The enumerated accelerometer full scale ranges are: +/- 2g,+/- 4g,+/- 8g,+/- 16g,
-  status = IMU.setAccelRange(MPU9250::ACCEL_RANGE_2G);
+  status = IMU.setAccelRange(MPU9250::ACCEL_RANGE_8G);
   
   //This function sets the gyroscope full scale range to the given value. 
   //By default, if this function is not called, a full scale range of +/- 2000 deg/s will be used. 
   //The enumerated gyroscope full scale ranges are: +/- 250deg/s,+/- 500deg/s,+/- 1000deg/s,+/- 2000deg/s,
-  status = IMU.setGyroRange(MPU9250::GYRO_RANGE_250DPS);
+  status = IMU.setGyroRange(MPU9250::GYRO_RANGE_1000DPS);
   
 }
 
