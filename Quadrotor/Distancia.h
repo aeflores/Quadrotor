@@ -2,8 +2,8 @@
 #define DISTANCIA_H_
 
 // Declaremos los pines CE y el CSN
-#define EchoPin 5
-#define TriggerPin 6
+#define EchoPin A1
+#define TriggerPin A2
 
 class Distancia {
 private:

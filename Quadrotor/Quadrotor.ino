@@ -27,7 +27,7 @@ Attitude yawpitchroll; // Filtered yaw pitch roll angles
 Attitude yawpitchroll_deg; // yaw pitch roll in degrees
 ControlData control; // Control telecomands
 // Signal Yaw(0.90,0.75);
-// Signal Height(0.1, 0.5);
+Signal Height(0.05, 0.9);
 int first_iteration = 0;
 unsigned long tiempo, tiempo0;
 int delta_t;
@@ -83,11 +83,12 @@ void read_sensors() {
   }
   //Aplicacion del filtro que combina ambas medidas
   triad.filter(yawpitchroll_triad, yawpitchroll_int, yawpitchroll);
-//  yawpitchroll.pitch -= yawpitchroll_offset.pitch;
-//  yawpitchroll.roll -= yawpitchroll_offset.roll;
+  // yawpitchroll.pitch -= yawpitchroll_offset.pitch;
+  // yawpitchroll.roll -= yawpitchroll_offset.roll;
   // Yaw.update(yawpitchroll.yaw*radtodeg, delta_t);
-  //Height.update(Dist_sensor.update_distance(),delta_t);
+//  Height.update(Dist_sensor.update_distance()*cos(yawpitchroll.pitch)*cos(yawpitchroll.roll), delta_t);
   // Lectura del dato de altura  
+  Height.update(Dist_sensor.update_distance(), delta_t);
   //Height[0]=Dist_sensor.update_distance();
   // Transformamos la altura medida en altura con respecto al suelo
   //Height[0]=Height[0]*cos(yawpitchroll[1])*cos(yawpitchroll[2]);
@@ -137,14 +138,19 @@ void Print_data() {
 //  Serial.print(" Base power  ");
 //  Serial.print(engines.power);
 
-  Serial.print(" Control_Coeff= ");
-  Serial.print(engines.error2CorrectionCoeff);
-  Serial.print(" DerivativeControl_Coeff= ");
-  Serial.print(engines.derivativeError2CorrectionCoeff);
-  Serial.print(" upper_range= ");
-  Serial.print(engines.upperUnbalanceRange);
-  Serial.print("lower_range= ");
-  Serial.print(engines.lowerUnbalanceRange);
+  Serial.print("  Height =  ");
+  Serial.print(Height.value, 4);
+  Serial.print("  Height rate  =  ");
+  Serial.print(Height.derivative, 4);
+//
+//  Serial.print(" Control_Coeff= ");
+//  Serial.print(engines.error2CorrectionCoeff);
+//  Serial.print(" DerivativeControl_Coeff= ");
+//  Serial.print(engines.derivativeError2CorrectionCoeff);
+//  Serial.print(" upper_range= ");
+//  Serial.print(engines.upperUnbalanceRange);
+//  Serial.print("lower_range= ");
+//  Serial.print(engines.lowerUnbalanceRange);
 //  Serial.print("FFUn14= ");
 //  Serial.print(engines.feedforwardunbalance14);
 //  Serial.print("FFUn23= ");
@@ -178,7 +184,7 @@ void setup() {
   acelerometro.settings();
   RadioCOM.initialize();
   engines.init();
-  //Dist_sensor.initialize();
+  Dist_sensor.initialize();
   triad.initialize();
 }
 
@@ -239,7 +245,7 @@ void loop() {
   if(cycle_counter == 7){
     RadioCOM.finishSend();
   }
-  // Print_data();
+  Print_data();
   engines.updateEngines();
   Serial.println(" ");
 }

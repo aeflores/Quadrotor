@@ -11,7 +11,8 @@ import numpy as np
 import scipy as scipy
 import matplotlib.pyplot as plt
 import pandas as pd
-from pathlib import Path
+import seaborn as sns
+import statistics
 
 file = 'IMU_calibration.txt'
 
@@ -46,6 +47,9 @@ MagZbias    = -20
 MagZSF      = 0.824261
 
 
+sns.displot(GyroX, kind ='kde')
+# sns.displot(np.ceil(GyroX))
+sns.displot(GyroX)
 # GyroXbias   = 0.026320
 # GyroYbias   = 0.02487275
 # GyroZbias   = -0.017317
@@ -54,9 +58,9 @@ MagZSF      = 0.824261
 # MagX = (MagX - MagXbias)*MagXSF
 # MagY = (MagY - MagYbias)*MagYSF
 # MagZ = (MagZ - MagZbias)*MagZSF
+#%%
 
-
-plt.figure(1)
+plt.figure()
 plt.plot(time, MagX, time, MagY, time, MagZ,  linewidth = 3)
 # plt.semilogy(xf, yf, 'k', linewidth=3)
 # plt.plot(xf, yf, 'k', linewidth=3)
@@ -72,7 +76,7 @@ plt.xlim(left=0)  # adjust the top leaving bottom unchanged
 # plt.xlim(right=1500)  # adjust the bottom leaving top unchanged
 plt.show()
 
-plt.figure(2)
+plt.figure()
 plt.plot(time, GyroX, time, GyroY, time, GyroZ,  linewidth = 3)
 # plt.semilogy(xf, yf, 'k', linewidth=3)
 # plt.plot(xf, yf, 'k', linewidth=3)
