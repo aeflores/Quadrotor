@@ -67,7 +67,8 @@ void read_sensors() {
 
   // Determinación de los angulos de Euler utilizando el integrador
   if (first_iteration <= 20){
-    triad.integrator(Acc_raw_val, yawpitchroll_triad, delta_t / 1000000.0, yawpitchroll_int);
+    // triad.integrator(Acc_raw_val, yawpitchroll_triad, delta_t / 1000000.0, yawpitchroll_int);
+    triad.integrator(Acc_raw_val, yawpitchroll_int, delta_t / 1000000.0, yawpitchroll_int);
     if (first_iteration < 20){
     yawpitchroll_offset.pitch+= yawpitchroll_triad.pitch;
     yawpitchroll_offset.roll+= yawpitchroll_triad.roll;
@@ -79,16 +80,17 @@ void read_sensors() {
   } else {
     yawpitchroll_triad.pitch -= yawpitchroll_offset.pitch;
     yawpitchroll_triad.roll -= yawpitchroll_offset.roll;
-    triad.integrator(Acc_raw_val, yawpitchroll, delta_t / 1000000.0, yawpitchroll_int);
+    triad.integrator(Acc_raw_val, yawpitchroll_int, delta_t / 1000000.0, yawpitchroll_int);      //WARNING, this can produce drift
+    // triad.integrator(Acc_raw_val, yawpitchroll, delta_t / 1000000.0, yawpitchroll_int);
   }
   //Aplicacion del filtro que combina ambas medidas
   triad.filter(yawpitchroll_triad, yawpitchroll_int, yawpitchroll);
-  // yawpitchroll.pitch -= yawpitchroll_offset.pitch;
-  // yawpitchroll.roll -= yawpitchroll_offset.roll;
+//   yawpitchroll.pitch -= yawpitchroll_offset.pitch;
+//   yawpitchroll.roll -= yawpitchroll_offset.roll;
   // Yaw.update(yawpitchroll.yaw*radtodeg, delta_t);
 //  Height.update(Dist_sensor.update_distance()*cos(yawpitchroll.pitch)*cos(yawpitchroll.roll), delta_t);
   // Lectura del dato de altura  
-  Height.update(Dist_sensor.update_distance(), delta_t);
+  // Height.update(Dist_sensor.update_distance(), delta_t);
   //Height[0]=Dist_sensor.update_distance();
   // Transformamos la altura medida en altura con respecto al suelo
   //Height[0]=Height[0]*cos(yawpitchroll[1])*cos(yawpitchroll[2]);
@@ -101,12 +103,48 @@ void read_sensors() {
 }
 
 void Print_data() {
-//    Serial.print("Yaw = ");
+//    Serial.print("  dt = ");
+//    Serial.print(delta_t/1e6 , 8);
+//    Serial.print("  Accc_x = ");
+//    Serial.print(Acc_raw_val[0]);
+//    Serial.print("  Acc_y = ");
+//    Serial.print(Acc_raw_val[1]);
+//    Serial.print("  Acc_z = ");
+//    Serial.print(Acc_raw_val[2]);
+
+
+//    Serial.print("  Gyro_x = ");
+//    Serial.print(Acc_raw_val[3], 5);
+//    Serial.print("  Gyro_y = ");
+//    Serial.print(Acc_raw_val[4], 5);
+//    Serial.print("  Gyro_z = ");
+//    Serial.print(Acc_raw_val[5], 5);
+
+//    Serial.print("  Mag_x = ");
+//    Serial.print(Acc_raw_val[6]);
+//    Serial.print("  Mag_y = ");
+//    Serial.print(Acc_raw_val[7]);
+//    Serial.print("  Mag_z = ");
+//    Serial.print(Acc_raw_val[8]);
+  
+//    Serial.print("  Yaw = ");
 //    Serial.print(yawpitchroll_deg.yaw);
 //    Serial.print("   Pitch = ");
 //    Serial.print(yawpitchroll_deg.pitch);
 //    Serial.print("   Roll = ");
 //    Serial.print(yawpitchroll_deg.roll);
+//
+//    Serial.print("   Yaw = ");
+//    Serial.print(yawpitchroll_int.yaw*radtodeg);
+    Serial.print("   Pitch = ");
+    Serial.print(yawpitchroll_int.pitch*radtodeg);
+    Serial.print("   Roll = ");
+    Serial.print(yawpitchroll_int.roll*radtodeg);
+
+//    Serial.print("   Pitch = ");
+//    Serial.print(yawpitchroll_triad.pitch*radtodeg);
+//    Serial.print("   Roll = ");
+//    Serial.print(yawpitchroll_triad.roll*radtodeg);
 //    Serial.print("JSRX= ");
 //    Serial.print(control[0]);
 //    Serial.print("  JSRY= ");
@@ -137,11 +175,11 @@ void Print_data() {
 //  Serial.print(engines.derivative_error_roll);
 //  Serial.print(" Base power  ");
 //  Serial.print(engines.power);
-
-  Serial.print("  Height =  ");
-  Serial.print(Height.value, 4);
-  Serial.print("  Height rate  =  ");
-  Serial.print(Height.derivative, 4);
+//
+//  Serial.print("  Height =  ");
+//  Serial.print(Height.value, 4);
+//  Serial.print("  Height rate  =  ");
+//  Serial.print(Height.derivative, 4);
 //
 //  Serial.print(" Control_Coeff= ");
 //  Serial.print(engines.error2CorrectionCoeff);
@@ -180,12 +218,17 @@ void setup() {
   Serial.begin(115200);
   // start communication with IMU
   acelerometro.initialize();
+    // acelerometro.acelerometro_cal();
+    // acelerometro.magnetometro_cal();
+    // acelerometro.gyroscope_cal();
   acelerometro.default_cal();
   acelerometro.settings();
   RadioCOM.initialize();
   engines.init();
   Dist_sensor.initialize();
   triad.initialize();
+
+  
 }
 
 // -----------------------------------------------------------------------------

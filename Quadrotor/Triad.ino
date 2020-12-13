@@ -145,22 +145,54 @@ void Triad::integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float 
   //  Serial.print(q,6);
   //  Serial.print("   ");
   //  Serial.println(r,6);
+//
+  float yaw_angle0    = yawpitchroll.yaw;
+  float pitch_angle0  = yawpitchroll.pitch;
+  float roll_angle0   = yawpitchroll.roll;
 
-  float yaw_angle0 = yawpitchroll.yaw;
-  float pitch_angle0 = yawpitchroll.pitch;
-  float roll_angle0 = yawpitchroll.roll;
 
+  float qk0[4], qk1[4];
+  qk0[0]    = cos(roll_angle0/2.)*cos(pitch_angle0/2.)*cos(yaw_angle0/2.) + sin(roll_angle0/2.)*sin(pitch_angle0/2.)*sin(yaw_angle0/2.);
+  qk0[1]    = sin(roll_angle0/2.)*cos(pitch_angle0/2.)*cos(yaw_angle0/2.) - cos(roll_angle0/2.)*sin(pitch_angle0/2.)*sin(yaw_angle0/2.);
+  qk0[2]    = cos(roll_angle0/2.)*sin(pitch_angle0/2.)*cos(yaw_angle0/2.) + sin(roll_angle0/2.)*cos(pitch_angle0/2.)*sin(yaw_angle0/2.);
+  qk0[3]    = cos(roll_angle0/2.)*cos(pitch_angle0/2.)*sin(yaw_angle0/2.) - sin(roll_angle0/2.)*sin(pitch_angle0/2.)*cos(yaw_angle0/2.);
+
+//  float OMEGA[4][4];
+//
+//  OMEGA[0][1] = -p/2.;
+//  OMEGA[0][2] = -q/2.;
+//  OMEGA[0][3] = -r/2.;
+//
+//  OMEGA[1][0] = p/2.;
+//  OMEGA[1][2] = r/2.;
+//  OMEGA[1][3] = q/2.;
+//
+//  OMEGA[2][0] = q/2.;
+//  OMEGA[2][1] = -r/2.;
+//  OMEGA[2][3] = p/2.;
+//
+//  OMEGA[3][0] = r/2.;
+//  OMEGA[3][1] = q/2.;
+//  OMEGA[3][2] = -p/2.;
+
+  float omega_mod = sqrt(pow(p, 2)  +  pow(q, 2)  +  pow(r, 2));
+
+  qk1[0] = qk0[0]*cos(omega_mod*delta_t/2.0) - p*qk0[1]*sin(omega_mod*delta_t/2.0)/omega_mod  - q*qk0[2]*sin(omega_mod*delta_t/2.0)/omega_mod  - qk0[3]*r*sin(omega_mod*delta_t/2.0)/omega_mod ;
+  qk1[1] = qk0[1]*cos(omega_mod*delta_t/2.0) + p*qk0[0]*sin(omega_mod*delta_t/2.0)/omega_mod  + q*qk0[3]*sin(omega_mod*delta_t/2.0)/omega_mod  + qk0[2]*r*sin(omega_mod*delta_t/2.0)/omega_mod ;
+  qk1[2] = qk0[2]*cos(omega_mod*delta_t/2.0) + p*qk0[3]*sin(omega_mod*delta_t/2.0)/omega_mod  + q*qk0[0]*sin(omega_mod*delta_t/2.0)/omega_mod  - qk0[1]*r*sin(omega_mod*delta_t/2.0)/omega_mod ;
+  qk1[3] = qk0[3]*cos(omega_mod*delta_t/2.0) - p*qk0[2]*sin(omega_mod*delta_t/2.0)/omega_mod  + q*qk0[1]*sin(omega_mod*delta_t/2.0)/omega_mod  + qk0[0]*r*sin(omega_mod*delta_t/2.0)/omega_mod ;
+ 
   //  Serial.print(yaw_angle,6);
   //  Serial.print("   ");
   //  Serial.print(pitch_angle,6);
   //  Serial.print("   ");
   //  Serial.println(roll_angle,6);
 
-  float yaw_dot =
-      (q * sin(roll_angle0) + r * cos(roll_angle0)) / cos(pitch_angle0);
-  float pitch_dot = q * cos(roll_angle0) - r * sin(roll_angle0);
-  float roll_dot =
-      p + (q * sin(roll_angle0) + r * cos(roll_angle0)) * tan(pitch_angle0);
+//  float yaw_dot =
+//      (q * sin(roll_angle0) + r * cos(roll_angle0)) / cos(pitch_angle0);
+//  float pitch_dot = q * cos(roll_angle0) - r * sin(roll_angle0);
+//  float roll_dot =
+//      p + (q * sin(roll_angle0) + r * cos(roll_angle0)) * tan(pitch_angle0);
 
   //  Serial.print(yaw_dot,6);
   //  Serial.print("   ");
@@ -168,26 +200,34 @@ void Triad::integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float 
   //  Serial.print("   ");
   //  Serial.println(roll_dot,6);
 
-  float delta_yaw = yaw_dot * delta_t;
-  float delta_angle = pitch_dot * delta_t;
-  float delta_roll = +roll_dot * delta_t;
+//  float delta_yaw = yaw_dot * delta_t;
+//  float delta_angle = pitch_dot * delta_t;
+//  float delta_roll = +roll_dot * delta_t;
 
   //  Serial.print(delta_yaw,6);
   //  Serial.print("   ");
   //  Serial.print(delta_angle,6);
   //  Serial.print("   ");
   //  Serial.println(delta_roll,6);
-
-  float yaw_angle = yaw_angle0 + delta_yaw;
-  float pitch_angle = pitch_angle0 + delta_angle;
-  float roll_angle = roll_angle0 + delta_roll;
-
-  if (yaw_angle0 <= 2 * pi && yaw_angle > 2 * pi) {
-    yaw_angle = yaw_angle - 2 * pi;
-  }
-  else if (yaw_angle0 > 0.0 && yaw_angle <= 0.0) {
+//
+//  float yaw_angle = yaw_angle0 + delta_yaw;
+//  float pitch_angle = pitch_angle0 + delta_angle;
+//  float roll_angle = roll_angle0 + delta_roll;
+  
+  float yaw_angle   = atan2(2*(qk1[1]*qk1[2] + qk1[0]*qk1[3]), pow(qk1[0], 2)  +  pow(qk1[1], 2)  -  pow(qk1[2], 2) -  pow(qk1[3], 2));
+  float pitch_angle = - asin(2*(qk1[1]*qk1[3] - qk1[0]*qk1[2]));
+  float roll_angle  = atan2(2*(qk1[2]*qk1[3] + qk1[0]*qk1[1]), pow(qk1[0], 2)  -  pow(qk1[1], 2)  -  pow(qk1[2], 2) +  pow(qk1[3], 2));
+  
+  if (yaw_angle < 0.0) {
     yaw_angle = 2 * pi + yaw_angle;
   }
+  
+//  if (yaw_angle0 <= 2 * pi && yaw_angle > 2 * pi) {
+//    yaw_angle = yaw_angle - 2 * pi;
+//  }
+//  else if (yaw_angle0 > 0.0 && yaw_angle <= 0.0) {
+//    yaw_angle = 2 * pi + yaw_angle;
+//  }
 
   yawpitchroll_integrator.yaw = yaw_angle;
   yawpitchroll_integrator.pitch = pitch_angle;

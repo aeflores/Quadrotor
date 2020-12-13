@@ -35,14 +35,20 @@ void Acelerometro::default_cal() {
 
   // Gyroscope settings
   // X-axis bias
-  float gxb = 0.006546; // gyro bias
+  float gxb = 0.011; // gyro bias
   IMU.setGyroBiasX_rads(gxb);
   // Y-axis bias
-  float gyb = 0.0267601; // gyro bias of 0.001 rad/s
+  float gyb = 0.02215; // gyro bias of 0.001 rad/s
   IMU.setGyroBiasY_rads(gyb);
   // Z-axis bias
   float gzb = -0.012746; // gyro bias of 0.001 rad/s
   IMU.setGyroBiasZ_rads(gzb);
+
+  // GyroBiasX: 0.010979  GyroBiasY: 0.022302  GyroBiasZ: -0.012534
+  // GyroBiasX: 0.011440  GyroBiasY: 0.022078  GyroBiasZ: -0.012826
+  // GyroBiasX: 0.010926  GyroBiasY: 0.022447  GyroBiasZ: -0.012552 
+
+  
 }
 
 void Acelerometro::settings() {
