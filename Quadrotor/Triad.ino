@@ -1,12 +1,48 @@
 
 #include "Triad.h"
 
+
+// no se el nombre adecuado para esta funcion
+void transform(const float v1[],const  float v2[], float r2[]){
+  r2[0] = v1[1] * v2[2] - v1[2] * v2[1];
+  r2[1] = -v1[0] * v2[2] + v1[2] * v2[0];
+  r2[2] = v1[0] * v2[1] - v1[1] * v2[0];
+}
+
+float vector_module(const float v[3]){
+  return sqrt(pow(v[0], 2) + pow(v[1], 2) + pow(v[2], 2));
+}
+
+void normalize_vector(float v[3]){
+  float mod= vector_module(v);
+  for(int i=0; i<3; i++){
+    v[i]= v[i]/mod;
+  }
+}
+
+void triada(const float v1[3],const float v2[3], float M[3][3]){
+  
+  float r[3][3];
+  for(int i=0; i<3; i++){
+    r[0][i] = v1[i];
+  }
+  transform(v1,v2,r[1]);
+  normalize_vector(r[1]);
+  transform(r[0],r[1],r[2]);
+  for(int i=0; i<3; i++){
+    for(int j=0; j<3; j++){
+      M[j][i]=r[i][j];    
+    }
+  }
+
+}
+
+
+
 void Triad::initialize(){
   // Magnetic field components in the inertial system reference uT
   // Madrid
-    float Mag_x_I = 25.6547;
-    float Mag_y_I = -0.1469 ;
-    float Mag_z_I = 36.8374;
+    float Mag_I[3] = {25.6547f, -0.1469f ,36.8374f};
   // Almeria
 //  float Mag_x_I = 27.4347;
 //  float Mag_y_I = -0.0751;
@@ -15,116 +51,39 @@ void Triad::initialize(){
 //  float Mag_x_I = 20.9587;
 //  float Mag_y_I = 0.3459;
 //  float Mag_z_I = 43.3234;
-  float Mag_mod_I = sqrt(pow(Mag_x_I, 2) + pow(Mag_y_I, 2) + pow(Mag_z_I, 2));
   // Gravity components in the inertial system reference m/s2
-  float Acc_x_I = 0;
-  float Acc_y_I = 0;
-  float Acc_z_I = 9.81;
-  float Acc_mod_I = sqrt(pow(Acc_x_I, 2) + pow(Acc_y_I, 2) + pow(Acc_z_I, 2));
-
-  float v1[3] = {Mag_x_I / Mag_mod_I, Mag_y_I / Mag_mod_I, Mag_z_I / Mag_mod_I};
-  float v2[3] = {Acc_x_I / Acc_mod_I, Acc_y_I / Acc_mod_I, Acc_z_I / Acc_mod_I};
-
+  float Acc_I[3] ={ 0.0f, 0.0f, 9.81f};
+  normalize_vector(Mag_I);
+  normalize_vector(Acc_I);
 // Triada R
-  float r1[3], r2[3], r3[3];
-  r1[0] = v1[0];
-  r1[1] = v1[1];
-  r1[2] = v1[2];
-
-  r2[0] = v1[1] * v2[2] - v1[2] * v2[1];
-  r2[1] = -v1[0] * v2[2] + v1[2] * v2[0];
-  r2[2] = v1[0] * v2[1] - v1[1] * v2[0];
-
-  float r2_mod = sqrt(pow(r2[0], 2) + pow(r2[1], 2) + pow(r2[2], 2));
-
-  r2[0] = r2[0] / r2_mod;
-  r2[1] = r2[1] / r2_mod;
-  r2[2] = r2[2] / r2_mod;
-
-  r3[0] = r1[1] * r2[2] - r1[2] * r2[1];
-  r3[1] = -r1[0] * r2[2] + r1[2] * r2[0];
-  r3[2] = r1[0] * r2[1] - r1[1] * r2[0];
-
-  B[0][0] = r1[0];
-  B[1][0] = r1[1];
-  B[2][0] = r1[2];
-
-  B[0][1] = r2[0];
-  B[1][1] = r2[1];
-  B[2][1] = r2[2];
-
-  B[0][2] = r3[0];
-  B[1][2] = r3[1];
-  B[2][2] = r3[2];
+  triada(Mag_I,Acc_I,B);
 }
 
 
 
 
-void Triad::get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll) {
+void Triad::get_ypr_triad(const float Acc_raw_val[3][3],Attitude &yawpitchroll) {
   // Magnetic field components in the body system reference nT
-  float Mag_x_B = Acc_raw_val[6];
-  float Mag_y_B = Acc_raw_val[7];
-  float Mag_z_B = Acc_raw_val[8];
-  float Mag_mod_B = sqrt(pow(Mag_x_B, 2) + pow(Mag_y_B, 2) + pow(Mag_z_B, 2));
+  float w1[3]= {Acc_raw_val[2][0], Acc_raw_val[2][1], Acc_raw_val[2][2]};
+  normalize_vector(w1);
   // Gravity components in the inertial body reference m/s2
-  float Acc_x_B = -Acc_raw_val[0];
-  float Acc_y_B = -Acc_raw_val[1];
-  float Acc_z_B = -Acc_raw_val[2];
-  float Acc_mod_B = sqrt(pow(Acc_x_B, 2) + pow(Acc_y_B, 2) + pow(Acc_z_B, 2));
-
-  float w1[3] = {Mag_x_B / Mag_mod_B, Mag_y_B / Mag_mod_B, Mag_z_B / Mag_mod_B};
-  float w2[3] = {Acc_x_B / Acc_mod_B, Acc_y_B / Acc_mod_B, Acc_z_B / Acc_mod_B};
+  float w2[3]= {Acc_raw_val[0][0], Acc_raw_val[0][1], Acc_raw_val[0][2]};
+  normalize_vector(w2);
 
   // TRIAD algorithm
 
   // Triada S
-  float s1[3], s2[3], s3[3];
-  s1[0] = w1[0];
-  s1[1] = w1[1];
-  s1[2] = w1[2];
-
-  s2[0] = w1[1] * w2[2] - w1[2] * w2[1];
-  s2[1] = -w1[0] * w2[2] + w1[2] * w2[0];
-  s2[2] = w1[0] * w2[1] - w1[1] * w2[0];
-  float s2_mod = sqrt(pow(s2[0], 2) + pow(s2[1], 2) + pow(s2[2], 2));
-
-  s2[0] = s2[0] / s2_mod;
-  s2[1] = s2[1] / s2_mod;
-  s2[2] = s2[2] / s2_mod;
-
-  s3[0] = s1[1] * s2[2] - s1[2] * s2[1];
-  s3[1] = -s1[0] * s2[2] + s1[2] * s2[0];
-  s3[2] = s1[0] * s2[1] - s1[1] * s2[0];
-  // A matrix
   float A[3][3];
-  A[0][0] = s1[0];
-  A[1][0] = s1[1];
-  A[2][0] = s1[2];
-
-  A[0][1] = s2[0];
-  A[1][1] = s2[1];
-  A[2][1] = s2[2];
-
-  A[0][2] = s3[0];
-  A[1][2] = s3[1];
-  A[2][2] = s3[2];
+  triada(w1,w2,A);
 
   // Matriz R=A*B'
-
   float R[3][3];
-  R[0][0] = A[0][0] * B[0][0] + A[0][1] * B[0][1] + A[0][2] * B[0][2];
-  R[0][1] = A[0][0] * B[1][0] + A[0][1] * B[1][1] + A[0][2] * B[1][2];
-  R[0][2] = A[0][0] * B[2][0] + A[0][1] * B[2][1] + A[0][2] * B[2][2];
-
-  R[1][0] = A[1][0] * B[0][0] + A[1][1] * B[0][1] + A[1][2] * B[0][2];
-  R[1][1] = A[1][0] * B[1][0] + A[1][1] * B[1][1] + A[1][2] * B[1][2];
-  R[1][2] = A[1][0] * B[2][0] + A[1][1] * B[2][1] + A[1][2] * B[2][2];
-
-  R[2][0] = A[2][0] * B[0][0] + A[2][1] * B[0][1] + A[2][2] * B[0][2];
-  R[2][1] = A[2][0] * B[1][0] + A[2][1] * B[1][1] + A[2][2] * B[1][2];
-  R[2][2] = A[2][0] * B[2][0] + A[2][1] * B[2][1] + A[2][2] * B[2][2];
-
+  for(int i=0; i<3; i++){
+   for (int j=0; j<3; j++){
+    R[i][j] = A[i][0] * B[j][0] + A[i][1] * B[j][1] + A[i][2] * B[j][2];
+   } 
+  }
+  
   yawpitchroll.yaw = atan2(R[0][1], R[0][0]);
   yawpitchroll.pitch = atan2(-R[0][2], sqrt(pow(R[1][2], 2) + pow(R[2][2], 2)));
   yawpitchroll.roll = atan2(R[1][2], R[2][2]);
@@ -134,11 +93,8 @@ void Triad::get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll) {
   }
 }
 
-void Triad::integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float delta_t, Attitude &yawpitchroll_integrator) {
+void Triad::integrator(const float gyro[3], const Attitude &yawpitchroll, float delta_t, Attitude &yawpitchroll_integrator) {
 
-  float p = Acc_raw_val[3]; // gyro_x
-  float q = Acc_raw_val[4]; // gyro_y
-  float r = Acc_raw_val[5]; // gyro_z
 
   //  Serial.print(p,6);
   //  Serial.print("   ");
@@ -146,16 +102,19 @@ void Triad::integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float 
   //  Serial.print("   ");
   //  Serial.println(r,6);
 //
-  float yaw_angle0    = yawpitchroll.yaw;
-  float pitch_angle0  = yawpitchroll.pitch;
-  float roll_angle0   = yawpitchroll.roll;
-
 
   float qk0[4], qk1[4];
-  qk0[0]    = cos(roll_angle0/2.)*cos(pitch_angle0/2.)*cos(yaw_angle0/2.) + sin(roll_angle0/2.)*sin(pitch_angle0/2.)*sin(yaw_angle0/2.);
-  qk0[1]    = sin(roll_angle0/2.)*cos(pitch_angle0/2.)*cos(yaw_angle0/2.) - cos(roll_angle0/2.)*sin(pitch_angle0/2.)*sin(yaw_angle0/2.);
-  qk0[2]    = cos(roll_angle0/2.)*sin(pitch_angle0/2.)*cos(yaw_angle0/2.) + sin(roll_angle0/2.)*cos(pitch_angle0/2.)*sin(yaw_angle0/2.);
-  qk0[3]    = cos(roll_angle0/2.)*cos(pitch_angle0/2.)*sin(yaw_angle0/2.) - sin(roll_angle0/2.)*sin(pitch_angle0/2.)*cos(yaw_angle0/2.);
+  float yaw_angle_cos = cos(yawpitchroll.yaw/2.0f);
+  float roll_angle_cos = cos(yawpitchroll.roll/2.0f);
+  float pitch_angle_cos = cos(yawpitchroll.pitch/2.0f);
+  float yaw_angle_sin = sin(yawpitchroll.yaw/2.0f);
+  float roll_angle_sin = sin(yawpitchroll.roll/2.0f);
+  float pitch_angle_sin = sin(yawpitchroll.pitch/2.0f);
+  
+  qk0[0]    = roll_angle_cos*pitch_angle_cos*yaw_angle_cos + roll_angle_sin*pitch_angle_sin*yaw_angle_sin;
+  qk0[1]    = roll_angle_sin*pitch_angle_cos*yaw_angle_cos - roll_angle_cos*pitch_angle_sin*yaw_angle_sin;
+  qk0[2]    = roll_angle_cos*pitch_angle_sin*yaw_angle_cos + roll_angle_sin*pitch_angle_cos*yaw_angle_sin;
+  qk0[3]    = roll_angle_cos*pitch_angle_cos*yaw_angle_sin - roll_angle_sin*pitch_angle_sin*yaw_angle_cos;
 
 //  float OMEGA[4][4];
 //
@@ -175,12 +134,15 @@ void Triad::integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float 
 //  OMEGA[3][1] = q/2.;
 //  OMEGA[3][2] = -p/2.;
 
-  float omega_mod = sqrt(pow(p, 2)  +  pow(q, 2)  +  pow(r, 2));
-
-  qk1[0] = qk0[0]*cos(omega_mod*delta_t/2.0) - p*qk0[1]*sin(omega_mod*delta_t/2.0)/omega_mod  - q*qk0[2]*sin(omega_mod*delta_t/2.0)/omega_mod  - qk0[3]*r*sin(omega_mod*delta_t/2.0)/omega_mod ;
-  qk1[1] = qk0[1]*cos(omega_mod*delta_t/2.0) + p*qk0[0]*sin(omega_mod*delta_t/2.0)/omega_mod  + q*qk0[3]*sin(omega_mod*delta_t/2.0)/omega_mod  + qk0[2]*r*sin(omega_mod*delta_t/2.0)/omega_mod ;
-  qk1[2] = qk0[2]*cos(omega_mod*delta_t/2.0) + p*qk0[3]*sin(omega_mod*delta_t/2.0)/omega_mod  + q*qk0[0]*sin(omega_mod*delta_t/2.0)/omega_mod  - qk0[1]*r*sin(omega_mod*delta_t/2.0)/omega_mod ;
-  qk1[3] = qk0[3]*cos(omega_mod*delta_t/2.0) - p*qk0[2]*sin(omega_mod*delta_t/2.0)/omega_mod  + q*qk0[1]*sin(omega_mod*delta_t/2.0)/omega_mod  + qk0[0]*r*sin(omega_mod*delta_t/2.0)/omega_mod ;
+  float omega_mod = vector_module(gyro);
+  float omega_mod_delta = omega_mod * delta_t/2.0;
+  float omega_mod_sin_mod= sin(omega_mod_delta)/omega_mod;
+  float omega_mod_cos = cos(omega_mod_delta);
+  
+  qk1[0] = qk0[0]*omega_mod_cos - gyro[0] *qk0[1]*omega_mod_sin_mod  - gyro[1] *qk0[2]*omega_mod_sin_mod  - gyro[2] *qk0[3]*omega_mod_sin_mod;
+  qk1[1] = qk0[1]*omega_mod_cos + gyro[0] *qk0[0]*omega_mod_sin_mod  + gyro[1] *qk0[3]*omega_mod_sin_mod  + gyro[2] *qk0[2]*omega_mod_sin_mod;
+  qk1[2] = qk0[2]*omega_mod_cos + gyro[0] *qk0[3]*omega_mod_sin_mod  + gyro[1] *qk0[0]*omega_mod_sin_mod  - gyro[2] *qk0[1]*omega_mod_sin_mod;
+  qk1[3] = qk0[3]*omega_mod_cos - gyro[0] *qk0[2]*omega_mod_sin_mod  + gyro[1] *qk0[1]*omega_mod_sin_mod  + gyro[2] *qk0[0]*omega_mod_sin_mod;
  
   //  Serial.print(yaw_angle,6);
   //  Serial.print("   ");
@@ -214,12 +176,12 @@ void Triad::integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float 
 //  float pitch_angle = pitch_angle0 + delta_angle;
 //  float roll_angle = roll_angle0 + delta_roll;
   
-  float yaw_angle   = atan2(2*(qk1[1]*qk1[2] + qk1[0]*qk1[3]), pow(qk1[0], 2)  +  pow(qk1[1], 2)  -  pow(qk1[2], 2) -  pow(qk1[3], 2));
-  float pitch_angle = - asin(2*(qk1[1]*qk1[3] - qk1[0]*qk1[2]));
-  float roll_angle  = atan2(2*(qk1[2]*qk1[3] + qk1[0]*qk1[1]), pow(qk1[0], 2)  -  pow(qk1[1], 2)  -  pow(qk1[2], 2) +  pow(qk1[3], 2));
+  yawpitchroll_integrator.yaw   = atan2(2*(qk1[1]*qk1[2] + qk1[0]*qk1[3]), pow(qk1[0], 2)  +  pow(qk1[1], 2)  -  pow(qk1[2], 2) -  pow(qk1[3], 2));
+  yawpitchroll_integrator.pitch = - asin(2*(qk1[1]*qk1[3] - qk1[0]*qk1[2]));
+  yawpitchroll_integrator.roll  = atan2(2*(qk1[2]*qk1[3] + qk1[0]*qk1[1]), pow(qk1[0], 2)  -  pow(qk1[1], 2)  -  pow(qk1[2], 2) +  pow(qk1[3], 2));
   
-  if (yaw_angle < 0.0) {
-    yaw_angle = 2 * pi + yaw_angle;
+  if (yawpitchroll_integrator.yaw < 0.0) {
+    yawpitchroll_integrator.yaw = 2 * pi + yawpitchroll_integrator.yaw;
   }
   
 //  if (yaw_angle0 <= 2 * pi && yaw_angle > 2 * pi) {
@@ -229,9 +191,6 @@ void Triad::integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float 
 //    yaw_angle = 2 * pi + yaw_angle;
 //  }
 
-  yawpitchroll_integrator.yaw = yaw_angle;
-  yawpitchroll_integrator.pitch = pitch_angle;
-  yawpitchroll_integrator.roll = roll_angle;
 }
 
 void Triad::filter(const Attitude yawpitchroll_triad,
