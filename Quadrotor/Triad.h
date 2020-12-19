@@ -9,17 +9,13 @@ struct Attitude{
 };
 
 class Triad{
-
   private:
-
-  float B[3][3];
-
+    float B[3][3];
   public:
-
-  void initialize();
-  void get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll);
-  void integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float delta_t, Attitude &yawpitchroll_integrator);
-  void filter(const Attitude yawpitchroll_triad, const Attitude &yawpitchroll_int, Attitude &yawpitchroll);
+    void initialize();
+    void get_ypr_triad(float Acc_raw_val[],Attitude &yawpitchroll);
+    void integrator(float Acc_raw_val[], const Attitude &yawpitchroll, float delta_t, Attitude &yawpitchroll_integrator);
+    void filter(const Attitude yawpitchroll_triad, const Attitude &yawpitchroll_int, Attitude &yawpitchroll);
 
 };
 

@@ -15,7 +15,4 @@ double Distancia::update_distance(){
    }
    distanceCm = double(duration)*340./10000./2.;   //convertimos a distancia, en cm
    return distanceCm;
-
-
-  
 }
