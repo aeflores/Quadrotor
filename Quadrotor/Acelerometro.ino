@@ -186,30 +186,21 @@ void Acelerometro::gyroscope_cal() {
   }
 }
 
-void Acelerometro::get_raw_val(float (&Acc_val)[9]) {
+void Acelerometro::get_raw_val(float Acc_val[3][3]) {
   // Read the sensor
   IMU.readSensor();
   // Get Acceleration
-  float Acc_x = IMU.getAccelX_mss();
-  float Acc_y = IMU.getAccelY_mss();
-  float Acc_z = IMU.getAccelZ_mss();
+  Acc_val[0][0] = IMU.getAccelX_mss();
+  Acc_val[0][1] = IMU.getAccelY_mss();
+  Acc_val[0][2] = IMU.getAccelZ_mss();
   // Get angular velocities
-  float Gyro_x = IMU.getGyroX_rads();
-  float Gyro_y = IMU.getGyroY_rads();
-  float Gyro_z = IMU.getGyroZ_rads();
+  Acc_val[1][0] = IMU.getGyroX_rads();
+  Acc_val[1][1] = IMU.getGyroY_rads();
+  Acc_val[1][2] = IMU.getGyroZ_rads();
   // Get magnetic field components in the body reference
-  float Mag_x = IMU.getMagX_uT();
-  float Mag_y = IMU.getMagY_uT();
-  float Mag_z = IMU.getMagZ_uT();
-  Acc_val[0] = Acc_x;
-  Acc_val[1] = Acc_y;
-  Acc_val[2] = Acc_z;
-  Acc_val[3] = Gyro_x;
-  Acc_val[4] = Gyro_y;
-  Acc_val[5] = Gyro_z;
-  Acc_val[6] = Mag_x;
-  Acc_val[7] = Mag_y;
-  Acc_val[8] = Mag_z;
+  Acc_val[2][0] = IMU.getMagX_uT();
+  Acc_val[2][1] = IMU.getMagY_uT();
+  Acc_val[2][2] = IMU.getMagZ_uT();
   //  Serial.print("Temperature in C: ");
   //  Serial.println(IMU.getTemperature_C(),6);
   //  Serial.println();

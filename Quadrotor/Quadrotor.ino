@@ -23,7 +23,7 @@ Triad triad;
 blackbox mySDbb;
 
 // Global variables
-float Acc_raw_val[9]; // Raw IMU measurements accelerometer, magnetometer and gyroscope
+float Acc_raw_val[3][3]; // Raw IMU measurements accelerometer, magnetometer and gyroscope
 Attitude yawpitchroll_int; // Yaw pitch roll angles from integrator
 Attitude yawpitchroll_triad; // Yaw pitch roll angles from Triad algorithm
 Attitude yawpitchroll_offset;
@@ -71,8 +71,8 @@ void read_sensors() {
 
   // Determinación de los angulos de Euler utilizando el integrador
   if (first_iteration <= 20) {
-    // triad.integrator(Acc_raw_val, yawpitchroll_triad, delta_t / 1000000.0, yawpitchroll_int);
-    triad.integrator(Acc_raw_val, yawpitchroll_int, delta_t / 1000000.0, yawpitchroll_int);
+    // triad.integrator(Acc_raw_val[1], yawpitchroll_triad, delta_t / 1000000.0, yawpitchroll_int);
+    triad.integrator(Acc_raw_val[1], yawpitchroll_int, delta_t / 1000000.0, yawpitchroll_int);
     if (first_iteration < 20) {
       yawpitchroll_offset.pitch += yawpitchroll_triad.pitch;
       yawpitchroll_offset.roll += yawpitchroll_triad.roll;
@@ -84,7 +84,7 @@ void read_sensors() {
   } else {
     yawpitchroll_triad.pitch -= yawpitchroll_offset.pitch;
     yawpitchroll_triad.roll -= yawpitchroll_offset.roll;
-    triad.integrator(Acc_raw_val, yawpitchroll_int, delta_t / 1000000.0, yawpitchroll_int);      //WARNING, this can produce drift
+    triad.integrator(Acc_raw_val[1], yawpitchroll_int, delta_t / 1000000.0, yawpitchroll_int);      //WARNING, this can produce drift
     // triad.integrator(Acc_raw_val, yawpitchroll, delta_t / 1000000.0, yawpitchroll_int);
   }
   //Aplicacion del filtro que combina ambas medidas
@@ -110,26 +110,26 @@ void Print_data() {
   //    Serial.print("  dt = ");
   //    Serial.print(delta_t/1e6 , 8);
   //    Serial.print("  Accc_x = ");
-  //    Serial.print(Acc_raw_val[0]);
+  //    Serial.print(Acc_raw_val[0][0]);
   //    Serial.print("  Acc_y = ");
-  //    Serial.print(Acc_raw_val[1]);
+  //    Serial.print(Acc_raw_val[0][1]);
   //    Serial.print("  Acc_z = ");
   //    Serial.print(Acc_raw_val[2]);
 
 
   //    Serial.print("  Gyro_x = ");
-  //    Serial.print(Acc_raw_val[3], 5);
+  //    Serial.print(Acc_raw_val[1][0], 5);
   //    Serial.print("  Gyro_y = ");
-  //    Serial.print(Acc_raw_val[4], 5);
+  //    Serial.print(Acc_raw_val[1][1], 5);
   //    Serial.print("  Gyro_z = ");
-  //    Serial.print(Acc_raw_val[5], 5);
+  //    Serial.print(Acc_raw_val[1][2], 5);
 
   //    Serial.print("  Mag_x = ");
-  //    Serial.print(Acc_raw_val[6]);
+  //    Serial.print(Acc_raw_val[2][0]);
   //    Serial.print("  Mag_y = ");
-  //    Serial.print(Acc_raw_val[7]);
+  //    Serial.print(Acc_raw_val[2][1]);
   //    Serial.print("  Mag_z = ");
-  //    Serial.print(Acc_raw_val[8]);
+  //    Serial.print(Acc_raw_val[2][2]);
 
   //    Serial.print("  Yaw = ");
   //    Serial.print(yawpitchroll_deg.yaw);

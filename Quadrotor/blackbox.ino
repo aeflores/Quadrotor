@@ -1,18 +1,21 @@
 #include "blackbox.h"
 
 
+
+// Declaramos el pin CS
+#define CS_PIN A3
+
+#include <SPI.h>
+#include <SdFat.h>
+SdFat sd;
+
 void blackbox::init() {
-  while (status < 0) {
-    status = SD.begin(CS_PIN);
-    if (status < 0) {
-    Serial.println(" ");
-    Serial.println("SD card initialization failed");
-    } else {
-  Serial.println("  ");
-  Serial.println("SD card initialization completed.");
-    }
+
+  while (!sd.begin(CS_PIN)) {  // SPI_FULL_SPEED
+    Serial.println("error");
   }
-  File dataFile = SD.open("datalog.txt", FILE_WRITE);
+
+  File dataFile = sd.open("datalog.txt", FILE_WRITE);
   // Writing file heading
   // Files in a directory must be listed an a new txt must be created
   // Here the accelerometer parameters should be written. This comprises calibration of Gyro and Mag (Both linear coefficients) and settings
@@ -20,8 +23,6 @@ void blackbox::init() {
   if (dataFile) {
     dataFile.println("Test");
     dataFile.close();
-    // print to the serial port too:
-    Serial.println("Test");
   }
 }
 
