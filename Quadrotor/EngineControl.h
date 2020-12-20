@@ -4,7 +4,7 @@
 #define ENGINE_CONTROL_H_
 
 #include <Servo.h> 
-#include "Triad.h"
+#include "Attitude.h"
 #include "TransmitData.h"
 
 const int MIN_SPEED=1000;
@@ -43,7 +43,7 @@ public:
     void updateEngines();
     void testControl(const int control[5]);
     void configure(ControllerConfiguration &conf);
-    void pdControl(const int control[4], const Attitude &yawpitchroll, const int delta_t);
+    void pdControl(const int control[4], const Euler &yawpitchroll, const int delta_t);
     void stop();
 
 };

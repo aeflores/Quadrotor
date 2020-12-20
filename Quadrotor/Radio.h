@@ -7,7 +7,7 @@
 #include <RF24_config.h>
 #include <SPI.h>
 #include <nRF24L01.h>
-#include "Triad.h"
+#include "Attitude.h"
 #include "EngineControl.h"
 #include "TransmitData.h"
 
@@ -25,7 +25,7 @@ private:
 public:
   Radio() : radio(CE_PIN, CSN_PIN){};
   void initialize();
-  void radiosend(const State curr_state,const Attitude &datos, const EngineControl &engines, int delta_t);
+  void radiosend(const State curr_state,const Euler &datos, const EngineControl &engines, int delta_t);
   void finishSend();
   void radiolisten(ControlData &datos,ControllerConfiguration& conf);
 };

@@ -6,32 +6,30 @@
 
 // Including libraries
 #include "Acelerometro.h"
-#include "Triad.h"
+#include "Attitude.h"
 #include "EngineControl.h"
 #include "Radio.h"
 // #include "Distancia.h"
 // #include "Signal.h"
-#include "blackbox.h"
+// #include "blackbox.h"
 
 
 // Defining objects
 Acelerometro acelerometro;
 EngineControl engines;
 Radio RadioCOM;
+Attitude attitude;
 // Distancia Dist_sensor;
-Triad triad;
-blackbox mySDbb;
+// blackbox mySDbb;
 
 // Global variables
 float Acc_raw_val[3][3]; // Raw IMU measurements accelerometer, magnetometer and gyroscope
-Attitude yawpitchroll_int; // Yaw pitch roll angles from integrator
-Attitude yawpitchroll_triad; // Yaw pitch roll angles from Triad algorithm
-Attitude yawpitchroll_offset;
-Attitude yawpitchroll; // Filtered yaw pitch roll angles
-Attitude yawpitchroll_deg; // yaw pitch roll in degrees
+Euler yawpitchroll;
+Euler yawpitchroll_deg;
 ControlData control; // Control telecomands
 // Signal Yaw(0.90,0.75);
 // Signal Height(0.05, 0.9);
+
 int first_iteration = 0;
 unsigned long tiempo, tiempo0;
 int delta_t;
@@ -63,47 +61,23 @@ State next_state(State curr_state, StateChange change) {
 // ----------------------------------------------------------------------------
 
 void read_sensors() {
-  // Lectura de los sensores
-  // Lectura de los valores raw de la IMU 9 DOF
+  // Get sensors raw values
+  // 9 DOF IMU
   acelerometro.get_raw_val(Acc_raw_val);
-  // Determinacion de los angulos de Euler utilizando el algoritmo TRIAD
-  triad.get_ypr_triad(Acc_raw_val, yawpitchroll_triad);
-
-  // Determinación de los angulos de Euler utilizando el integrador
-  if (first_iteration <= 20) {
-    // triad.integrator(Acc_raw_val[1], yawpitchroll_triad, delta_t / 1000000.0, yawpitchroll_int);
-    triad.integrator(Acc_raw_val[1], yawpitchroll_int, delta_t / 1000000.0, yawpitchroll_int);
-    if (first_iteration < 20) {
-      yawpitchroll_offset.pitch += yawpitchroll_triad.pitch;
-      yawpitchroll_offset.roll += yawpitchroll_triad.roll;
-    } else {
-      yawpitchroll_offset.pitch = yawpitchroll_offset.pitch / first_iteration;
-      yawpitchroll_offset.roll = yawpitchroll_offset.roll / first_iteration;
-    }
-    first_iteration++;
-  } else {
-    yawpitchroll_triad.pitch -= yawpitchroll_offset.pitch;
-    yawpitchroll_triad.roll -= yawpitchroll_offset.roll;
-    triad.integrator(Acc_raw_val[1], yawpitchroll_int, delta_t / 1000000.0, yawpitchroll_int);      //WARNING, this can produce drift
-    // triad.integrator(Acc_raw_val, yawpitchroll, delta_t / 1000000.0, yawpitchroll_int);
-  }
-  //Aplicacion del filtro que combina ambas medidas
-  triad.filter(yawpitchroll_triad, yawpitchroll_int, yawpitchroll);
-  //   yawpitchroll.pitch -= yawpitchroll_offset.pitch;
-  //   yawpitchroll.roll -= yawpitchroll_offset.roll;
-  // Yaw.update(yawpitchroll.yaw*radtodeg, delta_t);
+  // Height sensor
   //  Height.update(Dist_sensor.update_distance()*cos(yawpitchroll.pitch)*cos(yawpitchroll.roll), delta_t);
   // Lectura del dato de altura
   // Height.update(Dist_sensor.update_distance(), delta_t);
   //Height[0]=Dist_sensor.update_distance();
   // Transformamos la altura medida en altura con respecto al suelo
   //Height[0]=Height[0]*cos(yawpitchroll[1])*cos(yawpitchroll[2]);
+}
 
+void compute_attitude(){
+  attitude.get_attitude(Acc_raw_val, yawpitchroll, delta_t);
   yawpitchroll_deg.yaw = yawpitchroll.yaw * radtodeg;
   yawpitchroll_deg.pitch = yawpitchroll.pitch * radtodeg;
   yawpitchroll_deg.roll = yawpitchroll.roll * radtodeg;
-
-
 }
 
 void Print_data() {
@@ -131,19 +105,19 @@ void Print_data() {
   //    Serial.print("  Mag_z = ");
   //    Serial.print(Acc_raw_val[2][2]);
 
-  //    Serial.print("  Yaw = ");
-  //    Serial.print(yawpitchroll_deg.yaw);
-  //    Serial.print("   Pitch = ");
-  //    Serial.print(yawpitchroll_deg.pitch);
-  //    Serial.print("   Roll = ");
-  //    Serial.print(yawpitchroll_deg.roll);
+      Serial.print("  Yaw = ");
+      Serial.print(yawpitchroll_deg.yaw);
+      Serial.print("   Pitch = ");
+      Serial.print(yawpitchroll_deg.pitch);
+      Serial.print("   Roll = ");
+      Serial.print(yawpitchroll_deg.roll);
   //
   //    Serial.print("   Yaw = ");
   //    Serial.print(yawpitchroll_int.yaw*radtodeg);
-  Serial.print("   Pitch = ");
-  Serial.print(yawpitchroll_int.pitch * radtodeg);
-  Serial.print("   Roll = ");
-  Serial.print(yawpitchroll_int.roll * radtodeg);
+//  Serial.print("   Pitch = ");
+//  Serial.print(yawpitchroll_int.pitch * radtodeg);
+//  Serial.print("   Roll = ");
+//  Serial.print(yawpitchroll_int.roll * radtodeg);
 
   //    Serial.print("   Pitch = ");
   //    Serial.print(yawpitchroll_triad.pitch*radtodeg);
@@ -230,8 +204,8 @@ void setup() {
   RadioCOM.initialize();
   engines.init();
   //  Dist_sensor.initialize();
-  triad.initialize();
-  mySDbb.init();
+  attitude.initial_cond();
+//   mySDbb.init();
 
 
 }
@@ -255,6 +229,7 @@ void loop() {
     curr_state = next_state(curr_state, control.change);
   }
   read_sensors();
+  compute_attitude();
 
   switch (curr_state) {
     case STANDBY:
@@ -294,7 +269,7 @@ void loop() {
     RadioCOM.finishSend();
   }
   
-  // Print_data();
+  Print_data();
   engines.updateEngines();
   Serial.println(" ");
 }

@@ -8,9 +8,6 @@ void Acelerometro::initialize() {
     status = IMU.begin();
     if (status < 0) {
       Serial.println("IMU initialization unsuccessful");
-      Serial.println("Check IMU wiring or try cycling power");
-      Serial.print("Status: ");
-      Serial.println(status);
     } else {
       Serial.println("IMU initialization successful");
     }
@@ -18,7 +15,6 @@ void Acelerometro::initialize() {
 }
 
 void Acelerometro::default_cal() {
-
   // Magnetometer settings
   // X-axis bias and scale factor
   float hxb = -4.257;    // mag bias in uT

@@ -64,7 +64,7 @@ int EngineControl::error2Correction(float error, float derivative_error){
 }
 
 
-void EngineControl::pdControl(const int control[4], const Attitude &yawpitchroll_deg, const int delta_t){
+void EngineControl::pdControl(const int control[4], const Euler &yawpitchroll_deg, const int delta_t){
     computeReference(control);
     float old_error_pitch, old_error_roll, old_derivative_error_pitch, old_derivative_error_roll;
     // save old values

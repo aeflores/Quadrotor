@@ -15,7 +15,7 @@ void Radio::initialize() {
   radio.startListening();
 }
 
-void Radio::radiosend(const State curr_state, const Attitude& datos, const EngineControl &engines, int delta_t) {
+void Radio::radiosend(const State curr_state, const Euler& datos, const EngineControl &engines, int delta_t) {
   // EMISION DE DATOS
   TransmitData data;
   data.state=curr_state;
