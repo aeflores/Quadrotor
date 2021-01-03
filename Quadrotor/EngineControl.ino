@@ -64,7 +64,7 @@ int EngineControl::error2Correction(float error, float derivative_error){
 }
 
 
-void EngineControl::pdControl(const int control[4], const Euler &yawpitchroll_deg, const int delta_t){
+void EngineControl::pdControl(const int control[4], const Euler &yawpitchroll, const int delta_t){
     computeReference(control);
     float old_error_pitch, old_error_roll, old_derivative_error_pitch, old_derivative_error_roll;
     // save old values
@@ -81,8 +81,8 @@ void EngineControl::pdControl(const int control[4], const Euler &yawpitchroll_de
     float roll_filter_coeff = 0.05;
     
     // compute new values
-    error_pitch = reference.pitch - yawpitchroll_deg.pitch;
-    error_roll = reference.roll - yawpitchroll_deg.roll;
+    error_pitch = reference.pitch - yawpitchroll.pitch_deg();
+    error_roll = reference.roll - yawpitchroll.roll_deg();
     // Filtering errors
     error_pitch = pitch_filter_coeff*error_pitch + (1-pitch_filter_coeff)*old_error_pitch;
     error_roll = roll_filter_coeff*error_roll + (1-roll_filter_coeff)*old_error_roll;

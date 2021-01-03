@@ -1,6 +1,17 @@
 #include "Attitude.h"
 
 
+float Euler::yaw_deg() const{
+  return yaw * radtodeg;
+}
+float Euler::pitch_deg() const{
+  return pitch * radtodeg;
+}
+float Euler::roll_deg() const{
+  return roll * radtodeg;
+}
+
+
 float sign(const float value) {
   return ((value > 0) - (value < 0));
 }
@@ -19,19 +30,29 @@ void vectprod(const float v1[], const  float v2[], float r2[]) {
   r2[1] = -v1[0] * v2[2] + v1[2] * v2[0];
   r2[2] = v1[0] * v2[1] - v1[1] * v2[0];
 }
+
+void transpose(float M[3][3]){
+  float tmp;
+  tmp = M[0][1];
+  M[0][1]= M[1][0];
+  M[1][0] = tmp;
+
+  tmp = M[0][2];
+  M[0][2]= M[2][0];
+  M[2][0] = tmp;
+
+  tmp = M[1][2];
+  M[1][2]= M[2][1];
+  M[2][1] = tmp;
+}
 void triada(const float v1[3], const float v2[3], float M[3][3]) {
-  float r[3][3];
   for (int i = 0; i < 3; i++) {
-    r[0][i] = v1[i];
+    M[0][i] = v1[i];
   }
-  vectprod(v1, v2, r[1]);
-  normalize_vector(r[1]);
-  vectprod(r[0], r[1], r[2]);
-  for (int i = 0; i < 3; i++) {
-    for (int j = 0; j < 3; j++) {
-      M[j][i] = r[i][j];
-    }
-  }
+  vectprod(v1, v2, M[1]);
+  normalize_vector(M[1]);
+  vectprod(M[0], M[1], M[2]);
+  transpose(M);
 }
 
 
@@ -48,6 +69,7 @@ void Attitude::triad_algorithm(const float Acc[3], const float Mag[3], float q[4
   float A[3][3];
   triada(w1, w2, A);
 
+  Serial.println("A");
   Serial.print(A[0][0]);
   Serial.print("\t");
   Serial.print(A[0][1]);
@@ -64,21 +86,22 @@ void Attitude::triad_algorithm(const float Acc[3], const float Mag[3], float q[4
   Serial.print("\t");
   Serial.println(A[2][2]);
 //
-//  Serial.print(B[0][0],4);
-//  Serial.print("\t");
-//  Serial.print(B[0][1],4);
-//  Serial.print("\t");
-//  Serial.println(B[0][2],4);
-//  Serial.print(B[1][0],4);
-//  Serial.print("\t");
-//  Serial.print(B[1][1],4);
-//  Serial.print("\t");
-//  Serial.println(B[1][2],4);
-//  Serial.print(B[2][0],4);
-//  Serial.print("\t");
-//  Serial.print(B[2][1],4);
-//  Serial.print("\t");
-//  Serial.println(B[2][2],4);
+  Serial.println("B");
+  Serial.print(B[0][0],4);
+  Serial.print("\t");
+  Serial.print(B[0][1],4);
+  Serial.print("\t");
+  Serial.println(B[0][2],4);
+  Serial.print(B[1][0],4);
+  Serial.print("\t");
+  Serial.print(B[1][1],4);
+  Serial.print("\t");
+  Serial.println(B[1][2],4);
+  Serial.print(B[2][0],4);
+  Serial.print("\t");
+  Serial.print(B[2][1],4);
+  Serial.print("\t");
+  Serial.println(B[2][2],4);
   
   // Matrix R=A*B'
   float R[3][3];
@@ -172,7 +195,7 @@ void Attitude::initial_cond() {
   // Triada R
   triada(Mag_I, Acc_I, B);
 
-
+  Serial.println("B");
   Serial.print(B[0][0],4);
   Serial.print("\t");
   Serial.print(B[0][1],4);
@@ -198,12 +221,13 @@ void Attitude::initial_cond() {
   for (int i = 0; i < iterations; i++) {
     
     acelerometro.get_raw_val(Acc_raw_val);
-    
+    Serial.println("Acc");
     Serial.print(Acc_raw_val[0][0]);
     Serial.print("\t");
     Serial.print(Acc_raw_val[0][1]);
     Serial.print("\t");
     Serial.println(Acc_raw_val[0][2]);
+    Serial.println("Mag");
     Serial.print(Acc_raw_val[2][0]);
     Serial.print("\t");
     Serial.print(Acc_raw_val[2][1]);
@@ -238,22 +262,19 @@ void Attitude::initial_cond() {
 // Este pavo es el que tiene que hacer todo ahora
 void Attitude::get_attitude(const float Acc_raw_val[3][3], Euler& yawpitchroll, float delta_t) {
 
+  float q1integ[4];
+  float q1triad[4];
   triad_algorithm(Acc_raw_val[0], Acc_raw_val[2],  q1triad);
   integrate(Acc_raw_val[1], q0, delta_t,  q1integ);
 
-  q1[0] = 0.1 * q1triad[0] + 0.9 * q1integ[0];
-  q1[1] = 0.1 * q1triad[1] + 0.9 * q1integ[1];
-  q1[2] = 0.1 * q1triad[2] + 0.9 * q1integ[2];
-  q1[3] = 0.1 * q1triad[3] + 0.9 * q1integ[3];
-
-  q0[0] = q1[0];
-  q0[1] = q1[1];
-  q0[2] = q1[2];
-  q0[3] = q1[3];
+  q0[0] = 0.1 * q1triad[0] + 0.9 * q1integ[0];
+  q0[1] = 0.1 * q1triad[1] + 0.9 * q1integ[1];
+  q0[2] = 0.1 * q1triad[2] + 0.9 * q1integ[2];
+  q0[3] = 0.1 * q1triad[3] + 0.9 * q1integ[3];
 
   // offset_attitude(const float q1, const float qoffset);
 
   // Una vez que tenemos la orientacion del frame con respecto al mundo convertimos nuestro cuaternio en angulos de euler devolvemos eso
-  Q2E(q1,  yawpitchroll);
+  Q2E(q0,  yawpitchroll);
   
 }

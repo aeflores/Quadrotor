@@ -19,9 +19,9 @@ void Radio::radiosend(const State curr_state, const Euler& datos, const EngineCo
   // EMISION DE DATOS
   TransmitData data;
   data.state=curr_state;
-  data.yawpitchroll[0] = datos.yaw;
-  data.yawpitchroll[1] = datos.pitch;
-  data.yawpitchroll[2] = datos.roll;
+  data.yawpitchroll[0] = datos.yaw_deg();
+  data.yawpitchroll[1] = datos.pitch_deg();
+  data.yawpitchroll[2] = datos.roll_deg();
   for (int i=0; i<4 ; i++){
     data.engines[i]= engines.engine_speed[i];
   }

@@ -25,13 +25,11 @@ Attitude attitude;
 // Global variables
 float Acc_raw_val[3][3]; // Raw IMU measurements accelerometer, magnetometer and gyroscope
 Euler yawpitchroll;
-Euler yawpitchroll_deg;
 ControlData control; // Control telecomands
 // Signal Yaw(0.90,0.75);
 // Signal Height(0.05, 0.9);
 
-int first_iteration = 0;
-unsigned long tiempo, tiempo0;
+unsigned long tiempo0;
 int delta_t;
 
 
@@ -73,13 +71,6 @@ void read_sensors() {
   //Height[0]=Height[0]*cos(yawpitchroll[1])*cos(yawpitchroll[2]);
 }
 
-void compute_attitude(){
-  attitude.get_attitude(Acc_raw_val, yawpitchroll, delta_t);
-  yawpitchroll_deg.yaw = yawpitchroll.yaw * radtodeg;
-  yawpitchroll_deg.pitch = yawpitchroll.pitch * radtodeg;
-  yawpitchroll_deg.roll = yawpitchroll.roll * radtodeg;
-}
-
 void Print_data() {
   //    Serial.print("  dt = ");
   //    Serial.print(delta_t/1e6 , 8);
@@ -106,11 +97,11 @@ void Print_data() {
   //    Serial.print(Acc_raw_val[2][2]);
 
       Serial.print("  Yaw = ");
-      Serial.print(yawpitchroll_deg.yaw);
+      Serial.print(yawpitchroll.yaw_deg());
       Serial.print("   Pitch = ");
-      Serial.print(yawpitchroll_deg.pitch);
+      Serial.print(yawpitchroll.pitch_deg());
       Serial.print("   Roll = ");
-      Serial.print(yawpitchroll_deg.roll);
+      Serial.print(yawpitchroll.roll_deg());
   //
   //    Serial.print("   Yaw = ");
   //    Serial.print(yawpitchroll_int.yaw*radtodeg);
@@ -219,17 +210,15 @@ ControllerConfiguration configuration;
 void loop() {
   // La radio transmite y recibe cada 15 ciclos
   cycle_counter = (cycle_counter + 1) % 15;
-
-  tiempo = micros();
-  delta_t = tiempo - tiempo0;
-  tiempo0 = tiempo;
+  delta_t = micros() - tiempo0;
+  tiempo0 += delta_t;
   // En el ciclo 14 recibe datos
   if (cycle_counter == 14) {
     RadioCOM.radiolisten(control, configuration);
     curr_state = next_state(curr_state, control.change);
   }
   read_sensors();
-  compute_attitude();
+  attitude.get_attitude(Acc_raw_val, yawpitchroll, delta_t);
 
   switch (curr_state) {
     case STANDBY:
@@ -248,10 +237,10 @@ void loop() {
       }
     case FLYMODE:
       Serial.print("FLYMODE   ");
-      if (yawpitchroll_deg.pitch > 25 ||  yawpitchroll_deg.pitch < -25 || yawpitchroll_deg.roll > 25 || yawpitchroll_deg.roll < -25)
+      if (yawpitchroll.pitch_deg() > 25 ||  yawpitchroll.pitch_deg() < -25 || yawpitchroll.roll_deg() > 25 || yawpitchroll.roll_deg() < -25)
         curr_state = ABORT;
       else
-        engines.pdControl(control.movement, yawpitchroll_deg, delta_t);
+        engines.pdControl(control.movement, yawpitchroll, delta_t);
       break;
     case ABORT:
       Serial.print("ABORT  ");
@@ -261,7 +250,7 @@ void loop() {
   
   // En el ciclo 1 empieza el envio
   if (cycle_counter == 1) {
-    RadioCOM.radiosend(curr_state, yawpitchroll_deg, engines, delta_t);
+    RadioCOM.radiosend(curr_state, yawpitchroll, engines, delta_t);
   }
   // En el ciclo 7 termina el envio
   // y empieza a escuchar hasta el ciclo 14
