@@ -5,9 +5,6 @@
 // Declaramos el pin CS
 #define CS_PIN A3
 
-#include <SPI.h>
-#include <SdFat.h>
-SdFat sd;
 
 void blackbox::init() {
 

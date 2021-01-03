@@ -4,9 +4,6 @@
 #define RADIO_H_
 
 #include <RF24.h>
-#include <RF24_config.h>
-#include <SPI.h>
-#include <nRF24L01.h>
 #include "Attitude.h"
 #include "EngineControl.h"
 #include "TransmitData.h"
