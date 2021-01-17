@@ -72,14 +72,14 @@ void read_sensors() {
 }
 
 void Print_data() {
-  //    Serial.print("  dt = ");
-  //    Serial.print(delta_t/1e6 , 8);
-  //    Serial.print("  Accc_x = ");
-  //    Serial.print(Acc_raw_val[0][0]);
-  //    Serial.print("  Acc_y = ");
-  //    Serial.print(Acc_raw_val[0][1]);
-  //    Serial.print("  Acc_z = ");
-  //    Serial.print(Acc_raw_val[2]);
+//      Serial.print("  dt = ");
+//      Serial.print(delta_t/1e3 , 3);
+//      Serial.print("  Accc_x = ");
+//      Serial.print(Acc_raw_val[0][0]);
+//      Serial.print("  Acc_y = ");
+//      Serial.print(Acc_raw_val[0][1]);
+//      Serial.print("  Acc_z = ");
+//      Serial.print(Acc_raw_val[0][2]);
 
 
   //    Serial.print("  Gyro_x = ");
@@ -89,13 +89,13 @@ void Print_data() {
   //    Serial.print("  Gyro_z = ");
   //    Serial.print(Acc_raw_val[1][2], 5);
 
-  //    Serial.print("  Mag_x = ");
-  //    Serial.print(Acc_raw_val[2][0]);
-  //    Serial.print("  Mag_y = ");
-  //    Serial.print(Acc_raw_val[2][1]);
-  //    Serial.print("  Mag_z = ");
-  //    Serial.print(Acc_raw_val[2][2]);
-
+//      Serial.print("  Mag_x = ");
+//      Serial.print(Acc_raw_val[2][0],3);
+//      Serial.print("  Mag_y = ");
+//      Serial.print(Acc_raw_val[2][1],3);
+//      Serial.print("  Mag_z = ");
+//      Serial.print(Acc_raw_val[2][2],3);
+//
       Serial.print("  Yaw = ");
       Serial.print(yawpitchroll.yaw_deg());
       Serial.print("   Pitch = ");
@@ -218,7 +218,7 @@ void loop() {
     curr_state = next_state(curr_state, control.change);
   }
   read_sensors();
-  attitude.get_attitude(Acc_raw_val, yawpitchroll, delta_t);
+  attitude.get_attitude(Acc_raw_val, yawpitchroll, delta_t/1e6);
 
   switch (curr_state) {
     case STANDBY:

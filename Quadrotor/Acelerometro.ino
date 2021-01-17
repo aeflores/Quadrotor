@@ -196,9 +196,11 @@ void Acelerometro::get_raw_val(float Acc_val[3][3]) {
   Acc_val[1][1] = IMU.getGyroY_rads();
   Acc_val[1][2] = IMU.getGyroZ_rads();
   // Get magnetic field components in the body reference
+  
   Acc_val[2][0] = IMU.getMagX_uT();
   Acc_val[2][1] = IMU.getMagY_uT();
   Acc_val[2][2] = IMU.getMagZ_uT();
+  
   //  Serial.print("Temperature in C: ");
   //  Serial.println(IMU.getTemperature_C(),6);
   //  Serial.println();
