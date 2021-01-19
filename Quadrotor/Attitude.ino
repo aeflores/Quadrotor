@@ -118,7 +118,6 @@ void integrate(const float gyro[3], const float qk0[4], float delta_t,  float qk
   float omega_mod_delta   = omega_mod * delta_t / 2.0;
   float omega_mod_sin_mod = sin(omega_mod_delta) / omega_mod;
   float omega_mod_cos     = cos(omega_mod_delta);
-
   qk1[0] = qk0[0] * omega_mod_cos - gyro[0] * qk0[1] * omega_mod_sin_mod  - gyro[1] * qk0[2] * omega_mod_sin_mod  - gyro[2] * qk0[3] * omega_mod_sin_mod;
   qk1[1] = qk0[1] * omega_mod_cos + gyro[0] * qk0[0] * omega_mod_sin_mod  + gyro[1] * qk0[3] * omega_mod_sin_mod  + gyro[2] * qk0[2] * omega_mod_sin_mod;
   qk1[2] = qk0[2] * omega_mod_cos + gyro[0] * qk0[3] * omega_mod_sin_mod  + gyro[1] * qk0[0] * omega_mod_sin_mod  - gyro[2] * qk0[1] * omega_mod_sin_mod;
@@ -126,8 +125,16 @@ void integrate(const float gyro[3], const float qk0[4], float delta_t,  float qk
 
 }
 
-void offset_attitude(const float q1, const float qoffset) {
-  // To be written
+void offset_attitude(const float qsi[4], const float qoffset[4],  float qout[4]) {
+  // Q3 = Q2 * Q1
+  // Qsi= Qsf* Qfi
+  // Qsf⁻¹ * Qsi = Qfi
+  // qoffset = Qsf⁻¹
+  // qout = qoffset * qsi
+  qout[0] = qoffset[0]*qsi[0] - (qoffset[1]*qsi[1] + qoffset[2]*qsi[2] + qoffset[3]*qsi[3]);
+  qout[1] = qoffset[0]*qsi[1] +  qoffset[1]*qsi[0] + qoffset[2]*qsi[3] - qoffset[3]*qsi[2];
+  qout[2] = qoffset[0]*qsi[2] +  qoffset[2]*qsi[0] + qoffset[3]*qsi[1] - qoffset[1]*qsi[3];
+  qout[3] = qoffset[0]*qsi[3] +  qoffset[3]*qsi[0] + qoffset[1]*qsi[2] - qoffset[2]*qsi[1];
 }
 
 void Q2E(const float qk1[4], Euler& yawpitchroll) {
@@ -150,7 +157,7 @@ void Attitude::get_attitude(const float Acc_raw_val[3][3], Euler& yawpitchroll, 
   q0[1] = 0.0 * q1triad[1] + 1 * q1integ[1];
   q0[2] = 0.0 * q1triad[2] + 1 * q1integ[2];
   q0[3] = 0.0 * q1triad[3] + 1 * q1integ[3];
-  // offset_attitude(const float q1, const float qoffset);
+  // offset_attitude(q0, qoffset, q0);
   // Una vez que tenemos la orientacion del frame con respecto al mundo convertimos nuestro cuaternio en angulos de euler devolvemos eso
   Q2E(q0,  yawpitchroll);
 }
