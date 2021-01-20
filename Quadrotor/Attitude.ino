@@ -82,6 +82,14 @@ void Attitude::initial_cond() {
   q0[3] = q0[3] / iterations;
   Euler yawpitchroll_init;
   Q2E(q0,  yawpitchroll_init);
+  Serial.print("Initial conditions");
+  Serial.print("  Yaw =  ");
+  Serial.print(yawpitchroll_init.yaw_deg(), 3);
+  Serial.print("  pitch =  ");
+  Serial.print(yawpitchroll_init.pitch_deg(), 3);
+  Serial.print("  roll =  ");
+  Serial.print(yawpitchroll_init.roll_deg(), 3);
+  Serial.print("\t");
 }
 
 void Attitude::triad_algorithm(const float Acc[3], const float Mag[3], float q[4]) {
@@ -153,13 +161,23 @@ void Attitude::get_attitude(const float Acc_raw_val[3][3], Euler& yawpitchroll, 
   float q1triad[4];
   triad_algorithm(Acc_raw_val[0], Acc_raw_val[2],  q1triad);
   integrate(Acc_raw_val[1], q0, delta_t,  q1integ);
-  q0[0] = 0.0 * q1triad[0] + 1 * q1integ[0];
-  q0[1] = 0.0 * q1triad[1] + 1 * q1integ[1];
-  q0[2] = 0.0 * q1triad[2] + 1 * q1integ[2];
-  q0[3] = 0.0 * q1triad[3] + 1 * q1integ[3];
-  // offset_attitude(q0, qoffset, q0);
+  q0[0] = 0.01 * q1triad[0] + 0.99 * q1integ[0];
+  q0[1] = 0.01* q1triad[1] + 0.99 * q1integ[1];
+  q0[2] = 0.01 * q1triad[2] + 0.99 * q1integ[2];
+  q0[3] = 0.01 * q1triad[3] + 0.99 * q1integ[3];
+  offset_attitude(q0, qoffset, q1);
+
+      Serial.print("  q0 = ");
+    Serial.print(q0[0]);
+    Serial.print("\t");
+    Serial.print(q0[1]);
+    Serial.print("\t");
+    Serial.print(q0[2]);
+    Serial.print("\t");
+    Serial.print(q0[3]);
+    Serial.print("\t");
   // Una vez que tenemos la orientacion del frame con respecto al mundo convertimos nuestro cuaternio en angulos de euler devolvemos eso
-  Q2E(q0,  yawpitchroll);
+  Q2E(q1,  yawpitchroll);
 }
 
 //    Serial.print("Initial conditions");

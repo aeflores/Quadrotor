@@ -15,8 +15,8 @@ struct Euler{
 class Attitude{
   private:
     float B[3][3];
-    float q0[4];
-    float qoffset[4] = {1, 0, 0, 0};
+    float q0[4], q1[0];
+    float qoffset[4] = {0.6412,    0.4425,   -0.5160,   -0.3561};
 
   public:
   void initial_cond();
