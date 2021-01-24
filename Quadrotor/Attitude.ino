@@ -139,7 +139,7 @@ void offset_attitude(const float qsi[4], const float qoffset[4],  float qout[4])
   // Qsf⁻¹ * Qsi = Qfi
   // qoffset = Qsf⁻¹
   // qout = qoffset * qsi
-  qout[0] = qoffset[0]*qsi[0] - (qoffset[1]*qsi[1] + qoffset[2]*qsi[2] + qoffset[3]*qsi[3]);
+  qout[0] = qoffset[0]*qsi[0] -  qoffset[1]*qsi[1] - qoffset[2]*qsi[2] - qoffset[3]*qsi[3];
   qout[1] = qoffset[0]*qsi[1] +  qoffset[1]*qsi[0] + qoffset[2]*qsi[3] - qoffset[3]*qsi[2];
   qout[2] = qoffset[0]*qsi[2] +  qoffset[2]*qsi[0] + qoffset[3]*qsi[1] - qoffset[1]*qsi[3];
   qout[3] = qoffset[0]*qsi[3] +  qoffset[3]*qsi[0] + qoffset[1]*qsi[2] - qoffset[2]*qsi[1];
@@ -162,24 +162,32 @@ void Attitude::get_attitude(const float Acc_raw_val[3][3], Euler& yawpitchroll, 
   triad_algorithm(Acc_raw_val[0], Acc_raw_val[2],  q1triad);
   integrate(Acc_raw_val[1], q0, delta_t,  q1integ);
   q0[0] = 0.01 * q1triad[0] + 0.99 * q1integ[0];
-  q0[1] = 0.01* q1triad[1] + 0.99 * q1integ[1];
+  q0[1] = 0.01 * q1triad[1] + 0.99 * q1integ[1];
   q0[2] = 0.01 * q1triad[2] + 0.99 * q1integ[2];
   q0[3] = 0.01 * q1triad[3] + 0.99 * q1integ[3];
   offset_attitude(q0, qoffset, q1);
-
-      Serial.print("  q0 = ");
-    Serial.print(q0[0]);
-    Serial.print("\t");
-    Serial.print(q0[1]);
-    Serial.print("\t");
-    Serial.print(q0[2]);
-    Serial.print("\t");
-    Serial.print(q0[3]);
-    Serial.print("\t");
   // Una vez que tenemos la orientacion del frame con respecto al mundo convertimos nuestro cuaternio en angulos de euler devolvemos eso
   Q2E(q1,  yawpitchroll);
 }
 
+//   Serial.print("  q0 = ");
+//    Serial.print(q0[0]);
+//    Serial.print("\t");
+//    Serial.print(q0[1]);
+//    Serial.print("\t");
+//    Serial.print(q0[2]);
+//    Serial.print("\t");
+//    Serial.print(q0[3]);
+//    Serial.print("\t");
+//    Serial.print("  q1 = ");
+//    Serial.print(qoffset[0]);
+//    Serial.print("\t");
+//    Serial.print(qoffset[1]);
+//    Serial.print("\t");
+//    Serial.print(qoffset[2]);
+//    Serial.print("\t");
+//    Serial.print(qoffset[3]);
+//    Serial.print("\t");
 //    Serial.print("Initial conditions");
 //    Serial.print("  Yaw =  ");
 //    Serial.print(yawpitchroll_init.yaw_deg(), 3);

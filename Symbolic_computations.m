@@ -8,14 +8,14 @@ OMEGA = [ 0 -p -q -r;
 qk1 = (eye(4)*cos(dt*omega/2) + sin(dt*omega/2)/omega*OMEGA)*qk0
 
 yaw = 185.793;
-pitch = -4.928;
-roll = 5.075;
+pitch =  4.458 ;
+roll =  -4.074	
+radtodeg = 180/pi;
 
-q = angle2quat(0 , pitch, roll)
+q = angle2quat(0 , pitch/radtodeg, roll/radtodeg)
 qoffset = quatinv(q)
 
-qsi = quaternion(0.97, 0.07, 0.17, 0.15)
-qfi = qoffset*qsi
+
 
 
 % // Q3 = Q2 * Q1
