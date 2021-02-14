@@ -17,6 +17,7 @@ class Attitude{
     float B[3][3];
     float q0[4], q1[4];
     float qoffset[4] = {0.9986, 0.0355, -0.0389, -0.0014};
+    float alpha = 0.95;
 
   public:
   void initial_cond();

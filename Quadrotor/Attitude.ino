@@ -67,29 +67,23 @@ void Attitude::initial_cond() {
   triada(Mag_I, Acc_I, B);
   // Triad algorithm is run serveral times to get initial conditions
   int iterations = 100;
-  float qinit[4];
+  float qinit[4], theta, k[3];
   for (int i = 0; i < iterations; i++) {
     acelerometro.get_raw_val(Acc_raw_val);
     triad_algorithm(Acc_raw_val[0], Acc_raw_val[2], qinit);
-    q0[0] += qinit[0];
-    q0[1] += qinit[1];
-    q0[2] += qinit[2];
-    q0[3] += qinit[3];
+    theta += 2*acos(qinit[0])/iterations;
+    k[0]  += qinit[1]/sin(acos(qinit[0]));
+    k[1]  += qinit[2]/sin(acos(qinit[0]));
+    k[2]  += qinit[3]/sin(acos(qinit[0]));
   }
-  q0[0] = q0[0] / iterations;
-  q0[1] = q0[1] / iterations;
-  q0[2] = q0[2] / iterations;
-  q0[3] = q0[3] / iterations;
+  
+  normalize_vector(k);
+  q0[0] = cos(theta/2);
+  q0[1] = k[0]*sin(theta/2);
+  q0[2] = k[1]*sin(theta/2);
+  q0[3] = k[2]*sin(theta/2);
   Euler yawpitchroll_init;
   Q2E(q0,  yawpitchroll_init);
-  Serial.print("Initial conditions");
-  Serial.print("  Yaw =  ");
-  Serial.print(yawpitchroll_init.yaw_deg(), 3);
-  Serial.print("  pitch =  ");
-  Serial.print(yawpitchroll_init.pitch_deg(), 3);
-  Serial.print("  roll =  ");
-  Serial.print(yawpitchroll_init.roll_deg(), 3);
-  Serial.print("\t");
 }
 
 void Attitude::triad_algorithm(const float Acc[3], const float Mag[3], float q[4]) {
@@ -155,20 +149,83 @@ void Q2E(const float qk1[4], Euler& yawpitchroll) {
   }
 }
 
+void combinequat(const float q1[4], const float q2[4], float alpha, float q3[4]){
+  float theta1 = 2*acos(q1[0]);
+  float theta2 = 2*acos(q2[0]);
+  float theta3 = alpha*theta1 + (1 - alpha)*theta2;
+  float k1[3], k2[3], k3[3];
+  k1[0] = q1[1]/sin(theta1/2.);
+  k1[1] = q1[2]/sin(theta1/2.);
+  k1[2] = q1[3]/sin(theta1/2.);
+
+  k2[0] = q2[1]/sin(theta2/2.);
+  k2[1] = q2[2]/sin(theta2/2.);
+  k2[2] = q2[3]/sin(theta2/2.);
+  
+  k3[0] = alpha*k1[0] + (1 - alpha)*k2[0];
+  k3[1] = alpha*k1[1] + (1 - alpha)*k2[1];
+  k3[2] = alpha*k1[2] + (1 - alpha)*k2[2];
+  normalize_vector(k3);
+  q3[0] = cos(theta3/2);
+  q3[1] = sin(theta3/2)*k3[0];
+  q3[2] = sin(theta3/2)*k3[1];
+  q3[3] = sin(theta3/2)*k3[2];
+}
+
 
 void Attitude::get_attitude(const float Acc_raw_val[3][3], Euler& yawpitchroll, float delta_t) {
   float q1integ[4];
   float q1triad[4];
   triad_algorithm(Acc_raw_val[0], Acc_raw_val[2],  q1triad);
   integrate(Acc_raw_val[1], q0, delta_t,  q1integ);
-  q0[0] = 0.01 * q1triad[0] + 0.99 * q1integ[0];
-  q0[1] = 0.01 * q1triad[1] + 0.99 * q1integ[1];
-  q0[2] = 0.01 * q1triad[2] + 0.99 * q1integ[2];
-  q0[3] = 0.01 * q1triad[3] + 0.99 * q1integ[3];
+  combinequat(q1integ, q1triad, alpha, q0);
   offset_attitude(q0, qoffset, q1);
   // Una vez que tenemos la orientacion del frame con respecto al mundo convertimos nuestro cuaternio en angulos de euler devolvemos eso
   Q2E(q1,  yawpitchroll);
 }
+
+//  q0[0] = 0.01 * q1triad[0] + 0.99 * q1integ[0];
+//  q0[1] = 0.01 * q1triad[1] + 0.99 * q1integ[1];
+//  q0[2] = 0.01 * q1triad[2] + 0.99 * q1integ[2];
+//  q0[3] = 0.01 * q1triad[3] + 0.99 * q1integ[3];
+
+
+//    Serial.print("Theta  =");
+//    Serial.print("\t");
+//    Serial.print(2*acos(qinit[0])*radtodeg, 2);
+//    Serial.print("  k1  =");
+//    Serial.print("\t");
+//    Serial.print(qinit[1]/sin(acos(qinit[0])), 2);
+//    Serial.print("  k2  =");
+//    Serial.print("\t");
+//    Serial.print(qinit[2]/sin(acos(qinit[0])), 2);
+//    Serial.print("  k3  =");
+//    Serial.print("\t");
+//    Serial.println(qinit[3]/sin(acos(qinit[0])), 2);
+
+//  Serial.println("Initial conditions");
+//  Serial.print("Theta  =");
+//  Serial.print("\t");
+//  Serial.print(theta*radtodeg, 2);
+//  Serial.print("  k1  =");
+//  Serial.print("\t");
+//  Serial.print(k[0], 2);
+//  Serial.print("  k2  =");
+//  Serial.print("\t");
+//  Serial.print(k[1], 2);
+//  Serial.print("  k3  =");
+//  Serial.print("\t");
+//  Serial.println(k[2], 2);
+//  Serial.print("  Yaw =  ");
+//  Serial.print(yawpitchroll_init.yaw_deg(), 3);
+//  Serial.print("  pitch =  ");
+//  Serial.print(yawpitchroll_init.pitch_deg(), 3);
+//  Serial.print("  roll =  ");
+//  Serial.print(yawpitchroll_init.roll_deg(), 3);
+//  Serial.println("\t");
+
+
+
 
 //   Serial.print("  q0 = ");
 //    Serial.print(q0[0]);

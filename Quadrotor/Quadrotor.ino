@@ -204,16 +204,16 @@ void setup() {
 // -----------------------------------------------------------------------------
 // ---------------------------------- Main Loop --------------------------------
 // -----------------------------------------------------------------------------
-short cycle_counter;
+short cycle_counter, cycle = 10;
 ControllerConfiguration configuration;
 
 void loop() {
   // La radio transmite y recibe cada 15 ciclos
-  cycle_counter = (cycle_counter + 1) % 15;
+  cycle_counter = (cycle_counter + 1) % cycle;
   delta_t = micros() - tiempo0;
   tiempo0 += delta_t;
   // En el ciclo 14 recibe datos
-  if (cycle_counter == 14) {
+  if (cycle_counter == (cycle - 1)) {
     RadioCOM.radiolisten(control, configuration);
     curr_state = next_state(curr_state, control.change);
   }
@@ -254,11 +254,11 @@ void loop() {
   }
   // En el ciclo 7 termina el envio
   // y empieza a escuchar hasta el ciclo 14
-  if (cycle_counter == 7) {
+  if (cycle_counter == cycle/2) {
     RadioCOM.finishSend();
   }
   
-  Print_data();
+  // Print_data();
   engines.updateEngines();
-  Serial.println(" ");
+  // Serial.println(" ");
 }
