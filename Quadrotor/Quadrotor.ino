@@ -72,8 +72,8 @@ void read_sensors() {
 }
 
 void Print_data() {
-//      Serial.print("  dt = ");
-//      Serial.print(delta_t/1e3 , 3);
+      Serial.print("  dt = ");
+      Serial.print(delta_t/1e3 , 3);
 //      Serial.print("  Accc_x = ");
 //      Serial.print(Acc_raw_val[0][0]);
 //      Serial.print("  Acc_y = ");
@@ -89,13 +89,13 @@ void Print_data() {
   //    Serial.print("  Gyro_z = ");
   //    Serial.print(Acc_raw_val[1][2], 5);
 
-//      Serial.print("  Mag_x = ");
-//      Serial.print(Acc_raw_val[2][0],3);
-//      Serial.print("  Mag_y = ");
-//      Serial.print(Acc_raw_val[2][1],3);
-//      Serial.print("  Mag_z = ");
-//      Serial.print(Acc_raw_val[2][2],3);
-//
+      Serial.print("  Mag_x = ");
+      Serial.print(Acc_raw_val[2][0],3);
+      Serial.print("  Mag_y = ");
+      Serial.print(Acc_raw_val[2][1],3);
+      Serial.print("  Mag_z = ");
+      Serial.print(Acc_raw_val[2][2],3);
+
       Serial.print("  Yaw = ");
       Serial.print(yawpitchroll.yaw_deg());
       Serial.print("   Pitch = ");
