@@ -57,26 +57,40 @@ class serialPlot:
                 byteData = self.dataBlock[i][(j * self.dataNumBytes):((j + 1) * self.dataNumBytes)]
                 value, = struct.unpack(self.dataType, byteData)
                 self.data[j].append(copy.copy(value))
+        # print(self.data)
         print("Exporting data ...")
         csvData = np.flip(np.array(self.data), 1).transpose()
-        np.savetxt('magnetometer.csv', csvData, delimiter=',', fmt='%i')
+        # np.savetxt('magnetometer_data.csv', csvData, delimiter=',', fmt='%f')
         print("Done")
+        return csvData
 
     def close(self):
         self.serialConnection.close()
         print('Disconnected...')
 
 
-def main():
-    # portName = 'COM6'
-    portName = "/dev/ttyACM0"
-    baudRate = 115200
-    dataNumBytes = 4        # number of bytes of 1 data point
-    numVariables = 9        # number of plots in 1 graph
-    s = serialPlot(portName, baudRate, dataNumBytes, numVariables)   # initializes all required variables
-    time.sleep(2)
-    s.getSerialData(30)
+# def main():
+#     # portName = 'COM6'
+#     portName = '/dev/ttyACM0'
+#     baudRate = 115200
+#     dataNumBytes = 4        # number of bytes of 1 data point
+#     numVariables = 9        # number of plots in 1 graph
+#     s = serialPlot(portName, baudRate, dataNumBytes, numVariables)   # initializes all required variables
+#     time.sleep(2)
+#     s.getSerialData(10)
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
+
+
+# portName = 'COM6'
+portName = '/dev/ttyACM0'
+portName = '/dev/ttyUSB0'
+baudRate = 115200
+dataNumBytes = 2        # number of bytes of 1 data point
+numVariables = 9        # number of plots in 1 graph
+s = serialPlot(portName, baudRate, dataNumBytes, numVariables)   # initializes all required variables
+time.sleep(2)
+Data = s.getSerialData(30)
+np.savetxt('MagData16mar.csv', Data, delimiter=',', fmt='%f')
