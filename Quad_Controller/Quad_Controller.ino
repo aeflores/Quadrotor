@@ -12,7 +12,7 @@
 
 // Declaremos los pines CE y el CSN
 const int CE_PIN=9;
-const int CSN_PIN=10;0
+const int CSN_PIN=10;
 
 // Creamos el objeto radio (NRF24L01)
 RF24 radio(CE_PIN, CSN_PIN);

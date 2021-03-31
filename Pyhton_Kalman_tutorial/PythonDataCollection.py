@@ -93,4 +93,4 @@ numVariables = 9        # number of plots in 1 graph
 s = serialPlot(portName, baudRate, dataNumBytes, numVariables)   # initializes all required variables
 time.sleep(2)
 Data = s.getSerialData(30)
-np.savetxt('MagData16mar.csv', Data, delimiter=',', fmt='%f')
+np.savetxt('MagData29mar.csv', Data, delimiter=',', fmt='%f')

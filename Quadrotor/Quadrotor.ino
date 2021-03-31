@@ -5,36 +5,87 @@
 
 
 // Including libraries
-#include "Acelerometro.h"
+
+#include "IMU.h"
 #include "Attitude.h"
 #include "EngineControl.h"
 #include "Radio.h"
-// #include "Distancia.h"
-// #include "Signal.h"
-#include "blackbox.h"
+
 
 
 // Defining objects
-Acelerometro acelerometro;
+IMU imu;
 EngineControl engines;
 Radio RadioCOM;
 Attitude attitude;
-// Distancia Dist_sensor;
-// blackbox mySDbb;
+
+
+
+#include <TimerOne.h>                                 // Header file for TimerOne library
+#define trigPin A6                                    // Pin 12 trigger output
+#define echoPin 2                                     // Pin 2 Echo input
+#define echo_int 0                                    // Interrupt id for echo pulse
+#define TIMER_US 50                                   // 50 uS timer duration 
+#define TICK_COUNTS 4000                              // 200 mS worth of timer ticks
+volatile long echo_start = 0;                         // Records start of echo pulse
+volatile long echo_end = 0;                           // Records end of echo pulse
+volatile long echo_duration = 0;                      // Duration - difference between end and start
+volatile int trigger_time_count = 0;                  // Count down counter to trigger pulse time
+
+void trigger_pulse() {
+  static volatile int state = 0;                 // State machine variable
+  if (!(--trigger_time_count))                   // Count to 200mS
+  { // Time out - Initiate trigger pulse
+    trigger_time_count = TICK_COUNTS;           // Reload
+    state = 1;                                  // Changing to state 1 initiates a pulse
+  }
+  switch (state)                                 // State machine handles delivery of trigger pulse
+  {
+    case 0:                                      // Normal state does nothing
+      break;
+    case 1:                                      // Initiate pulse
+      digitalWrite(trigPin, HIGH);              // Set the trigger output high
+      state = 2;                                // and set state to 2
+      break;
+    case 2:                                      // Complete the pulse
+    default:
+      digitalWrite(trigPin, LOW);               // Set the trigger output low
+      state = 0;                                // and return state to normal 0
+      break;
+  }
+}
+
+void echo_interrupt(){
+  switch (digitalRead(echoPin))                     // Test to see if the signal is high or low
+  {
+    case HIGH:                                      // High so must be the start of the echo pulse
+      echo_end = 0;                                 // Clear the end time
+      echo_start = micros();                        // Save the start time
+      break;
+    case LOW:                                       // Low so must be the end of hte echo pulse
+      echo_end = micros();                          // Save the end time
+      echo_duration = echo_end - echo_start;        // Calculate the pulse duration
+      break;
+  }
+}
+
+
+
+
+
+
 
 // Global variables
-float Acc_raw_val[3][3]; // Raw IMU measurements accelerometer, magnetometer and gyroscope
-Euler yawpitchroll;
-ControlData control; // Control telecomands
-// Signal Yaw(0.90,0.75);
-// Signal Height(0.05, 0.9);
-
+int16_t       imusensor[3][3];
+float         height;
+Euler         yawpitchroll;
+ControlData   control;          // Control telecomands
 unsigned long tiempo0;
-int delta_t;
-
+int           delta_t;
 
 // Constants
-float radtodeg = 180 / acos(-1); // Radtodeg conversion
+float radtodeg = 180 / acos(-1);  // Radtodeg conversion
+float deg2rad = acos(-1) / 180.0; // Degtorad conversion
 float pi = acos(-1);
 
 
@@ -61,48 +112,52 @@ State next_state(State curr_state, StateChange change) {
 void read_sensors() {
   // Get sensors raw values
   // 9 DOF IMU
-  acelerometro.get_raw_val(Acc_raw_val);
-  // Height sensor
-  //  Height.update(Dist_sensor.update_distance()*cos(yawpitchroll.pitch)*cos(yawpitchroll.roll), delta_t);
-  // Lectura del dato de altura
-  // Height.update(Dist_sensor.update_distance(), delta_t);
-  //Height[0]=Dist_sensor.update_distance();
-  // Transformamos la altura medida en altura con respecto al suelo
-  //Height[0]=Height[0]*cos(yawpitchroll[1])*cos(yawpitchroll[2]);
+  imu.readsensor(imusensor);
 }
 
 void Print_data() {
-      Serial.print("  dt = ");
-      Serial.print(delta_t/1e3 , 3);
-//      Serial.print("  Accc_x = ");
-//      Serial.print(Acc_raw_val[0][0]);
-//      Serial.print("  Acc_y = ");
-//      Serial.print(Acc_raw_val[0][1]);
-//      Serial.print("  Acc_z = ");
-//      Serial.print(Acc_raw_val[0][2]);
 
+  Serial.print (delta_t);
+  Serial.print ('\t');
+//  Serial.print (echo_duration);
+//  Serial.print ('\t');
+    // Accelerometer
+//    Serial.print (imusensor[0][0]*4./32767., 2);
+//    Serial.print ("\t");
+//    Serial.print (imusensor[0][1]*4./32767.,2);
+//    Serial.print ("\t");
+//    Serial.print (imusensor[0][2]*4./32767.,2);
+//    Serial.print ("\t");
+    // Gyroscope
+//    Serial.print (imusensor[1][0],DEC);
+//    Serial.print ("\t");
+//    Serial.print (imusensor[1][1],DEC);
+//    Serial.print ("\t");
+//    Serial.print (imusensor[1][2],DEC);
+//    Serial.print ("\t");
+    // Magnetometer
+//    Serial.print (imusensor[2][0]*47./39./32.767, DEC);
+//    Serial.print ("\t");
+//    Serial.print (imusensor[2][1]*47./39./32.767, DEC);
+//    Serial.print ("\t");
+//    Serial.print (imusensor[2][2]*47./39./32.767, DEC);
+//    Serial.print ("\t");
+//    Serial.print (imusensor[2][0]*4.7/39./32.767, 2);
+//    Serial.print ("\t");
+//    Serial.print (imusensor[2][1]*4.7/39./32.767, 2);
+//    Serial.print ("\t");
+//    Serial.print (imusensor[2][2]*4.7/39./32.767, 2);
+//    Serial.print ("\t");
 
-  //    Serial.print("  Gyro_x = ");
-  //    Serial.print(Acc_raw_val[1][0], 5);
-  //    Serial.print("  Gyro_y = ");
-  //    Serial.print(Acc_raw_val[1][1], 5);
-  //    Serial.print("  Gyro_z = ");
-  //    Serial.print(Acc_raw_val[1][2], 5);
+    Serial.print("  Yaw = ");
+    Serial.print(yawpitchroll.yaw_deg());
+    Serial.print("   Pitch = ");
+    Serial.print(yawpitchroll.pitch_deg());
+    Serial.print("   Roll = ");
+    Serial.print(yawpitchroll.roll_deg());
+    Serial.print("  Height = ");
+    Serial.print(echo_duration*0.344/2, 3);
 
-      Serial.print("  Mag_x = ");
-      Serial.print(Acc_raw_val[2][0],3);
-      Serial.print("  Mag_y = ");
-      Serial.print(Acc_raw_val[2][1],3);
-      Serial.print("  Mag_z = ");
-      Serial.print(Acc_raw_val[2][2],3);
-
-      Serial.print("  Yaw = ");
-      Serial.print(yawpitchroll.yaw_deg());
-      Serial.print("   Pitch = ");
-      Serial.print(yawpitchroll.pitch_deg());
-      Serial.print("   Roll = ");
-      Serial.print(yawpitchroll.roll_deg());
-  //
   //    Serial.print("   Yaw = ");
   //    Serial.print(yawpitchroll_int.yaw*radtodeg);
 //  Serial.print("   Pitch = ");
@@ -186,18 +241,17 @@ void Print_data() {
 void setup() {
   Serial.begin(115200);
   // start communication with IMU
-  acelerometro.initialize();
-  // acelerometro.acelerometro_cal();
-  // acelerometro.magnetometro_cal();
-  // acelerometro.gyroscope_cal();
-  acelerometro.default_cal();
-  acelerometro.settings();
+  imu.initialize();
   RadioCOM.initialize();
   engines.init();
-  //  Dist_sensor.initialize();
   attitude.initial_cond();
-//   mySDbb.init();
 
+  // Distance sensor configuration
+  pinMode(trigPin, OUTPUT);                           // Trigger pin set to output
+  pinMode(echoPin, INPUT);                            // Echo pin set to input
+  Timer1.initialize(TIMER_US);                        // Initialise timer 1
+  Timer1.attachInterrupt(trigger_pulse);                 // Attach interrupt to the timer service routine
+  attachInterrupt(echo_int, echo_interrupt, CHANGE);  // Attach interrupt to the sensor echo input
 
 }
 
@@ -218,7 +272,7 @@ void loop() {
     curr_state = next_state(curr_state, control.change);
   }
   read_sensors();
-  attitude.get_attitude(Acc_raw_val, yawpitchroll, delta_t/1e6);
+  attitude.get_attitude(imusensor, yawpitchroll, delta_t);
 
   switch (curr_state) {
     case STANDBY:
@@ -230,9 +284,6 @@ void loop() {
         Serial.print("CALIBRATION   ");
         engines.stop();
         engines.configure(configuration);
-        // acelerometro.acelerometro_cal();
-        // acelerometro.magnetometro_cal();
-        // acelerometro.gyroscope_cal();
         break;
       }
     case FLYMODE:
@@ -258,7 +309,7 @@ void loop() {
     RadioCOM.finishSend();
   }
   
-  // Print_data();
+  //Print_data();
   engines.updateEngines();
-  // Serial.println(" ");
+  Serial.println(" ");
 }

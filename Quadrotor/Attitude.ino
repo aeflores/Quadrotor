@@ -58,9 +58,9 @@ void Attitude::initial_cond() {
   // Triad Algorithm parameters are computed
   // Magnetic field components in the inertial system reference uT
   // Madrid
-  float Mag_I[3] = {25.6547, -0.1469 , 36.8374};
+  float Mag_I[3] = {-25.6547, 0.1469 , -36.8374};
   // Gravity components in the inertial system reference m/s2
-  float Acc_I[3] = { 0.0, 0.0, 9.81};
+  float Acc_I[3] = {0.0, 0.0, 9.81};
   normalize_vector(Mag_I);
   normalize_vector(Acc_I);
   // Triada R
@@ -69,29 +69,66 @@ void Attitude::initial_cond() {
   int iterations = 100;
   float qinit[4], theta, k[3];
   for (int i = 0; i < iterations; i++) {
-    acelerometro.get_raw_val(Acc_raw_val);
-    triad_algorithm(Acc_raw_val[0], Acc_raw_val[2], qinit);
+    imu.readsensor(imusensor);
+    triad_algorithm(imusensor[0], imusensor[2], qinit);
+//    Serial.print(qinit[0], 3);
+//    Serial.print("\t");
+//    Serial.print(qinit[2], 3);
+//    Serial.print("\t");
+//    Serial.print(qinit[2], 3);
+//    Serial.print("\t");
+//    Serial.print(qinit[3], 3);
+//    Serial.print("\t");
     theta += 2*acos(qinit[0])/iterations;
     k[0]  += qinit[1]/sin(acos(qinit[0]));
     k[1]  += qinit[2]/sin(acos(qinit[0]));
     k[2]  += qinit[3]/sin(acos(qinit[0]));
+//    Serial.print(theta*radtodeg, 3);
+//    Serial.print("\t");
+//    Serial.print( k[0], 3);
+//    Serial.print("\t");
+//    Serial.print( k[1], 3);
+//    Serial.print("\t");
+//    Serial.print( k[2], 3);
+//    Serial.println("\t");
   }
+  
   
   normalize_vector(k);
   q0[0] = cos(theta/2);
   q0[1] = k[0]*sin(theta/2);
   q0[2] = k[1]*sin(theta/2);
   q0[3] = k[2]*sin(theta/2);
+//    Serial.print("Initial condition  =  ");
+//    Serial.print(q0[0], 3);
+//    Serial.print("\t");
+//    Serial.print(q0[2], 3);
+//    Serial.print("\t");
+//    Serial.print(q0[2], 3);
+//    Serial.print("\t");
+//    Serial.print(q0[3], 3);
+//    Serial.println("\t");
+  
   Euler yawpitchroll_init;
   Q2E(q0,  yawpitchroll_init);
+
+//  Serial.print("  Yaw =  ");
+//  Serial.print(yawpitchroll_init.yaw_deg(), 3);
+//  Serial.print("  pitch =  ");
+//  Serial.print(yawpitchroll_init.pitch_deg(), 3);
+//  Serial.print("  roll =  ");
+//  Serial.print(yawpitchroll_init.roll_deg(), 3);
+//  Serial.println("\t");
+  
 }
 
-void Attitude::triad_algorithm(const float Acc[3], const float Mag[3], float q[4]) {
+void Attitude::triad_algorithm(const int Acc[3], const int Mag[3], float q[4]) {
   // Magnetic field components in the body system reference nT
-  float w1[3] = {Mag[0], Mag[1], Mag[2]};
+  float w1[3] = {float(Mag[0]), float(Mag[1]), float(Mag[2])};
   normalize_vector(w1);
   // Gravity components in the inertial body reference m/s2
-  float w2[3] = { -Acc[0], -Acc[1], -Acc[2]};
+  // float w2[3] = { -Acc[0], -Acc[1], -Acc[2]};
+  float w2[3] = {float(Acc[0]), float(Acc[1]), float(Acc[2])};
   normalize_vector(w2);
   // TRIAD algorithm
   // Triada S
@@ -115,9 +152,14 @@ void Attitude::triad_algorithm(const float Acc[3], const float Mag[3], float q[4
 
 }
 
-void integrate(const float gyro[3], const float qk0[4], float delta_t,  float qk1[4]) {
+void integrate(const int gyroint[3], const float qk0[4], int delta_t,  float qk1[4]) {
+  float gyro[3];
+  gyro[0] = gyroint[0]*1000.0f*deg2rad/32767.5f;
+  gyro[1] = gyroint[1]*1000.0f*deg2rad/32767.5f;
+  gyro[2] = gyroint[2]*1000.0f*deg2rad/32767.5f;
+  
   float omega_mod         = vector_module(gyro);
-  float omega_mod_delta   = omega_mod * delta_t / 2.0;
+  float omega_mod_delta   = omega_mod * delta_t*1e-6 / 2.0;
   float omega_mod_sin_mod = sin(omega_mod_delta) / omega_mod;
   float omega_mod_cos     = cos(omega_mod_delta);
   qk1[0] = qk0[0] * omega_mod_cos - gyro[0] * qk0[1] * omega_mod_sin_mod  - gyro[1] * qk0[2] * omega_mod_sin_mod  - gyro[2] * qk0[3] * omega_mod_sin_mod;
@@ -173,139 +215,14 @@ void combinequat(const float q1[4], const float q2[4], float alpha, float q3[4])
 }
 
 
-void Attitude::get_attitude(const float Acc_raw_val[3][3], Euler& yawpitchroll, float delta_t) {
+void Attitude::get_attitude(const int imusensor[3][3], Euler& yawpitchroll, int delta_t) {
   float q1integ[4];
   float q1triad[4];
-  triad_algorithm(Acc_raw_val[0], Acc_raw_val[2],  q1triad);
-  integrate(Acc_raw_val[1], q0, delta_t,  q1integ);
+  triad_algorithm(imusensor[0], imusensor[2],  q1triad);
+  integrate(imusensor[1], q0, delta_t,  q1integ);
   combinequat(q1integ, q1triad, alpha, q0);
-  offset_attitude(q0, qoffset, q1);
+  // offset_attitude(q0, qoffset, q1);
   // Una vez que tenemos la orientacion del frame con respecto al mundo convertimos nuestro cuaternio en angulos de euler devolvemos eso
-  Q2E(q1,  yawpitchroll);
+  // Q2E(q1,  yawpitchroll);
+  Q2E(q0,  yawpitchroll);
 }
-
-//  q0[0] = 0.01 * q1triad[0] + 0.99 * q1integ[0];
-//  q0[1] = 0.01 * q1triad[1] + 0.99 * q1integ[1];
-//  q0[2] = 0.01 * q1triad[2] + 0.99 * q1integ[2];
-//  q0[3] = 0.01 * q1triad[3] + 0.99 * q1integ[3];
-
-
-//    Serial.print("Theta  =");
-//    Serial.print("\t");
-//    Serial.print(2*acos(qinit[0])*radtodeg, 2);
-//    Serial.print("  k1  =");
-//    Serial.print("\t");
-//    Serial.print(qinit[1]/sin(acos(qinit[0])), 2);
-//    Serial.print("  k2  =");
-//    Serial.print("\t");
-//    Serial.print(qinit[2]/sin(acos(qinit[0])), 2);
-//    Serial.print("  k3  =");
-//    Serial.print("\t");
-//    Serial.println(qinit[3]/sin(acos(qinit[0])), 2);
-
-//  Serial.println("Initial conditions");
-//  Serial.print("Theta  =");
-//  Serial.print("\t");
-//  Serial.print(theta*radtodeg, 2);
-//  Serial.print("  k1  =");
-//  Serial.print("\t");
-//  Serial.print(k[0], 2);
-//  Serial.print("  k2  =");
-//  Serial.print("\t");
-//  Serial.print(k[1], 2);
-//  Serial.print("  k3  =");
-//  Serial.print("\t");
-//  Serial.println(k[2], 2);
-//  Serial.print("  Yaw =  ");
-//  Serial.print(yawpitchroll_init.yaw_deg(), 3);
-//  Serial.print("  pitch =  ");
-//  Serial.print(yawpitchroll_init.pitch_deg(), 3);
-//  Serial.print("  roll =  ");
-//  Serial.print(yawpitchroll_init.roll_deg(), 3);
-//  Serial.println("\t");
-
-
-
-
-//   Serial.print("  q0 = ");
-//    Serial.print(q0[0]);
-//    Serial.print("\t");
-//    Serial.print(q0[1]);
-//    Serial.print("\t");
-//    Serial.print(q0[2]);
-//    Serial.print("\t");
-//    Serial.print(q0[3]);
-//    Serial.print("\t");
-//    Serial.print("  q1 = ");
-//    Serial.print(qoffset[0]);
-//    Serial.print("\t");
-//    Serial.print(qoffset[1]);
-//    Serial.print("\t");
-//    Serial.print(qoffset[2]);
-//    Serial.print("\t");
-//    Serial.print(qoffset[3]);
-//    Serial.print("\t");
-//    Serial.print("Initial conditions");
-//    Serial.print("  Yaw =  ");
-//    Serial.print(yawpitchroll_init.yaw_deg(), 3);
-//    Serial.print("  pitch =  ");
-//    Serial.print(yawpitchroll_init.pitch_deg(), 3);
-//    Serial.print("  roll =  ");
-//    Serial.print(yawpitchroll_init.roll_deg(), 3);
-//    Serial.print("\t");
-
-//    Serial.print("  q0 = ");
-//    Serial.print(q0[0]);
-//    Serial.print("\t");
-//    Serial.print(q0[1]);
-//    Serial.print("\t");
-//    Serial.print(q0[2]);
-//    Serial.print("\t");
-//    Serial.print(q0[3]);
-//    Serial.print("\t");
-//    Serial.print("\t");
-//    Serial.print(Acc_raw_val[1][0], 6);
-//    Serial.print("\t");
-//    Serial.print(Acc_raw_val[1][1], 6);
-//    Serial.print("\t");
-//    Serial.print(Acc_raw_val[1][2], 6);
-//    Serial.print("\t");
-
-//    Serial.println("Acc");
-//    Serial.print(Acc_raw_val[0][0]);
-//    Serial.print("\t");
-//    Serial.print(Acc_raw_val[0][1]);
-//    Serial.print("\t");
-//    Serial.println(Acc_raw_val[0][2]);
-//    Serial.println("Mag");
-//    Serial.print(Acc_raw_val[2][0]);
-//    Serial.print("\t");
-//    Serial.print(Acc_raw_val[2][1]);
-//    Serial.print("\t");
-//    Serial.println(Acc_raw_val[2][2]);
-//    Serial.println(" ");
-//    Serial.print("Initial conditions   ");
-//    Serial.print(" q0 = ");
-//    Serial.print(q0[0]);
-//    Serial.print(" q1 = ");
-//    Serial.print(q0[1]);
-//    Serial.print(" q2 = ");
-//    Serial.print(q0[2]);
-//    Serial.print(" q3 = ");
-//    Serial.print(q0[3]);
-//    Serial.println("B");
-//    Serial.print(B[0][0],4);
-//    Serial.print("\t");
-//    Serial.print(B[0][1],4);
-//    Serial.print("\t");
-//    Serial.println(B[0][2],4);
-//    Serial.print(B[1][0],4);
-//    Serial.print("\t");
-//    Serial.print(B[1][1],4);
-//    Serial.print("\t");
-//    Serial.println(B[1][2],4);
-//    Serial.print(B[2][0],4);
-//    Serial.print("\t");
-//    Serial.print(B[2][1],4);
-//    Serial.print("\t");
-//    Serial.println(B[2][2],4);

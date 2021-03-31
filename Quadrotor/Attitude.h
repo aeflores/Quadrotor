@@ -11,18 +11,17 @@ struct Euler{
     float roll_deg() const;
 };
 
-
 class Attitude{
   private:
     float B[3][3];
     float q0[4], q1[4];
-    float qoffset[4] = {0.9986, 0.0355, -0.0389, -0.0014};
+    float qoffset[4] = {1, 0, 0, 0};
     float alpha = 0.95;
 
   public:
   void initial_cond();
-  void triad_algorithm(const float Acc[3], const float Mag[3],  float q[4]);
-  void get_attitude(const float Acc_raw_val[3][3], Euler& yawpitchroll, float delta_t);
+  void triad_algorithm(const int Acc[3], const int Mag[3],  float q[4]);
+  void get_attitude(const int imusensor[3][3], Euler& yawpitchroll, int delta_t);
 
 };
 
