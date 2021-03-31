@@ -62,9 +62,9 @@ void IMU :: applycalibration(int16_t imusensor[3][3]){
 //  imusensor[2][1] =  magyfilt.AddValue(magySF*(imusensor[2][1] - magybias));
 //  imusensor[2][2] =  magzfilt.AddValue(magzSF*(imusensor[2][2] - magzbias));
 
-  imusensor[2][0] = magxSF*(imusensor[2][0] - magxbias);
-  imusensor[2][1] = -magySF*(imusensor[2][1] - magybias);
-  imusensor[2][2] = magzSF*(imusensor[2][2] - magzbias);
+  imusensor[2][0] = -magxSF*(imusensor[2][0] - magxbias);
+  imusensor[2][1] = magySF*(imusensor[2][1] - magybias);
+  imusensor[2][2] = -magzSF*(imusensor[2][2] - magzbias);
   
 }
 

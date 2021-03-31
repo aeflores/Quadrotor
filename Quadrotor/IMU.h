@@ -29,14 +29,10 @@ class IMU {
     int magxbias = -59, magybias = 52, magzbias = 106;
     int accxbias = 0, accybias = 0, acczbias = 0;
     int gyroxbias = -47, gyroybias = -50, gyrozbias = 30;
-
-
+    
     int magxSF = 45, magySF = 43, magzSF = 39;
     int accxSF = 1, accySF = 1, acczSF = 1;
     int gyroxSF = 1, gyroySF = 1, gyrozSF = 1;
-    
-    
-    
   public:
     void initialize();
     void readsensor(int16_t imusensor[3][3]);

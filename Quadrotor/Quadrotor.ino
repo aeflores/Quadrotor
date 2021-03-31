@@ -21,6 +21,9 @@ Attitude attitude;
 
 
 
+//----------------------------------HEIGHT SENSOR CODE---------------------------------------
+// Use of interrupts to parallelize ultrasonic sensor measurements
+// ------------------------------------------------------------------------------------------
 #include <TimerOne.h>                                 // Header file for TimerOne library
 #define trigPin A6                                    // Pin 12 trigger output
 #define echoPin 2                                     // Pin 2 Echo input
@@ -55,7 +58,7 @@ void trigger_pulse() {
   }
 }
 
-void echo_interrupt(){
+void echo_interrupt() {
   switch (digitalRead(echoPin))                     // Test to see if the signal is high or low
   {
     case HIGH:                                      // High so must be the start of the echo pulse
@@ -117,53 +120,53 @@ void read_sensors() {
 
 void Print_data() {
 
-  Serial.print (delta_t);
-  Serial.print ('\t');
-//  Serial.print (echo_duration);
+//  Serial.print (delta_t);
 //  Serial.print ('\t');
-    // Accelerometer
-//    Serial.print (imusensor[0][0]*4./32767., 2);
-//    Serial.print ("\t");
-//    Serial.print (imusensor[0][1]*4./32767.,2);
-//    Serial.print ("\t");
-//    Serial.print (imusensor[0][2]*4./32767.,2);
-//    Serial.print ("\t");
-    // Gyroscope
-//    Serial.print (imusensor[1][0],DEC);
-//    Serial.print ("\t");
-//    Serial.print (imusensor[1][1],DEC);
-//    Serial.print ("\t");
-//    Serial.print (imusensor[1][2],DEC);
-//    Serial.print ("\t");
-    // Magnetometer
-//    Serial.print (imusensor[2][0]*47./39./32.767, DEC);
-//    Serial.print ("\t");
-//    Serial.print (imusensor[2][1]*47./39./32.767, DEC);
-//    Serial.print ("\t");
-//    Serial.print (imusensor[2][2]*47./39./32.767, DEC);
-//    Serial.print ("\t");
-//    Serial.print (imusensor[2][0]*4.7/39./32.767, 2);
-//    Serial.print ("\t");
-//    Serial.print (imusensor[2][1]*4.7/39./32.767, 2);
-//    Serial.print ("\t");
-//    Serial.print (imusensor[2][2]*4.7/39./32.767, 2);
-//    Serial.print ("\t");
+  //  Serial.print (echo_duration);
+  //  Serial.print ('\t');
+  // Accelerometer
+      Serial.print (imusensor[0][0]*4./32767., 2);
+      Serial.print ("\t");
+      Serial.print (imusensor[0][1]*4./32767.,2);
+      Serial.print ("\t");
+      Serial.print (imusensor[0][2]*4./32767.,2);
+      Serial.print ("\t");
+  // Gyroscope
+      Serial.print (imusensor[1][0],DEC);
+      Serial.print ("\t");
+      Serial.print (imusensor[1][1],DEC);
+      Serial.print ("\t");
+      Serial.print (imusensor[1][2],DEC);
+      Serial.print ("\t");
+  // Magnetometer
+  //    Serial.print (imusensor[2][0]*47./39./32.767, DEC);
+  //    Serial.print ("\t");
+  //    Serial.print (imusensor[2][1]*47./39./32.767, DEC);
+  //    Serial.print ("\t");
+  //    Serial.print (imusensor[2][2]*47./39./32.767, DEC);
+  //    Serial.print ("\t");
+      Serial.print (imusensor[2][0]*4.7/39./32.767, 2);
+      Serial.print ("\t");
+      Serial.print (imusensor[2][1]*4.7/39./32.767, 2);
+      Serial.print ("\t");
+      Serial.print (imusensor[2][2]*4.7/39./32.767, 2);
+      Serial.print ("\t");
 
-    Serial.print("  Yaw = ");
-    Serial.print(yawpitchroll.yaw_deg());
-    Serial.print("   Pitch = ");
-    Serial.print(yawpitchroll.pitch_deg());
-    Serial.print("   Roll = ");
-    Serial.print(yawpitchroll.roll_deg());
-    Serial.print("  Height = ");
-    Serial.print(echo_duration*0.344/2, 3);
+  Serial.print("  Yaw = ");
+  Serial.print(yawpitchroll.yaw_deg());
+  Serial.print("   Pitch = ");
+  Serial.print(yawpitchroll.pitch_deg());
+  Serial.print("   Roll = ");
+  Serial.print(yawpitchroll.roll_deg());
+  Serial.print("  Height = ");
+  Serial.print(echo_duration * 0.344 / 2, 3);
 
   //    Serial.print("   Yaw = ");
   //    Serial.print(yawpitchroll_int.yaw*radtodeg);
-//  Serial.print("   Pitch = ");
-//  Serial.print(yawpitchroll_int.pitch * radtodeg);
-//  Serial.print("   Roll = ");
-//  Serial.print(yawpitchroll_int.roll * radtodeg);
+  //  Serial.print("   Pitch = ");
+  //  Serial.print(yawpitchroll_int.pitch * radtodeg);
+  //  Serial.print("   Roll = ");
+  //  Serial.print(yawpitchroll_int.roll * radtodeg);
 
   //    Serial.print("   Pitch = ");
   //    Serial.print(yawpitchroll_triad.pitch*radtodeg);
@@ -298,18 +301,18 @@ void loop() {
       engines.stop();
       break;
   }
-  
+
   // En el ciclo 1 empieza el envio
   if (cycle_counter == 1) {
     RadioCOM.radiosend(curr_state, yawpitchroll, engines, delta_t);
   }
   // En el ciclo 7 termina el envio
   // y empieza a escuchar hasta el ciclo 14
-  if (cycle_counter == cycle/2) {
+  if (cycle_counter == cycle / 2) {
     RadioCOM.finishSend();
   }
-  
-  //Print_data();
+
+  Print_data();
   engines.updateEngines();
   Serial.println(" ");
 }

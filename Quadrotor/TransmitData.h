@@ -1,7 +1,3 @@
-
-
-
-
 #ifndef TRANSMIT_DATA_H_
 #define TRANSMIT_DATA_H_
 
