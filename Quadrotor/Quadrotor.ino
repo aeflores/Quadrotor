@@ -120,8 +120,8 @@ void read_sensors() {
 
 void Print_data() {
 //
-  Serial.print (delta_t/1000.,3);
-  Serial.print ('\t');
+//  Serial.print (delta_t/1000.,3);
+//  Serial.print ('\t');
 //  //  Serial.print (echo_duration);
 //  //  Serial.print ('\t');
 //  // Accelerometer
@@ -161,8 +161,8 @@ void Print_data() {
   Serial.print("\t");
   // Serial.print("   Roll = ");
   Serial.print(yawpitchroll.roll_deg());
-//  Serial.print("  Height = ");
-//  Serial.print(echo_duration * 0.344 / 2, 3);
+  Serial.print("\t");
+  Serial.print(echo_duration * 0.344 / 2, 3);
 
   //    Serial.print("   Yaw = ");
   //    Serial.print(yawpitchroll_int.yaw*radtodeg);
@@ -315,7 +315,7 @@ void loop() {
     RadioCOM.finishSend();
   }
 
-  Print_data();
+  //Print_data();
   engines.updateEngines();
   Serial.println(" ");
 }
