@@ -315,7 +315,7 @@ void loop() {
     RadioCOM.finishSend();
   }
 
-  //Print_data();
+  Print_data();
   engines.updateEngines();
   Serial.println(" ");
 }
