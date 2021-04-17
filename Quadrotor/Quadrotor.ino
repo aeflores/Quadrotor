@@ -68,10 +68,18 @@ void echo_interrupt() {
     case LOW:                                       // Low so must be the end of hte echo pulse
       echo_end = micros();                          // Save the end time
       echo_duration = echo_end - echo_start;        // Calculate the pulse duration
+      sendpulse(true);
       break;
   }
 }
 
+
+void sendpulse(bool IT){
+  if (micros()-echo_start>=200000 || IT == true){
+    digitalWrite(trigPin, HIGH);
+    digitalWrite(trigPin, LOW);
+  }
+}
 
 
 
@@ -254,11 +262,11 @@ void setup() {
   attitude.initial_cond();
 
   // Distance sensor configuration
-//  pinMode(trigPin, OUTPUT);                           // Trigger pin set to output
-//  pinMode(echoPin, INPUT);                            // Echo pin set to input
+  pinMode(trigPin, OUTPUT);                           // Trigger pin set to output
+  pinMode(echoPin, INPUT);                            // Echo pin set to input
 //  Timer1.initialize(TIMER_US);                        // Initialise timer 1
 //  Timer1.attachInterrupt(trigger_pulse);                 // Attach interrupt to the timer service routine
-//  attachInterrupt(echo_int, echo_interrupt, CHANGE);  // Attach interrupt to the sensor echo input
+  attachInterrupt(echo_int, echo_interrupt, CHANGE);  // Attach interrupt to the sensor echo input
 
 }
 
@@ -269,6 +277,7 @@ short cycle_counter, cycle = 7;
 ControllerConfiguration configuration;
 
 void loop() {
+  sendpulse(false);
   // La radio transmite y recibe cada 15 ciclos
   cycle_counter = (cycle_counter + 1) % cycle;
   delta_t = micros() - tiempo0;
@@ -316,7 +325,7 @@ void loop() {
     RadioCOM.finishSend();
   }
 
-  //Print_data();
+  Print_data();
   engines.updateEngines();
   Serial.println(" ");
 }
