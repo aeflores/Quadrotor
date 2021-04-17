@@ -245,6 +245,7 @@ void Print_data() {
 // -----------------------------------------------------------------------------
 
 void setup() {
+
   Serial.begin(115200);
   // start communication with IMU
   imu.initialize();
@@ -253,18 +254,18 @@ void setup() {
   attitude.initial_cond();
 
   // Distance sensor configuration
-  pinMode(trigPin, OUTPUT);                           // Trigger pin set to output
-  pinMode(echoPin, INPUT);                            // Echo pin set to input
-  Timer1.initialize(TIMER_US);                        // Initialise timer 1
-  Timer1.attachInterrupt(trigger_pulse);                 // Attach interrupt to the timer service routine
-  attachInterrupt(echo_int, echo_interrupt, CHANGE);  // Attach interrupt to the sensor echo input
+//  pinMode(trigPin, OUTPUT);                           // Trigger pin set to output
+//  pinMode(echoPin, INPUT);                            // Echo pin set to input
+//  Timer1.initialize(TIMER_US);                        // Initialise timer 1
+//  Timer1.attachInterrupt(trigger_pulse);                 // Attach interrupt to the timer service routine
+//  attachInterrupt(echo_int, echo_interrupt, CHANGE);  // Attach interrupt to the sensor echo input
 
 }
 
 // -----------------------------------------------------------------------------
 // ---------------------------------- Main Loop --------------------------------
 // -----------------------------------------------------------------------------
-short cycle_counter, cycle = 10;
+short cycle_counter, cycle = 7;
 ControllerConfiguration configuration;
 
 void loop() {
@@ -315,7 +316,7 @@ void loop() {
     RadioCOM.finishSend();
   }
 
-  Print_data();
+  //Print_data();
   engines.updateEngines();
   Serial.println(" ");
 }

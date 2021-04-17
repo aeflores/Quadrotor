@@ -118,7 +118,8 @@ void loop() {
   datos_send.movement[2] = analogRead(A2);
   datos_send.movement[3] = analogRead(A3);
   // This is for callibrating
-  datos_send.movement[1]= int(analogRead(A4)*3/4);
+  //datos_send.movement[1]= int(analogRead(A4)*3/4);
+  datos_send.movement[1]= int(analogRead(A4));
   datos_send.change= stateChange();
 
   if(curr_state== CALIBRATION){

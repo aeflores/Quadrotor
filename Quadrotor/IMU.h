@@ -26,16 +26,16 @@ MedianFilter<int> magxfilt(3), magyfilt(3), magzfilt(3);
 
 class IMU {
   private:
-//    int magxbias = -169, magybias = 17, magzbias = 18;
-    int magxbias = -57, magybias = 48, magzbias = 115;
+    int magxbias = -169, magybias = 17, magzbias = 18;
+//    int magxbias = -57, magybias = 48, magzbias = 115;
     
     int accxbias = 0, accybias = 0, acczbias = 0;
     int gyroxbias = -40, gyroybias = -20, gyrozbias = 24;
     // int gyroxbias = 0, gyroybias = 0, gyrozbias = 0;
 
 
-    int magxSF = 44, magySF = 43, magzSF = 38;   
-//    int magxSF = 42, magySF = 40, magzSF = 38;
+//    int magxSF = 44, magySF = 43, magzSF = 38;   
+    int magxSF = 42, magySF = 40, magzSF = 38;
 
     
     int accxSF = 1, accySF = 1, acczSF = 1;
