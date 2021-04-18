@@ -4,6 +4,8 @@
 //Authors: Enrique Flores and Antonio Flores
 
 
+bool diagnosis_mode = true;
+
 // Including libraries
 
 #include "IMU.h"
@@ -12,77 +14,18 @@
 #include "Radio.h"
 
 
+#include "MedianFilterLib.h"
+#include "SingleEMAFilterLib.h"
+
+MedianFilter<int> heightmedian(5);
+SingleEMAFilter<float> heightEMA(0.5);
+
 
 // Defining objects
 IMU imu;
 EngineControl engines;
 Radio RadioCOM;
 Attitude attitude;
-
-
-
-//----------------------------------HEIGHT SENSOR CODE---------------------------------------
-// Use of interrupts to parallelize ultrasonic sensor measurements
-// ------------------------------------------------------------------------------------------
-#include <TimerOne.h>                                 // Header file for TimerOne library
-#define trigPin A6                                    // Pin 12 trigger output
-#define echoPin 2                                     // Pin 2 Echo input
-#define echo_int 0                                    // Interrupt id for echo pulse
-#define TIMER_US 50                                   // 50 uS timer duration 
-#define TICK_COUNTS 4000                              // 200 mS worth of timer ticks
-volatile long echo_start = 0;                         // Records start of echo pulse
-volatile long echo_end = 0;                           // Records end of echo pulse
-volatile long echo_duration = 0;                      // Duration - difference between end and start
-volatile int trigger_time_count = 0;                  // Count down counter to trigger pulse time
-
-void trigger_pulse() {
-  static volatile int state = 0;                 // State machine variable
-  if (!(--trigger_time_count))                   // Count to 200mS
-  { // Time out - Initiate trigger pulse
-    trigger_time_count = TICK_COUNTS;           // Reload
-    state = 1;                                  // Changing to state 1 initiates a pulse
-  }
-  switch (state)                                 // State machine handles delivery of trigger pulse
-  {
-    case 0:                                      // Normal state does nothing
-      break;
-    case 1:                                      // Initiate pulse
-      digitalWrite(trigPin, HIGH);              // Set the trigger output high
-      state = 2;                                // and set state to 2
-      break;
-    case 2:                                      // Complete the pulse
-    default:
-      digitalWrite(trigPin, LOW);               // Set the trigger output low
-      state = 0;                                // and return state to normal 0
-      break;
-  }
-}
-
-void echo_interrupt() {
-  switch (digitalRead(echoPin))                     // Test to see if the signal is high or low
-  {
-    case HIGH:                                      // High so must be the start of the echo pulse
-      echo_end = 0;                                 // Clear the end time
-      echo_start = micros();                        // Save the start time
-      break;
-    case LOW:                                       // Low so must be the end of hte echo pulse
-      echo_end = micros();                          // Save the end time
-      echo_duration = echo_end - echo_start;        // Calculate the pulse duration
-      sendpulse(true);
-      break;
-  }
-}
-
-
-void sendpulse(bool IT){
-  if (micros()-echo_start>=200000 || IT == true){
-    digitalWrite(trigPin, HIGH);
-    digitalWrite(trigPin, LOW);
-  }
-}
-
-
-
 
 
 
@@ -94,11 +37,50 @@ ControlData   control;          // Control telecomands
 unsigned long tiempo0;
 int           delta_t;
 
+float         stat;
+
 // Constants
 float radtodeg = 180 / acos(-1);  // Radtodeg conversion
 float deg2rad = acos(-1) / 180.0; // Degtorad conversion
 float pi = acos(-1);
+//----------------------------------HEIGHT SENSOR CODE---------------------------------------
+// Use of interrupts to parallelize ultrasonic sensor measurements
+// ------------------------------------------------------------------------------------------
 
+#define trigPin A6                                    // Pin A6 trigger output
+#define echoPin 2                                     // Pin 2 Echo input
+#define echo_int 0                                    // Interrupt id for echo pulse
+volatile long echo_start = 0;                         // Records start of echo pulse
+volatile long echo_end = 0;                           // Records end of echo pulse
+volatile long echo_duration = 0;                      // Duration - difference between end and start
+volatile long echo_median = 0;
+
+void echo_interrupt() {
+  switch (digitalRead(echoPin))                     // Test to see if the signal is high or low
+  {
+    case HIGH:                                      // High so must be the start of the echo pulse
+      echo_end = 0;                                 // Clear the end time
+      echo_start = micros();                        // Save the start time
+      break;
+    case LOW:                                       // Low so must be the end of hte echo pulse
+      echo_end = micros();                          // Save the end time
+      echo_duration = echo_end - echo_start;        // Calculate the pulse duration
+      echo_median = heightmedian.AddValue(echo_duration);
+      height = heightEMA.AddValue(echo_median* 0.344 / 2);
+      sendpulse(true);
+      break;
+  }
+}
+// Pulse generator
+// Creates a pulse in the trigger pin whether timeout is true or an echo has been received
+// when sendpulse is called from the main loop it is called with InterruptTriggered = falso so it only sends a pulse if timeout
+// when interrupt is called from echo_interrupt() InterruptTriggered is true so it always sends a pulse
+void sendpulse(bool InterruptTriggered){
+  if (micros()-echo_start>=200000 || InterruptTriggered == true){
+    digitalWrite(trigPin, HIGH);
+    digitalWrite(trigPin, LOW);
+  }
+}
 
 
 // ----------------------------------------------------------------------------
@@ -126,8 +108,27 @@ void read_sensors() {
   imu.readsensor(imusensor);
 }
 
+void updatestate(){
+  
+}
+
 void Print_data() {
-//
+
+//  Serial.print(curr_state);
+//  Serial.print("\t");
+//  Serial.print(yawpitchroll.yaw_deg());
+//  Serial.print("\t");
+//  Serial.print(yawpitchroll.pitch_deg());
+//  Serial.print("\t");
+//  Serial.print(yawpitchroll.roll_deg());
+//  Serial.print("\t");
+  //Serial.print(echo_duration * 0.344 / 2, 3);
+  Serial.print("\t");
+  Serial.print(echo_median * 0.344 / 2, 3);
+  Serial.print("\t");
+  Serial.print(height, 3);
+  Serial.print("\t");
+  //
 //  Serial.print (delta_t/1000.,3);
 //  Serial.print ('\t');
 //  //  Serial.print (echo_duration);
@@ -163,22 +164,6 @@ void Print_data() {
 //  Serial.print("  Yaw = ");
 //  Serial.print(yawpitchroll.yaw_deg());
 //  Serial.print("   Pitch = ");
-  Serial.print(yawpitchroll.yaw_deg());
-  Serial.print("\t");
-  Serial.print(yawpitchroll.pitch_deg());
-  Serial.print("\t");
-  // Serial.print("   Roll = ");
-  Serial.print(yawpitchroll.roll_deg());
-  Serial.print("\t");
-  Serial.print(echo_duration * 0.344 / 2, 3);
-
-  //    Serial.print("   Yaw = ");
-  //    Serial.print(yawpitchroll_int.yaw*radtodeg);
-  //  Serial.print("   Pitch = ");
-  //  Serial.print(yawpitchroll_int.pitch * radtodeg);
-  //  Serial.print("   Roll = ");
-  //  Serial.print(yawpitchroll_int.roll * radtodeg);
-
   //    Serial.print("   Pitch = ");
   //    Serial.print(yawpitchroll_triad.pitch*radtodeg);
   //    Serial.print("   Roll = ");
@@ -245,6 +230,7 @@ void Print_data() {
   //  Serial.print(engines.engine_speed[2]);
   //  Serial.print(" Engine 4 :");
   //  Serial.print(engines.engine_speed[3]);
+  Serial.println("\t");
 
 }
 
@@ -253,8 +239,10 @@ void Print_data() {
 // -----------------------------------------------------------------------------
 
 void setup() {
+  if (diagnosis_mode){
+      Serial.begin(115200);
+  }
 
-  Serial.begin(115200);
   // start communication with IMU
   imu.initialize();
   RadioCOM.initialize();
@@ -264,20 +252,19 @@ void setup() {
   // Distance sensor configuration
   pinMode(trigPin, OUTPUT);                           // Trigger pin set to output
   pinMode(echoPin, INPUT);                            // Echo pin set to input
-//  Timer1.initialize(TIMER_US);                        // Initialise timer 1
-//  Timer1.attachInterrupt(trigger_pulse);                 // Attach interrupt to the timer service routine
   attachInterrupt(echo_int, echo_interrupt, CHANGE);  // Attach interrupt to the sensor echo input
+
 
 }
 
 // -----------------------------------------------------------------------------
 // ---------------------------------- Main Loop --------------------------------
 // -----------------------------------------------------------------------------
-short cycle_counter, cycle = 7;
+short cycle_counter, cycle = 4;
 ControllerConfiguration configuration;
 
 void loop() {
-  sendpulse(false);
+  
   // La radio transmite y recibe cada 15 ciclos
   cycle_counter = (cycle_counter + 1) % cycle;
   delta_t = micros() - tiempo0;
@@ -287,30 +274,30 @@ void loop() {
     RadioCOM.radiolisten(control, configuration);
     curr_state = next_state(curr_state, control.change);
   }
+
+  
+  sendpulse(false);
   read_sensors();
   attitude.get_attitude(imusensor, yawpitchroll, delta_t);
 
+
   switch (curr_state) {
     case STANDBY:
-      Serial.print("STANDBY   ");
       engines.stop();
       break;
     case CALIBRATION:
       {
-        Serial.print("CALIBRATION   ");
         engines.stop();
         engines.configure(configuration);
         break;
       }
     case FLYMODE:
-      Serial.print("FLYMODE   ");
       if (yawpitchroll.pitch_deg() > 25 ||  yawpitchroll.pitch_deg() < -25 || yawpitchroll.roll_deg() > 25 || yawpitchroll.roll_deg() < -25)
         curr_state = ABORT;
       else
         engines.pdControl(control.movement, yawpitchroll, delta_t);
       break;
     case ABORT:
-      Serial.print("ABORT  ");
       engines.stop();
       break;
   }
@@ -324,8 +311,10 @@ void loop() {
   if (cycle_counter == cycle / 2) {
     RadioCOM.finishSend();
   }
-
-  Print_data();
   engines.updateEngines();
-  Serial.println(" ");
+  
+  if (diagnosis_mode){
+    Print_data();
+  }
+  
 }
