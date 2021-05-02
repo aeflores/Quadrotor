@@ -12,6 +12,7 @@ bool diagnosis_mode = true;
 #include "Attitude.h"
 #include "EngineControl.h"
 #include "Radio.h"
+#include "PID.h"
 
 
 #include "MedianFilterLib.h"
@@ -26,6 +27,9 @@ IMU imu;
 EngineControl engines;
 Radio RadioCOM;
 Attitude attitude;
+PID pitchPID;
+
+float PID_output;
 
 
 
@@ -37,7 +41,7 @@ ControlData   control;          // Control telecomands
 unsigned long tiempo0;
 int           delta_t;
 
-float         stat;
+
 
 // Constants
 float radtodeg = 180 / acos(-1);  // Radtodeg conversion
@@ -108,9 +112,7 @@ void read_sensors() {
   imu.readsensor(imusensor);
 }
 
-void updatestate(){
-  
-}
+
 
 void Print_data() {
 
@@ -254,6 +256,9 @@ void setup() {
   pinMode(echoPin, INPUT);                            // Echo pin set to input
   attachInterrupt(echo_int, echo_interrupt, CHANGE);  // Attach interrupt to the sensor echo input
 
+  // PIDinitialization
+  pitchPID.init(5.0, 1.0, 0.1);
+
 
 }
 
@@ -262,6 +267,8 @@ void setup() {
 // -----------------------------------------------------------------------------
 short cycle_counter, cycle = 4;
 ControllerConfiguration configuration;
+
+
 
 void loop() {
   
@@ -279,7 +286,8 @@ void loop() {
   sendpulse(false);
   read_sensors();
   attitude.get_attitude(imusensor, yawpitchroll, delta_t);
-
+  
+  pitchPID.pid_step(yawpitchroll.pitch_deg(), 0, PID_output, delta_t);
 
   switch (curr_state) {
     case STANDBY:
@@ -314,7 +322,7 @@ void loop() {
   engines.updateEngines();
   
   if (diagnosis_mode){
-    Print_data();
+    //Print_data();
   }
   
 }
