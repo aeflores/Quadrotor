@@ -1,6 +1,8 @@
 #ifndef ATTITUDE_H_
 #define ATTITUDE_H_
 
+
+
 struct Euler{
     float yaw;
     float pitch;
@@ -19,7 +21,7 @@ class Attitude{
     float alpha = 0.95;
 
   public:
-  void initial_cond();
+  void initial_cond(Euler &yawpitchroll);
   void triad_algorithm(const int Acc[3], const int Mag[3],  float q[4]);
   void get_attitude(const int imusensor[3][3], Euler& yawpitchroll, int delta_t);
 

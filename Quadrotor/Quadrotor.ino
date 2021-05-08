@@ -18,8 +18,8 @@ bool diagnosis_mode = true;
 #include "MedianFilterLib.h"
 #include "SingleEMAFilterLib.h"
 
-MedianFilter<int> heightmedian(5);
-SingleEMAFilter<float> heightEMA(0.5);
+MedianFilter<int> heightmedian(3);
+SingleEMAFilter<float> heightEMA(0.8);
 
 
 // Defining objects
@@ -27,9 +27,9 @@ IMU imu;
 EngineControl engines;
 Radio RadioCOM;
 Attitude attitude;
-PID pitchPID;
 
-float PID_output;
+
+
 
 
 
@@ -38,15 +38,22 @@ int16_t       imusensor[3][3];
 float         height;
 Euler         yawpitchroll;
 ControlData   control;          // Control telecomands
+float         height0;
 unsigned long tiempo0;
 int           delta_t;
+QuadState     state;
+short cycle_counter, cycle = 4;
+ControllerConfiguration configuration;
 
 
 
 // Constants
-float radtodeg = 180 / acos(-1);  // Radtodeg conversion
-float deg2rad = acos(-1) / 180.0; // Degtorad conversion
-float pi = acos(-1);
+float radtodeg  = 180 / acos(-1);   // Radtodeg conversion
+float deg2rad   = acos(-1) / 180.0; // Degtorad conversion
+float pi        = acos(-1);
+
+
+
 //----------------------------------HEIGHT SENSOR CODE---------------------------------------
 // Use of interrupts to parallelize ultrasonic sensor measurements
 // ------------------------------------------------------------------------------------------
@@ -71,6 +78,7 @@ void echo_interrupt() {
       echo_duration = echo_end - echo_start;        // Calculate the pulse duration
       echo_median = heightmedian.AddValue(echo_duration);
       height = heightEMA.AddValue(echo_median* 0.344 / 2);
+      state.height = height - height0;
       sendpulse(true);
       break;
   }
@@ -106,134 +114,32 @@ State next_state(State curr_state, StateChange change) {
 // --------------------------------- Functions --------------------------------
 // ----------------------------------------------------------------------------
 
-void read_sensors() {
-  // Get sensors raw values
-  // 9 DOF IMU
-  imu.readsensor(imusensor);
-}
+
 
 
 
 void Print_data() {
-
 //  Serial.print(curr_state);
-//  Serial.print("\t");
-//  Serial.print(yawpitchroll.yaw_deg());
-//  Serial.print("\t");
-//  Serial.print(yawpitchroll.pitch_deg());
-//  Serial.print("\t");
-//  Serial.print(yawpitchroll.roll_deg());
-//  Serial.print("\t");
-  //Serial.print(echo_duration * 0.344 / 2, 3);
   Serial.print("\t");
-  Serial.print(echo_median * 0.344 / 2, 3);
+  Serial.print(state.pitch);
   Serial.print("\t");
-  Serial.print(height, 3);
+  Serial.print(state.roll);
   Serial.print("\t");
-  //
-//  Serial.print (delta_t/1000.,3);
-//  Serial.print ('\t');
-//  //  Serial.print (echo_duration);
-//  //  Serial.print ('\t');
-//  // Accelerometer
-//      Serial.print (imusensor[0][0]*4./32767., 2);
-//      Serial.print ("\t");
-//      Serial.print (imusensor[0][1]*4./32767.,2);
-//      Serial.print ("\t");
-//      Serial.print (imusensor[0][2]*4./32767.,2);
-//      Serial.print ("\t");
-////   Gyroscope
-//      Serial.print (imusensor[1][0],DEC);
-//      Serial.print ("\t");
-//      Serial.print (imusensor[1][1],DEC);
-//      Serial.print ("\t");
-//      Serial.print (imusensor[1][2],DEC);
-//      Serial.print ("\t");
-//  // Magnetometer
-////      Serial.print (imusensor[2][0]*47./39./32.767, DEC);
-////      Serial.print ("\t");
-////      Serial.print (imusensor[2][1]*47./39./32.767, DEC);
-////      Serial.print ("\t");
-////      Serial.print (imusensor[2][2]*47./39./32.767, DEC);
-////      Serial.print ("\t");
-//      Serial.print (imusensor[2][0]*4.7/39./32.767, 2);
-//      Serial.print ("\t");
-//      Serial.print (imusensor[2][1]*4.7/39./32.767, 2);
-//      Serial.print ("\t");
-//      Serial.print (imusensor[2][2]*4.7/39./32.767, 2);
-//      Serial.print ("\t");
-//
-//  Serial.print("  Yaw = ");
-//  Serial.print(yawpitchroll.yaw_deg());
-//  Serial.print("   Pitch = ");
-  //    Serial.print("   Pitch = ");
-  //    Serial.print(yawpitchroll_triad.pitch*radtodeg);
-  //    Serial.print("   Roll = ");
-  //    Serial.print(yawpitchroll_triad.roll*radtodeg);
-  //    Serial.print("JSRX= ");
-  //    Serial.print(control[0]);
-  //    Serial.print("  JSRY= ");
-  //    Serial.print(control[1]);
-  //    Serial.print("  JSLX= ");
-  //    Serial.print(control[2]);
-  //    Serial.print("  JSLY= ");
-  //    Serial.print(control[3]);
-  //  Serial.print("  state= ");
-  //  Serial.print(control[4]);
-  //  Serial.print("  Delta Time  ");
-  //  Serial.println(delta_t);
-  //  Serial.print("  Ref pitch=  ");
-  //  Serial.print(engines.reference.pitch);
-  //  Serial.print("  Ref roll=  ");
-  //  Serial.print(engines.reference.roll);
-  //  Serial.print("  Ref vertical speed=  ");
-  //  Serial.print(engines.reference.altitude_rate);
-  //  Serial.print("  Ref yaw rate=  ");
-  //  Serial.print(engines.reference.yaw_rate);
-  //  Serial.print(" Error_pitch  ");
-  //  Serial.print(engines.error_pitch);
-  //  Serial.print(" Error_roll  ");
-  //  Serial.print(engines.error_roll);
-  //  Serial.print(" Derivative_Error_pitch  ");
-  //  Serial.print(engines.derivative_error_pitch);
-  //  Serial.print(" Derivative_Error_roll  ");
-  //  Serial.print(engines.derivative_error_roll);
-  //  Serial.print(" Base power  ");
-  //  Serial.print(engines.power);
-  //
-  //  Serial.print("  Height =  ");
-  //  Serial.print(Height.value, 4);
-  //  Serial.print("  Height rate  =  ");
-  //  Serial.print(Height.derivative, 4);
-  //
-  //  Serial.print(" Control_Coeff= ");
-  //  Serial.print(engines.error2CorrectionCoeff);
-  //  Serial.print(" DerivativeControl_Coeff= ");
-  //  Serial.print(engines.derivativeError2CorrectionCoeff);
-  //  Serial.print(" upper_range= ");
-  //  Serial.print(engines.upperUnbalanceRange);
-  //  Serial.print("lower_range= ");
-  //  Serial.print(engines.lowerUnbalanceRange);
-  //  Serial.print("FFUn14= ");
-  //  Serial.print(engines.feedforwardunbalance14);
-  //  Serial.print("FFUn23= ");
-  //  Serial.print(engines.feedforwardunbalance23);
-  //  Serial.print("  Yaw raw=  ");
-  //  Serial.print(Yaw.raw);
-  //  Serial.print("  Yaw=  ");
-  //  Serial.print(Yaw.value);
-  //  Serial.print("  Yaw rate=  ");
-  //  Serial.print(Yaw.derivative);
-  //  Serial.print(" Engine 1: ");
-  //  Serial.print(engines.engine_speed[0]);
-  //  Serial.print(" Engine 2: ");
-  //  Serial.print(engines.engine_speed[1]);
-  //  Serial.print(" Engine 3: ");
-  //  Serial.print(engines.engine_speed[2]);
-  //  Serial.print(" Engine 4 :");
-  //  Serial.print(engines.engine_speed[3]);
+  Serial.print(state.yaw_rate);
+  Serial.print("\t");
+  Serial.print(state.height);
+  Serial.print("\t");
   Serial.println("\t");
+}
 
+void init_state_vector(){
+  sendpulse(true);
+  attitude.initial_cond(yawpitchroll);
+  state.pitch = yawpitchroll.pitch_deg();
+  state.roll = yawpitchroll.roll_deg();
+  state.yaw_rate = 0;
+  state.height = 0;
+  height0 = height;
 }
 
 // -----------------------------------------------------------------------------
@@ -245,28 +151,22 @@ void setup() {
       Serial.begin(115200);
   }
 
-  // start communication with IMU
-  imu.initialize();
-  RadioCOM.initialize();
-  engines.init();
-  attitude.initial_cond();
-
+  
+  imu.initialize();       // start communication with IMU
+  RadioCOM.initialize();  // start radio
+  engines.init();         // initialize engines
   // Distance sensor configuration
   pinMode(trigPin, OUTPUT);                           // Trigger pin set to output
   pinMode(echoPin, INPUT);                            // Echo pin set to input
   attachInterrupt(echo_int, echo_interrupt, CHANGE);  // Attach interrupt to the sensor echo input
-
-  // PIDinitialization
-  pitchPID.init(5.0, 1.0, 0.1);
-
+  init_state_vector(); 
 
 }
 
 // -----------------------------------------------------------------------------
 // ---------------------------------- Main Loop --------------------------------
 // -----------------------------------------------------------------------------
-short cycle_counter, cycle = 4;
-ControllerConfiguration configuration;
+
 
 
 
@@ -277,6 +177,7 @@ void loop() {
   delta_t = micros() - tiempo0;
   tiempo0 += delta_t;
   // En el ciclo 14 recibe datos
+  
   if (cycle_counter == (cycle - 1)) {
     RadioCOM.radiolisten(control, configuration);
     curr_state = next_state(curr_state, control.change);
@@ -284,10 +185,13 @@ void loop() {
 
   
   sendpulse(false);
-  read_sensors();
+  imu.readsensor(imusensor);
   attitude.get_attitude(imusensor, yawpitchroll, delta_t);
+  state.pitch = yawpitchroll.pitch_deg();
+  state.roll = yawpitchroll.roll_deg();
+  state.yaw_rate = imusensor[1][2]/ 32.7675f / 60;
   
-  pitchPID.pid_step(yawpitchroll.pitch_deg(), 0, PID_output, delta_t);
+  
 
   switch (curr_state) {
     case STANDBY:
@@ -303,7 +207,7 @@ void loop() {
       if (yawpitchroll.pitch_deg() > 25 ||  yawpitchroll.pitch_deg() < -25 || yawpitchroll.roll_deg() > 25 || yawpitchroll.roll_deg() < -25)
         curr_state = ABORT;
       else
-        engines.pdControl(control.movement, yawpitchroll, delta_t);
+        engines.pdControl(control.movement, yawpitchroll, state, delta_t);
       break;
     case ABORT:
       engines.stop();
@@ -320,9 +224,6 @@ void loop() {
     RadioCOM.finishSend();
   }
   engines.updateEngines();
-  
-  if (diagnosis_mode){
-    //Print_data();
-  }
+  // Print_data();
   
 }

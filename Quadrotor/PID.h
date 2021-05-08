@@ -16,12 +16,9 @@ class PID {
     float integral;
     PIDparameters parameters;
     bool integral_saturation;
-    float output;
 
-
-    void init(float Kp, float Kd, float Ki);
-    void get_output(float error, float derivative, float integral, PIDparameters& parameters, float output);
-    void pid_step(const float state, const float reference, float output, int delta_t);
+    void init(float Kp, float Kd, float Ki, float saturation);
+    float pid_step(const float state, const float reference, const int delta_t);
 };
 
 #endif /* PID_H_*/

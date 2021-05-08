@@ -54,7 +54,7 @@ void triada(const float v1[3], const float v2[3], float M[3][3]) {
 }
 
 
-void Attitude::initial_cond() {
+void Attitude::initial_cond(Euler &yawpitchroll) {
   // Triad Algorithm parameters are computed
   // Magnetic field components in the inertial system reference uT
   // Madrid
@@ -81,8 +81,8 @@ void Attitude::initial_cond() {
   q0[1] = k[0] * sin(theta / 2);
   q0[2] = k[1] * sin(theta / 2);
   q0[3] = k[2] * sin(theta / 2);
-  Euler yawpitchroll_init;
-  Q2E(q0,  yawpitchroll_init);
+  // Euler yawpitchroll_init;
+  Q2E(q0,  yawpitchroll);
 }
 
 void Attitude::triad_algorithm(const int Acc[3], const int Mag[3], float q[4]) {
