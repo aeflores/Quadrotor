@@ -6,10 +6,10 @@ void EngineControl::init(){
         engine[i].attach(engine_port[i]);
         engine[i].writeMicroseconds(engine_speed[i]);
     }
-    pitchPID.init(5.0, 0.5, 0.0, 100);
-    rollPID.init(5.0, 0.5, 0.0, 100);
+    pitchPID.init(10.0, 10.0, 0.5, 100);
+    rollPID.init(10.0, 10.0, 0.5, 100);
     yawratePID.init(5.0, 0.0, 0., 20);
-    heightPID.init(1.0, 0.1, 0.3, 700);
+    heightPID.init(2.0, 1, 2, 700);
 
 }
 
@@ -92,14 +92,14 @@ void EngineControl::pdControl(const int control[4], const Euler &yawpitchroll, c
     engine_speed[1]= max(int(power - unbalance_pitch - unbalance_roll + feedforwardunbalance23), 1000);
     engine_speed[2]= max(int(power - unbalance_pitch + unbalance_roll - feedforwardunbalance23), 1000);
     engine_speed[3]= max(int(power + unbalance_pitch + unbalance_roll - feedforwardunbalance14), 1000);
-    Serial.print(unbalance_pitch);
-    Serial.print("\t");
-    Serial.print(unbalance_roll);
-    Serial.print("\t");
-    Serial.print(unbalance_yaw_rate);
-    Serial.print("\t");
-    Serial.print(power-1000);
-    Serial.println("\t");
+//    Serial.print(unbalance_pitch);
+//    Serial.print("\t");
+//    Serial.print(unbalance_roll);
+//    Serial.print("\t");
+//    Serial.print(unbalance_yaw_rate);
+//    Serial.print("\t");
+//    Serial.print(state.height);
+//    Serial.println("\t");
 
 
 //    

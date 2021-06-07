@@ -11,8 +11,8 @@
 #include "TransmitData.h"
 
 // Declaremos los pines CE y el CSN
-const int CE_PIN=9;
-const int CSN_PIN=10;
+const int CE_PIN=7;
+const int CSN_PIN=8;
 
 // Creamos el objeto radio (NRF24L01)
 RF24 radio(CE_PIN, CSN_PIN);
@@ -23,7 +23,7 @@ const uint64_t pipe_read = 0xF0F0F0F0D2LL;
 
 //Variables necesarias para la maquina de estados
 const int pinJoyButtonRight = 3;
-const int pinJoyButtonLeft = 2;
+const int pinJoyButtonLeft = 4;
 
 // current state initialized to STANDBY
 State curr_state = STANDBY;
@@ -108,18 +108,20 @@ void setup() {
   radio.openWritingPipe(pipe_send);
   // radio.openReadingPipe(1,direccion);
   radio.openReadingPipe(1, pipe_read);
+
+
 }
 
 void loop() {
   // EMISION DE DATOS
   // cargamos los datos en la variable datos[]
-  datos_send.movement[0] = analogRead(A0);
-  datos_send.movement[1] = analogRead(A1);
-  datos_send.movement[2] = analogRead(A2);
-  datos_send.movement[3] = analogRead(A3);
+  datos_send.movement[0] = analogRead(A3);
+  datos_send.movement[1] = analogRead(A2);
+  datos_send.movement[2] = analogRead(A0);
+  datos_send.movement[3] = analogRead(A1);
   // This is for callibrating
   //datos_send.movement[1]= int(analogRead(A4)*3/4);
-  datos_send.movement[1]= int(analogRead(A4));
+  datos_send.movement[1]= int(analogRead(A7));
   datos_send.change= stateChange();
 
   if(curr_state== CALIBRATION){
@@ -164,14 +166,17 @@ void loop() {
       timeout = true;
   }
   if (timeout) {
-    Serial.println("Error, No ha habido respuesta a tiempo");
+    Serial.print("Error, No ha habido respuesta a tiempo");
+
   } else {
     // Leemos los datos y los guardamos en la variable datos[]
+
     radio.read(&datos_rec, sizeof(datos_rec));
     curr_state=datos_rec.state;
     // reportamos por el puerto serial los datos recibidos
     datos_rec.print(Serial);
-    Serial.println("");
+    
   }
+  Serial.println("");
   radio.stopListening();
 }

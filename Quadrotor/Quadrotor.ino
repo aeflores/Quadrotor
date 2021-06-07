@@ -77,7 +77,7 @@ void echo_interrupt() {
       echo_end = micros();                          // Save the end time
       echo_duration = echo_end - echo_start;        // Calculate the pulse duration
       echo_median = heightmedian.AddValue(echo_duration);
-      height = heightEMA.AddValue(echo_median* 0.344 / 2);
+      height = heightEMA.AddValue((echo_median* 0.344 / 2)/cos(yawpitchroll.pitch)/cos(yawpitchroll.roll));
       state.height = height - height0;
       sendpulse(true);
       break;
@@ -224,6 +224,6 @@ void loop() {
     RadioCOM.finishSend();
   }
   engines.updateEngines();
-  // Print_data();
+  Print_data();
   
 }
