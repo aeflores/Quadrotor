@@ -1,3 +1,7 @@
+
+
+
+
 #ifndef TRANSMIT_DATA_H_
 #define TRANSMIT_DATA_H_
 
@@ -19,22 +23,24 @@ struct TransmitData
     State state;
     float yawpitchroll[3];
     float errors[2];
+    float height;
     int engines[4];
     int delta_t;
 
     void print(HardwareSerial& Serial){
+       Serial.print(" State= ");
        switch (state) {
         case STANDBY:
-          Serial.print("STANDBY ");
+          Serial.print("STANDBY");
           break;
         case CALIBRATION:
-          Serial.print("CALIBRATION ");
+          Serial.print("CALIBRATION");
           break;
         case FLYMODE:
-          Serial.print("FLYMODE ");
+          Serial.print("FLYMODE");
           break;
         case ABORT:
-          Serial.print("ABORT ");
+          Serial.print("ABORT");
           break;
         }
         Serial.print(" Yaw= ");
@@ -43,19 +49,20 @@ struct TransmitData
         Serial.print(yawpitchroll[1]);
         Serial.print(" Roll= ");
         Serial.print(yawpitchroll[2]);
-
-        Serial.print(" Error pitch= ");
+        Serial.print(" Height= ");
+        Serial.print(height);
+        Serial.print(" Error_pitch= ");
         Serial.print(errors[0]);
-        Serial.print(" Error roll= ");
-        Serial.print(errors[1]);
+        Serial.print(" Error_roll= ");
+        Serial.print(errors[1]); 
 
         for(int i=0; i<4; i++){
             Serial.print(" Eng");
             Serial.print(i+1);
-            Serial.print("= ");
+            Serial.print("= "); 
             Serial.print(engines[i]);
         }
-        Serial.print("Delta T=");
+        Serial.print(" Delta_T= ");
         Serial.print(delta_t);
     }
 };

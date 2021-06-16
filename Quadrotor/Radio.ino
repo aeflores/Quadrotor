@@ -22,6 +22,7 @@ void Radio::radiosend(const State curr_state, const Euler& datos, const EngineCo
   data.yawpitchroll[0] = datos.yaw_deg();
   data.yawpitchroll[1] = datos.pitch_deg();
   data.yawpitchroll[2] = datos.roll_deg();
+  data.height = height;
   for (int i=0; i<4 ; i++){
     data.engines[i]= engines.engine_speed[i];
   }

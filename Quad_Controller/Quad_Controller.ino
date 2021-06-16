@@ -153,9 +153,8 @@ void loop() {
       radio.write(&datos_send, sizeof(datos_send));
   }
 
-  Serial.print("Power=  "); 
+  Serial.print("Power= "); 
   Serial.print(datos_send.movement[1]);
-  Serial.print("\t"); 
   // RECEPCION DE DATOS
   // Empezamos a escuchar por el canal
   radio.startListening();
