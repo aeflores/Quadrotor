@@ -15,11 +15,11 @@ bool diagnosis_mode = true;
 #include "PID.h"
 
 
+#include <MsTimer2.h>
 #include "MedianFilterLib.h"
 #include "SingleEMAFilterLib.h"
 
-MedianFilter<int> heightmedian(3);
-SingleEMAFilter<float> heightEMA(0.8);
+
 
 
 // Defining objects
@@ -30,15 +30,12 @@ Attitude attitude;
 
 
 
-
-
-
 // Global variables
 int16_t       imusensor[3][3];
 float         height;
 Euler         yawpitchroll;
 ControlData   control;          // Control telecomands
-float         height0;
+float         height0 = 0;
 unsigned long tiempo0;
 int           delta_t;
 QuadState     state;
@@ -55,16 +52,23 @@ float pi        = acos(-1);
 
 
 //----------------------------------HEIGHT SENSOR CODE---------------------------------------
-// Use of interrupts to parallelize ultrasonic sensor measurements
+// Use of Timer2 and interrupts to parallelize ultrasonic sensor measurements
+// Ardino has 3 timers
+// Timer0 is a 8 bit timer used by micros and millis functions
+// Timer1 is a 16 bit timer used by servo library
+// Use of library TimerOne enters in conflict with servo library
+// Library MsTimer2 codes 8 bit Timer2
 // ------------------------------------------------------------------------------------------
 
-#define trigPin A6                                    // Pin A6 trigger output
+#define trigPin 4                                     // Pin 4 trigger output
 #define echoPin 2                                     // Pin 2 Echo input
 #define echo_int 0                                    // Interrupt id for echo pulse
 volatile long echo_start = 0;                         // Records start of echo pulse
 volatile long echo_end = 0;                           // Records end of echo pulse
 volatile long echo_duration = 0;                      // Duration - difference between end and start
-volatile long echo_median = 0;
+volatile long echo_median = 600;                      // sensor height is approximately 103 mm --> 600ns 
+MedianFilter<int> heightmedian(3);
+SingleEMAFilter<float> heightEMA(0.5);
 
 void echo_interrupt() {
   switch (digitalRead(echoPin))                     // Test to see if the signal is high or low
@@ -74,24 +78,19 @@ void echo_interrupt() {
       echo_start = micros();                        // Save the start time
       break;
     case LOW:                                       // Low so must be the end of hte echo pulse
-      echo_end = micros();                          // Save the end time
+      echo_end      = micros();                          // Save the end time
       echo_duration = echo_end - echo_start;        // Calculate the pulse duration
-      echo_median = heightmedian.AddValue(echo_duration);
-      height = heightEMA.AddValue((echo_median* 0.344 / 2)/cos(yawpitchroll.pitch)/cos(yawpitchroll.roll));
+      echo_median   = heightmedian.AddValue(echo_duration);
+      height        = heightEMA.AddValue((echo_duration* 0.344 / 2));///cos(yawpitchroll.pitch)/cos(yawpitchroll.roll));
       state.height = height - height0;
-      sendpulse(true);
+      // state.height = height;
       break;
   }
 }
-// Pulse generator
-// Creates a pulse in the trigger pin whether timeout is true or an echo has been received
-// when sendpulse is called from the main loop it is called with InterruptTriggered = falso so it only sends a pulse if timeout
-// when interrupt is called from echo_interrupt() InterruptTriggered is true so it always sends a pulse
-void sendpulse(bool InterruptTriggered){
-  if (micros()-echo_start>=200000 || InterruptTriggered == true){
-    digitalWrite(trigPin, HIGH);
-    digitalWrite(trigPin, LOW);
-  }
+
+void send_pulse() {
+  digitalWrite(trigPin, HIGH);              // Set the trigger output high
+  digitalWrite(trigPin, LOW);               // Set the trigger output low
 }
 
 
@@ -133,7 +132,7 @@ void Print_data() {
 }
 
 void init_state_vector(){
-  sendpulse(true);
+  //sendpulse(true);
   attitude.initial_cond(yawpitchroll);
   state.pitch = yawpitchroll.pitch_deg();
   state.roll = yawpitchroll.roll_deg();
@@ -158,7 +157,10 @@ void setup() {
   // Distance sensor configuration
   pinMode(trigPin, OUTPUT);                           // Trigger pin set to output
   pinMode(echoPin, INPUT);                            // Echo pin set to input
+  
+  MsTimer2 :: set(10, send_pulse);
   attachInterrupt(echo_int, echo_interrupt, CHANGE);  // Attach interrupt to the sensor echo input
+  MsTimer2 :: start();
   init_state_vector(); 
 
 }
@@ -184,7 +186,7 @@ void loop() {
   }
 
   
-  sendpulse(false);
+  //sendpulse(false);
   imu.readsensor(imusensor);
   attitude.get_attitude(imusensor, yawpitchroll, delta_t);
   state.pitch = yawpitchroll.pitch_deg();
@@ -216,7 +218,7 @@ void loop() {
 
   // En el ciclo 1 empieza el envio
   if (cycle_counter == 1) {
-    RadioCOM.radiosend(curr_state, yawpitchroll, engines, delta_t);
+    RadioCOM.radiosend(curr_state, state, engines, delta_t);
   }
   // En el ciclo 7 termina el envio
   // y empieza a escuchar hasta el ciclo 14
@@ -224,6 +226,6 @@ void loop() {
     RadioCOM.finishSend();
   }
   engines.updateEngines();
-  Print_data();
+  // Print_data();
   
 }

@@ -9,7 +9,7 @@ struct PIDparameters
 
 class PID {
   private:
-    float error_n_1, derivative_n_1, dt = 10;
+    float error_n_1, derivative_n_1;
   public:
     float error;
     float derivative;

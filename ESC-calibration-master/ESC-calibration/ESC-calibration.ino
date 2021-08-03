@@ -25,7 +25,7 @@ char data;
  * Initialisation routine
  */
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(115200);
     
     motA.attach(3, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
     motB.attach(9, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);

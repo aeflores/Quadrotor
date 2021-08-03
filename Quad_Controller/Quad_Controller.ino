@@ -117,11 +117,11 @@ void loop() {
   // cargamos los datos en la variable datos[]
   datos_send.movement[0] = analogRead(A3);
   datos_send.movement[1] = analogRead(A2);
-  datos_send.movement[2] = analogRead(A0);
-  datos_send.movement[3] = analogRead(A1);
+  datos_send.movement[2] = analogRead(A1);
+  datos_send.movement[3] = analogRead(A0);
   // This is for callibrating
   //datos_send.movement[1]= int(analogRead(A4)*3/4);
-  datos_send.movement[1]= int(analogRead(A7));
+  datos_send.movement[4]= int(analogRead(A7));
   datos_send.change= stateChange();
 
   if(curr_state== CALIBRATION){
@@ -147,14 +147,14 @@ void loop() {
       Serial.print(" upperRange= ");
       Serial.print(conf.upperUnbalanceRange);
       Serial.print(" lowerRange= ");
-      Serial.println(conf.lowerUnbalanceRange);
+      Serial.print(conf.lowerUnbalanceRange);
   }else{
       datos_send.moreData=false;
       radio.write(&datos_send, sizeof(datos_send));
   }
 
   Serial.print("Power=  "); 
-  Serial.print(datos_send.movement[1]);
+  Serial.print(datos_send.movement[4]);
   Serial.print("\t"); 
   // RECEPCION DE DATOS
   // Empezamos a escuchar por el canal

@@ -25,9 +25,8 @@ private:
     float powerRange=1000;
     //float powerRange=300;
 
-    void computeReference(const int control[5]);
-    int altitudeRate2Power(float altitude_rate);
-    int error2Correction(float error, float derivative_error);
+    void computeReference(const int control[5], QuadState &reference);
+
 public:
     float error2CorrectionCoeff           = 5;
     float derivativeError2CorrectionCoeff = 0;
@@ -38,12 +37,12 @@ public:
 
     int power;
     float error_pitch, error_roll, derivative_error_pitch, derivative_error_roll;
-    int engine_speed[4]={MIN_SPEED,MIN_SPEED,MIN_SPEED,MIN_SPEED};
+    int engine_speed[4]={MIN_SPEED, MIN_SPEED, MIN_SPEED, MIN_SPEED};
     void init();
     void updateEngines();
     void testControl(const int control[5]);
     void configure(ControllerConfiguration &conf);
-    void pdControl(const int control[4], const Euler &yawpitchroll, const QuadState &state, const int delta_t);
+    void pdControl(const int control[5], const Euler &yawpitchroll, const QuadState &state, const int delta_t);
     void stop();
     PID pitchPID, rollPID, yawratePID, heightPID;
     QuadState reference;

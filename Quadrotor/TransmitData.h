@@ -9,7 +9,7 @@ enum StateChange{ NO = 0, NEXT = 1, PREV = 2};
 
 struct ControlData
 {
-  int movement[4];
+  int movement[5];
   StateChange change;
   bool moreData;
 };
@@ -17,10 +17,12 @@ struct ControlData
 struct TransmitData
 {
     State state;
-    float yawpitchroll[3];
+    int delta_t;
+    float quadstate[4];
     float errors[2];
     int engines[4];
-    int delta_t;
+
+    
 
     void print(HardwareSerial& Serial){
        switch (state) {
@@ -38,11 +40,11 @@ struct TransmitData
           break;
         }
         Serial.print(" Yaw= ");
-        Serial.print(yawpitchroll[0]);
+        Serial.print(quadstate[0]);
         Serial.print(" Pitch= ");
-        Serial.print(yawpitchroll[1]);
+        Serial.print(quadstate[1]);
         Serial.print(" Roll= ");
-        Serial.print(yawpitchroll[2]);
+        Serial.print(quadstate[2]);
 
         Serial.print(" Error pitch= ");
         Serial.print(errors[0]);

@@ -17,13 +17,16 @@ void PID::init(float Kp, float Kd, float Ki, float saturation) {
 
 float PID :: pid_step(const float state, const float reference, const int delta_t) {
   float output;
+  float dt = delta_t*1e-6;
+  
   error = parameters.alpha*(reference - state) + (1 - parameters.alpha)*error_n_1;
-  derivative = (error - error_n_1)*dt*parameters.alpha + derivative_n_1*(1 - parameters.alpha);
+  derivative = (error - error_n_1)/dt*parameters.alpha + derivative_n_1*(1 - parameters.alpha);
   error_n_1 = error;
   derivative_n_1 = derivative;
 
+
   if (!integral_saturation) {
-    integral += error*delta_t*1e-6;
+    integral += error*dt;
   }
 
   float controlsignal = parameters.Kp*error  +  parameters.Kd*derivative  +  parameters.Ki*integral;

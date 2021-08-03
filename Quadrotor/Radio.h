@@ -22,7 +22,7 @@ private:
 public:
   Radio() : radio(CE_PIN, CSN_PIN){};
   void initialize();
-  void radiosend(const State curr_state,const Euler &datos, const EngineControl &engines, int delta_t);
+  void radiosend(const State curr_state, const QuadState &datos, const EngineControl &engines, int delta_t);
   void finishSend();
   void radiolisten(ControlData &datos,ControllerConfiguration& conf);
 };
