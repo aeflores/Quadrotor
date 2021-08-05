@@ -28,13 +28,6 @@ private:
     void computeReference(const int control[5], QuadState &reference);
 
 public:
-    float error2CorrectionCoeff           = 5;
-    float derivativeError2CorrectionCoeff = 0;
-    float upperUnbalanceRange             = 100;
-    float lowerUnbalanceRange             = 100;
-    float feedforwardunbalance14          = 0;
-    float feedforwardunbalance23          = 0;
-
     int power;
     float error_pitch, error_roll, derivative_error_pitch, derivative_error_roll;
     int engine_speed[4]={MIN_SPEED, MIN_SPEED, MIN_SPEED, MIN_SPEED};

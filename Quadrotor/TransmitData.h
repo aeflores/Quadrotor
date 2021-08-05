@@ -18,8 +18,8 @@ struct TransmitData
 {
     State state;
     int delta_t;
-    float quadstate[4];
-    float errors[2];
+    int quadstate[4];
+    int errors[2];
     int engines[4];
 
     
@@ -63,12 +63,24 @@ struct TransmitData
 };
 
 struct ControllerConfiguration{
-    float error2CorrectionCoeff           = 0;
-    float derivativeError2CorrectionCoeff = 0;
-    float upperUnbalanceRange             = 100;
-    float lowerUnbalanceRange             = 100;
-    float feedforwardunbalance14          = 0;
-    float feedforwardunbalance23          = 0;
+
+    float PIDattitude_Kp = 2;
+    float PIDattitude_Kd = 0.5;
+    float PIDattitude_Ki = 0.1;
+
+    float PIDheight_Kp = 2;
+    float PIDheight_Kd = 0.5;
+    float PIDheight_Ki = 2;
+    float PIDheight_error_fc = 5;
+    float PIDheight_error_dot_fc =  5;
+    float PIDheight_saturation = 700;
+  
+//    float error2CorrectionCoeff           = 0;
+//    float derivativeError2CorrectionCoeff = 0;
+//    float upperUnbalanceRange             = 100;
+//    float lowerUnbalanceRange             = 100;
+//    float feedforwardunbalance14          = 0;
+//    float feedforwardunbalance23          = 0;
 };
 
 

@@ -170,7 +170,9 @@ void setup() {
 // -----------------------------------------------------------------------------
 
 
-
+float fcut = 10;
+float pitch_0 = state.pitch;
+SingleEMAFilter<float> pitchEMA(0.5);
 
 void loop() {
   
@@ -188,7 +190,7 @@ void loop() {
   
   //sendpulse(false);
   imu.readsensor(imusensor);
-  attitude.get_attitude(imusensor, yawpitchroll, delta_t);
+  attitude.get_attitude(imusensor, yawpitchroll, delta_t);  
   state.pitch = yawpitchroll.pitch_deg();
   state.roll = yawpitchroll.roll_deg();
   state.yaw_rate = imusensor[1][2]/ 32.7675f / 60;
@@ -227,5 +229,6 @@ void loop() {
   }
   engines.updateEngines();
   // Print_data();
+  Serial.println("");
   
 }

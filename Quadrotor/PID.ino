@@ -6,21 +6,35 @@
 //}
 
 
-void PID::init(float Kp, float Kd, float Ki, float saturation) {
+void PID::init(float Kp, float Kd, float Ki, float error_fc, float error_dot_fc, float saturation) {
   parameters.Kp = Kp;
   parameters.Kd = Kd;
   parameters.Ki = Ki;
+  parameters.error_fc = error_fc;
+  parameters.error_dot_fc = error_dot_fc;
   parameters.saturation = saturation;
-  parameters.alpha      = 0.3;
+  integral = 0;
 }
 
 
 float PID :: pid_step(const float state, const float reference, const int delta_t) {
   float output;
-  float dt = delta_t*1e-6;
+  float dt = (float)delta_t*1e-6;
+
   
-  error = parameters.alpha*(reference - state) + (1 - parameters.alpha)*error_n_1;
-  derivative = (error - error_n_1)/dt*parameters.alpha + derivative_n_1*(1 - parameters.alpha);
+  float RC_error = 1/(2*pi*parameters.error_fc);
+  float RC_error_dot = 1/(2*pi*parameters.error_dot_fc);
+
+
+  
+  error = error_n_1 +  ((dt/(RC_error + dt))*((reference - state) - error_n_1));
+  //error = parameters.alpha*(reference - state) + (1 - parameters.alpha)*error_n_1;
+  derivative = derivative_n_1 + ((dt/(RC_error_dot + dt))*((error - error_n_1)/dt - derivative_n_1));
+  
+  
+  
+  //derivative = (error - error_n_1)/dt*parameters.alpha + derivative_n_1*(1 - parameters.alpha);
+  
   error_n_1 = error;
   derivative_n_1 = derivative;
 
@@ -33,15 +47,21 @@ float PID :: pid_step(const float state, const float reference, const int delta_
 
   if (abs(controlsignal)>=parameters.saturation){
     integral_saturation = true;
+    // integral = 0;
     output = sign(controlsignal)*parameters.saturation;
   }
   else{
     output = controlsignal;
+    integral_saturation = false;
   }
 
-  return output;
 //  Serial.print(output);
 //  Serial.print("\t");
+//  Serial.print(integral_saturation);
+//  Serial.print("\t");
+
+  return output;
+
   
 
 

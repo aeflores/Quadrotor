@@ -102,7 +102,7 @@ void setup() {
   radio.begin();
   radio.setDataRate(RF24_2MBPS);
   // radio.setRetries(15,15);
-  // radio.setPayloadSize(8);
+  // radio.setPayloadSize(64);
   // Abrimos un canal de escritura
   // radio.openWritingPipe(direccion);
   radio.openWritingPipe(pipe_send);
@@ -129,33 +129,19 @@ void loop() {
       radio.write(&datos_send, sizeof(datos_send));
       // send configuration
       ControllerConfiguration conf;
-      conf.error2CorrectionCoeff            = 3.5;
-      conf.derivativeError2CorrectionCoeff  = 0.06;
-      conf.upperUnbalanceRange              = 100;
-      conf.lowerUnbalanceRange              = 100;
-      conf.feedforwardunbalance14           = 0;
-      conf.feedforwardunbalance23           = 0;
-      radio.write(&conf,sizeof(conf));
-      Serial.print("written conf: err2correctCoeff= ");
-      Serial.print(conf.error2CorrectionCoeff);
-      Serial.print("written conf: derivativeErr2correctCoeff= ");
-      Serial.print(conf.derivativeError2CorrectionCoeff);
-      Serial.print(" FFUn14= ");
-      Serial.print(conf.feedforwardunbalance14);
-      Serial.print(" FFUn23= ");
-      Serial.print(conf.feedforwardunbalance23);
-      Serial.print(" upperRange= ");
-      Serial.print(conf.upperUnbalanceRange);
-      Serial.print(" lowerRange= ");
-      Serial.print(conf.lowerUnbalanceRange);
+      radio.write(&conf, sizeof(conf));
+      conf.print(Serial);
+
   }else{
       datos_send.moreData=false;
       radio.write(&datos_send, sizeof(datos_send));
+      Serial.print("Power=  "); 
+      Serial.print(datos_send.movement[4]);
+      Serial.print("\t");
+      datos_rec.print(Serial);
   }
 
-  Serial.print("Power=  "); 
-  Serial.print(datos_send.movement[4]);
-  Serial.print("\t"); 
+
   // RECEPCION DE DATOS
   // Empezamos a escuchar por el canal
   radio.startListening();
@@ -174,7 +160,7 @@ void loop() {
     radio.read(&datos_rec, sizeof(datos_rec));
     curr_state=datos_rec.state;
     // reportamos por el puerto serial los datos recibidos
-    datos_rec.print(Serial);
+    
     
   }
   Serial.println("");

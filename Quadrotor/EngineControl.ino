@@ -6,10 +6,10 @@ void EngineControl::init() {
     engine[i].attach(engine_port[i]);
     engine[i].writeMicroseconds(engine_speed[i]);
   }
-  pitchPID.init(2.0, 2.0, 0.5, 100);
-  rollPID.init(2.0, 2.0, 0.5, 100);
-  yawratePID.init(5.0, 0.0, 0., 20);
-  heightPID.init(2.0, 0.5, 2, 700);
+  pitchPID.init(2.0, 0.7, 0.0, 10, 10, 100);
+  rollPID.init(2.0, 0.7, 0.0, 10, 10, 100);
+  yawratePID.init(1.0, 0.0, 0., 10, 10,  20);
+  heightPID.init(2.0, 0.5, 2, 5, 5,  700);
 
 }
 
@@ -30,12 +30,12 @@ void EngineControl::testControl(const int control[5]) {
 }
 
 void EngineControl::configure(ControllerConfiguration &conf) {
-  upperUnbalanceRange             = conf.upperUnbalanceRange;
-  lowerUnbalanceRange             = conf.lowerUnbalanceRange;
-  error2CorrectionCoeff           = conf.error2CorrectionCoeff;
-  derivativeError2CorrectionCoeff = conf.derivativeError2CorrectionCoeff;
-  feedforwardunbalance14          = conf.feedforwardunbalance14;
-  feedforwardunbalance23          = conf.feedforwardunbalance23;
+
+  pitchPID.init(conf.PIDattitude_Kp,       conf.PIDattitude_Kd,     conf.PIDattitude_Ki, pitchPID.parameters.error_fc,     pitchPID.parameters.error_dot_fc,     pitchPID.parameters.saturation);
+  rollPID.init( conf.PIDattitude_Kp,       conf.PIDattitude_Kd,     conf.PIDattitude_Ki, rollPID.parameters.error_fc,      rollPID.parameters.error_dot_fc,      rollPID.parameters.saturation);
+  heightPID.init(conf.PIDheight_Kp,     conf.PIDheight_Kd,    conf.PIDheight_Ki,    conf.PIDheight_error_fc,    conf.PIDheight_error_dot_fc,    conf.PIDheight_saturation);
+  //yawratePID.init(conf.PIDyawrate_Kp,   conf.PIDyawrate_Kd,   conf.PIDyawrate_Ki,   conf.PIDyawrate_error_fc,   conf.PIDyawrate_error_dot_fc,   conf.PIDyawrate_saturation);
+  
 }
 
 void EngineControl::computeReference(const int control[5], QuadState &reference) {
@@ -60,9 +60,9 @@ void EngineControl::pdControl(const int control[5], const Euler &yawpitchroll, c
 
   float unbalance_pitch    = pitchPID.pid_step(state.pitch, reference.pitch, delta_t);
   float unbalance_roll     = rollPID.pid_step(state.roll, reference.roll, delta_t);
-  float unbalance_yaw_rate = yawratePID.pid_step(state.yaw_rate, reference.yaw_rate, delta_t);
-  //float power              = heightPID.pid_step(state.height, reference.height, delta_t);
-  float power              = control[4];
+  //float unbalance_yaw_rate = yawratePID.pid_step(state.yaw_rate, reference.yaw_rate, delta_t);
+  float power              = heightPID.pid_step(state.height, reference.height, delta_t);
+  power              = control[4];
 
   
 
@@ -70,6 +70,53 @@ void EngineControl::pdControl(const int control[5], const Euler &yawpitchroll, c
   engine_speed[1] = max(int(MIN_SPEED + power - unbalance_pitch - unbalance_roll), MIN_SPEED);
   engine_speed[2] = max(int(MIN_SPEED + power - unbalance_pitch + unbalance_roll), MIN_SPEED);
   engine_speed[3] = max(int(MIN_SPEED + power + unbalance_pitch + unbalance_roll), MIN_SPEED);
+
+
+//  Serial.print(heightPID.error);
+//  Serial.print("\t");
+//  Serial.print(heightPID.derivative);
+//  Serial.print("\t");
+
+//  Serial.print(pitchPID.parameters.Kp);
+//  Serial.print("\t");
+//  Serial.print(pitchPID.parameters.Kd);
+//  Serial.print("\t");
+//  Serial.print(pitchPID.parameters.Ki);
+//  Serial.print("\t");
+//  Serial.print(pitchPID.parameters.error_fc);
+//  Serial.print("\t");
+//  Serial.print(pitchPID.parameters.error_dot_fc);
+//  Serial.print("\t");
+//  Serial.print(pitchPID.parameters.saturation);
+//  Serial.print("\t");
+//  Serial.print("\t");
+//  Serial.print(rollPID.parameters.Kp);
+//  Serial.print("\t");
+//  Serial.print(rollPID.parameters.Kd);
+//  Serial.print("\t");
+//  Serial.print(rollPID.parameters.Ki);
+//  Serial.print("\t");
+//  Serial.print(rollPID.parameters.error_fc);
+//  Serial.print("\t");
+//  Serial.print(rollPID.parameters.error_dot_fc);
+//  Serial.print("\t");
+//  Serial.print(rollPID.parameters.saturation);
+//  Serial.print("\t");
+//  Serial.print("\t");
+//  Serial.print(heightPID.parameters.Kp);
+//  Serial.print("\t");
+//  Serial.print(heightPID.parameters.Kd);
+//  Serial.print("\t");
+//  Serial.print(heightPID.parameters.Ki);
+//  Serial.print("\t");
+//  Serial.print(heightPID.parameters.error_fc);
+//  Serial.print("\t");
+//  Serial.print(heightPID.parameters.error_dot_fc);
+//  Serial.print("\t");
+//  Serial.print(heightPID.parameters.saturation);
+//  Serial.print("\t");
+
+  
   //
   //    Serial.print(control[0]);
   //    Serial.print("\t");
@@ -80,7 +127,10 @@ void EngineControl::pdControl(const int control[5], const Euler &yawpitchroll, c
   //    Serial.print(control[3]);
   //    Serial.println("\t");
 
-  
+//      Serial.print(1000);
+//      Serial.print("\t");
+//      Serial.print(2000);
+//      Serial.print("\t");
 //      Serial.print(engine_speed[0]);
 //      Serial.print("\t");
 //      Serial.print(engine_speed[1]);

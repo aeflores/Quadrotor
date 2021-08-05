@@ -6,7 +6,7 @@ void Radio::initialize() {
   radio.begin();
   radio.setDataRate(RF24_2MBPS);
   // radio.setRetries(15,15);
-  // radio.setPayloadSize(8);
+  // radio.setPayloadSize(64);
   // Abrimos un canal de escritura
   // radio.openWritingPipe(direccion);
   radio.openWritingPipe(pipe_send);
@@ -20,16 +20,16 @@ void Radio::radiosend(const State curr_state, const QuadState& datos, const Engi
   TransmitData data;
   data.state        = curr_state;
   data.delta_t      = delta_t;
-  data.quadstate[0] = datos.yaw_rate;
-  data.quadstate[1] = datos.pitch;
-  data.quadstate[2] = datos.roll;
-  data.quadstate[3] = datos.height;
+  data.quadstate[0] = int(datos.yaw_rate*100);
+  data.quadstate[1] = int(datos.pitch*100);
+  data.quadstate[2] = int(datos.roll*100);
+  data.quadstate[3] = int(datos.height*100);
   
   for (int i=0; i<4 ; i++){
     data.engines[i]= engines.engine_speed[i];
   }
-  data.errors[0] = engines.pitchPID.error;
-  data.errors[1] = engines.rollPID.error;
+  data.errors[0] = int(engines.pitchPID.error*100);
+  data.errors[1] = int(engines.rollPID.error*100);
 
   radio.stopListening();
   radio.startWrite(&data, sizeof(data), false);
