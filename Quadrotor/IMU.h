@@ -25,18 +25,16 @@
 
 class IMU {
   private:
-    int magxbias = -169, magybias = 17, magzbias = 18;
-//    int magxbias = -57, magybias = 48, magzbias = 115;
-    
+    // int magxbias = -169, magybias = 17, magzbias = 18;
+    int magxbias = -173, magybias = 24, magzbias = 15;       
     int accxbias = 0, accybias = 0, acczbias = 0;
     int gyroxbias = -40, gyroybias = -20, gyrozbias = 24;
     // int gyroxbias = 0, gyroybias = 0, gyrozbias = 0;
 
 
 //    int magxSF = 44, magySF = 43, magzSF = 38;   
-    int magxSF = 42, magySF = 40, magzSF = 38;
-
-    
+//    int magxSF = 42, magySF = 40, magzSF = 38;
+    int magxSF = 46, magySF = 43, magzSF = 42;
     int accxSF = 1, accySF = 1, acczSF = 1;
     int gyroxSF = 1, gyroySF = 1, gyrozSF = 1;
   public:

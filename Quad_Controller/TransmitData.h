@@ -90,7 +90,6 @@ struct ControllerConfiguration{
     float PIDheight_Ki = 2;
     float PIDheight_error_fc = 1;
     float PIDheight_error_dot_fc =  1;
-    float PIDheight_saturation = 700;
 
     void print(HardwareSerial& Serial){
         Serial.print("\t"); 
@@ -127,10 +126,6 @@ struct ControllerConfiguration{
         Serial.print(" PIDheight_error_dot_fc= ");
         Serial.print("\t"); 
         Serial.print(PIDheight_error_dot_fc, 2);
-        Serial.print("\t");
-        Serial.print(" PIDheight_saturation= ");
-        Serial.print("\t"); 
-        Serial.print(PIDheight_saturation, 2);
         Serial.print("\t");
     }
 

@@ -7,9 +7,10 @@ OMEGA = [ 0 -p -q -r;
 
 qk1 = (eye(4)*cos(dt*omega/2) + sin(dt*omega/2)/omega*OMEGA)*qk0
 
-yaw = 185.793;
-pitch =  4.458 ;
-roll =  -4.074	
+yaw = 0.0;
+pitch =  -7.84;
+pitch =  6;
+roll =  0.0;	
 radtodeg = 180/pi;
 
 q = angle2quat(0 , pitch/radtodeg, roll/radtodeg)

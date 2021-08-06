@@ -72,9 +72,9 @@ void Attitude::initial_cond(Euler &yawpitchroll) {
     imu.readsensor(imusensor);
     triad_algorithm(imusensor[0], imusensor[2], qinit);
     theta += 2 * acos(qinit[0]) / iterations;
-    k[0]  += qinit[1] / sin(acos(qinit[0]))/iterations;
-    k[1]  += qinit[2] / sin(acos(qinit[0]))/iterations;
-    k[2]  += qinit[3] / sin(acos(qinit[0]))/iterations;
+    k[0]  += qinit[1] / sin(acos(qinit[0])) / iterations;
+    k[1]  += qinit[2] / sin(acos(qinit[0])) / iterations;
+    k[2]  += qinit[3] / sin(acos(qinit[0])) / iterations;
   }
   normalize_vector(k);
   q0[0] = cos(theta / 2);
@@ -86,13 +86,13 @@ void Attitude::initial_cond(Euler &yawpitchroll) {
 }
 
 void Attitude::triad_algorithm(const int Acc[3], const int Mag[3], float q[4]) {
-  // Magnetic field components in the body system reference nT
+  // Magnetic field components in the body system reference nT  
   float w1[3] = {float(Mag[0]), float(Mag[1]), float(Mag[2])};
   normalize_vector(w1);
   // Gravity components in the inertial body reference m/s2
   // float w2[3] = { -Acc[0], -Acc[1], -Acc[2]};
   float w2[3] = {float(Acc[0]), float(Acc[1]), float(Acc[2])};
-  normalize_vector(w2); 
+  normalize_vector(w2);
   // TRIAD algorithm
   // Triada S
   float A[3][3];
@@ -104,18 +104,14 @@ void Attitude::triad_algorithm(const int Acc[3], const int Mag[3], float q[4]) {
       R[i][j] = A[i][0] * B[j][0] + A[i][1] * B[j][1] + A[i][2] * B[j][2];
     }
   }
-  float qnew[4];
+  //float qnew[4];
   // Rotation matrix to quaternion
-  qnew[0] = sqrt(R[0][0] + R[1][1] + R[2][2] + 1) / 2.0;
-  qnew[1] = sign(R[1][2] - R[2][1]) * sqrt(R[0][0] - R[1][1] - R[2][2] + 1) / 2.0;
-  qnew[2] = sign(R[2][0] - R[0][2]) * sqrt(-R[0][0] + R[1][1] - R[2][2] + 1) / 2.0;
-  qnew[3] = sign(R[0][1] - R[1][0]) * sqrt(-R[0][0] - R[1][1] + R[2][2] + 1) / 2.0;
+  q[0] = sqrt(R[0][0] + R[1][1] + R[2][2] + 1) / 2.0;
+  q[1] = sign(R[1][2] - R[2][1]) * sqrt(R[0][0] - R[1][1] - R[2][2] + 1) / 2.0;
+  q[2] = sign(R[2][0] - R[0][2]) * sqrt(-R[0][0] + R[1][1] - R[2][2] + 1) / 2.0;
+  q[3] = sign(R[0][1] - R[1][0]) * sqrt(-R[0][0] - R[1][1] + R[2][2] + 1) / 2.0;
 
-  for (int i = 0; i < 4; i++) {
-    if (!isnan(qnew[i])){
-      q[i] = qnew[i];
-    }
-  }
+
 }
 
 void integrate(const int gyroint[3], const float qk0[4], int delta_t,  float qk1[4]) {
@@ -128,15 +124,23 @@ void integrate(const int gyroint[3], const float qk0[4], int delta_t,  float qk1
   float omega_mod_delta   = omega_mod * delta_t * 1e-6 / 2.0;
   float omega_mod_sin_mod = sin(omega_mod_delta) / omega_mod;
   float omega_mod_cos     = cos(omega_mod_delta);
-  
-  qk1[0] = qk0[0] * omega_mod_cos - gyro[0] * qk0[1] * omega_mod_sin_mod  - gyro[1] * qk0[2] * omega_mod_sin_mod  - gyro[2] * qk0[3] * omega_mod_sin_mod;
-  qk1[1] = qk0[1] * omega_mod_cos + gyro[0] * qk0[0] * omega_mod_sin_mod  + gyro[1] * qk0[3] * omega_mod_sin_mod  + gyro[2] * qk0[2] * omega_mod_sin_mod;
-  qk1[2] = qk0[2] * omega_mod_cos + gyro[0] * qk0[3] * omega_mod_sin_mod  + gyro[1] * qk0[0] * omega_mod_sin_mod  - gyro[2] * qk0[1] * omega_mod_sin_mod;
-  qk1[3] = qk0[3] * omega_mod_cos - gyro[0] * qk0[2] * omega_mod_sin_mod  + gyro[1] * qk0[1] * omega_mod_sin_mod  + gyro[2] * qk0[0] * omega_mod_sin_mod;
 
-  for (int i = 0; i < 4; i++) {
-    if (isnan(qk1[i])){
-      qk1[i] = qk0[i];
+
+  //  qk1[0] = qk0[0] * omega_mod_cos - gyro[0] * qk0[1] * omega_mod_sin_mod  - gyro[1] * qk0[2] * omega_mod_sin_mod  - gyro[2] * qk0[3] * omega_mod_sin_mod;
+  //  qk1[1] = qk0[1] * omega_mod_cos + gyro[0] * qk0[0] * omega_mod_sin_mod  + gyro[1] * qk0[3] * omega_mod_sin_mod  + gyro[2] * qk0[2] * omega_mod_sin_mod;
+  //  qk1[2] = qk0[2] * omega_mod_cos + gyro[0] * qk0[3] * omega_mod_sin_mod  + gyro[1] * qk0[0] * omega_mod_sin_mod  - gyro[2] * qk0[1] * omega_mod_sin_mod;
+  //  qk1[3] = qk0[3] * omega_mod_cos - gyro[0] * qk0[2] * omega_mod_sin_mod  + gyro[1] * qk0[1] * omega_mod_sin_mod  + gyro[2] * qk0[0] * omega_mod_sin_mod;
+
+
+  qk1[0] =  qk0[0] * omega_mod_cos                  - qk0[1] * gyro[0] * omega_mod_sin_mod  - qk0[2] * gyro[1] * omega_mod_sin_mod  - qk0[3] * gyro[2] * omega_mod_sin_mod;
+  qk1[1] =  qk0[0] * gyro[0] * omega_mod_sin_mod    + qk0[1] * omega_mod_cos                + qk0[2] * gyro[2] * omega_mod_sin_mod   - qk0[3] * gyro[1] * omega_mod_sin_mod;
+  qk1[2] =  qk0[0] * gyro[1] * omega_mod_sin_mod    - qk0[1] * gyro[2] * omega_mod_sin_mod   + qk0[2] * omega_mod_cos                + qk0[3] * gyro[0] * omega_mod_sin_mod;
+  qk1[3] =  qk0[0] * gyro[2] * omega_mod_sin_mod    + qk0[1] * gyro[1] * omega_mod_sin_mod   - qk0[2] * gyro[0] * omega_mod_sin_mod  + qk0[3] * omega_mod_cos;
+
+
+  if (isnan(qk1[0]) || isnan(qk1[1]) || isnan(qk1[2]) || isnan(qk1[3])) {
+    for (int i=0; 4; i++){
+    qk1[i] = qk0[i];
     }
   }
 
@@ -164,51 +168,160 @@ void Q2E(const float qk1[4], Euler& yawpitchroll) {
   }
 }
 
+
+void ToQuaternion(float yaw, float pitch, float roll, float q[4]) // yaw (Z), pitch (Y), roll (X)
+{
+    // Abbreviations for the various angular functions
+    float cy = cos(yaw * 0.5);
+    float sy = sin(yaw * 0.5);
+    float cp = cos(pitch * 0.5);
+    float sp = sin(pitch * 0.5);
+    float cr = cos(roll * 0.5);
+    float sr = sin(roll * 0.5);
+    q[0] = cr * cp * cy + sr * sp * sy;
+    q[1] = sr * cp * cy - cr * sp * sy;
+    q[2] = cr * sp * cy + sr * cp * sy;
+    q[3] = cr * cp * sy - sr * sp * cy;
+}
+
+
 void combinequat(const float q1[4], const float q2[4], float alpha, float q3[4]) {
 
-  float theta1;
-  float k1[3], k2[3], k3[3];
+    Euler integralYPR;
+    Euler triadYPR;
+    Q2E(q1, integralYPR);
+    Q2E(q2, triadYPR);
+    Euler filterYPR;
+    if (cos(integralYPR.yaw)>0.98){
+      filterYPR.yaw = integralYPR.yaw;
+    }
+    else{
+      filterYPR.yaw = alpha*integralYPR.yaw + (1 - alpha)*triadYPR.yaw;
+    }
+    filterYPR.pitch = alpha*integralYPR.pitch + (1 - alpha)*triadYPR.pitch;
+    filterYPR.roll = alpha*integralYPR.roll + (1 - alpha)*triadYPR.roll;    
+    ToQuaternion(filterYPR.yaw, filterYPR.pitch, filterYPR.roll, q3);
+//    Serial.print(integralYPR.yaw_deg(), 2);
+//    Serial.print("\t");
+//    Serial.print(integralYPR.pitch_deg(), 2);
+//    Serial.print("\t");
+//    Serial.print(integralYPR.roll_deg(), 2);
+//    Serial.print("\t");
+//    Serial.print(triadYPR.yaw_deg(), 2);
+//    Serial.print("\t");
+//    Serial.print(triadYPR.pitch_deg(), 2);
+//    Serial.print("\t");
+//    Serial.print(triadYPR.roll_deg(), 2);
+//    Serial.print("\t");
 
-  if (q1[0]<0){
-    theta1 = 2 * acos(-q1[0]);
-    k1[0] = -q1[1] / sin(theta1 / 2.);
-    k1[1] = -q1[2] / sin(theta1 / 2.);
-    k1[2] = -q1[3] / sin(theta1 / 2.);
-  }
-  else{
-    theta1 = 2 * acos(q1[0]);
-    k1[0] = q1[1] / sin(theta1 / 2.);
-    k1[1] = q1[2] / sin(theta1 / 2.);
-    k1[2] = q1[3] / sin(theta1 / 2.);
-  }
-  float theta2 = 2 * acos(q2[0]);
-  k2[0] = q2[1] / sin(theta2 / 2.);
-  k2[1] = q2[2] / sin(theta2 / 2.);
-  k2[2] = q2[3] / sin(theta2 / 2.);
 
-  float theta3 = alpha * theta1 + (1 - alpha) * theta2;
-  k3[0] = alpha * k1[0] + (1 - alpha) * k2[0];
-  k3[1] = alpha * k1[1] + (1 - alpha) * k2[1];
-  k3[2] = alpha * k1[2] + (1 - alpha) * k2[2];
-  normalize_vector(k3);
-  q3[0] = cos(theta3 / 2);
-  q3[1] = sin(theta3 / 2) * k3[0];
-  q3[2] = sin(theta3 / 2) * k3[1];
-  q3[3] = sin(theta3 / 2) * k3[2];
-  
+//    Serial.print(filterYPR.yaw_deg(), 2);
+//    Serial.print("\t");
+//    Serial.print(filterYPR.pitch_deg(), 2);
+//    Serial.print("\t");
+//    Serial.print(filterYPR.roll_deg(), 2);
+//    Serial.print("\t");
+    
+
+
+//    Serial.print(q1[0], 3);
+//    Serial.print("\t");
+//    Serial.print(q1[1], 3);
+//    Serial.print("\t");
+//    Serial.print(q1[2], 3);
+//    Serial.print("\t");
+//    Serial.print(q1[3], 3);
+//    Serial.print("\t");
+//    Serial.print(q2[0], 3);
+//    Serial.print("\t");
+//    Serial.print(q2[1], 3);
+//    Serial.print("\t");
+//    Serial.print(q2[2], 3);
+//    Serial.print("\t");
+//    Serial.print(q2[3], 3);
+//    Serial.print("\t");
+//
+//
+//  float theta1;
+//  float k1[3], k2[3], k3[3];
+// 
+//  theta1 = 2 * acos(q1[0]);
+//  k1[0] = q1[1] / sin(theta1 / 2.);
+//  k1[1] = q1[2] / sin(theta1 / 2.);
+//  k1[2] = q1[3] / sin(theta1 / 2.);
+//
+//  float theta2 = 2 * acos(q2[0]);
+//  k2[0] = q2[1] / sin(theta2 / 2.);
+//  k2[1] = q2[2] / sin(theta2 / 2.);
+//  k2[2] = q2[3] / sin(theta2 / 2.);
+//
+//  if (k1[0]*k2[0] + k1[1]*k2[1] + k1[2]*k2[2]<0){
+//      theta2 = 2*pi - theta2;
+//      k2[0] = -k2[0];
+//      k2[1] = -k2[1];
+//      k2[2] = -k2[2];
+//    }
+//////  if (theta1>pi){
+//////      theta2 = 2*pi - theta2;
+//////      k2[0] = -k2[0];
+//////      k2[1] = -k2[1];
+//////      k2[2] = -k2[2];
+//////    }
+//  Serial.print(k1[0], 3);
+//  Serial.print("\t");
+//  Serial.print(k1[1], 3);
+//  Serial.print("\t");
+//  Serial.print(k1[2], 3);
+//  Serial.print("\t");
+//  Serial.print(theta1, 3);
+//  Serial.print("\t");
+//  Serial.print(k2[0], 3);
+//  Serial.print("\t");
+//  Serial.print(k2[1], 3);
+//  Serial.print("\t");
+//  Serial.print(k2[2], 3);
+//  Serial.print("\t");
+//  Serial.print(theta2, 3);
+//  Serial.print("\t");
+////
+////  //
+////  //  if(abs(k1[2])>0.9 and theta1>5*pi/6){
+////  //    alpha = 1;
+////  //  }
+////
+//  alpha = 1;
+////  //  Serial.print(alpha);
+////  //  Serial.print("\t");
+////
+//  float theta3 = alpha * theta1 + (1 - alpha) * theta2;
+//  k3[0] = alpha * k1[0] + (1 - alpha) * k2[0];
+//  k3[1] = alpha * k1[1] + (1 - alpha) * k2[1];
+//  k3[2] = alpha * k1[2] + (1 - alpha) * k2[2];
+//  normalize_vector(k3);
+//  q3[0] = cos(theta3 / 2);
+//  q3[1] = sin(theta3 / 2) * k3[0];
+//  q3[2] = sin(theta3 / 2) * k3[1];
+//  q3[3] = sin(theta3 / 2) * k3[2];
 }
 
 
 void Attitude::get_attitude(const int imusensor[3][3], Euler& yawpitchroll, int delta_t) {
-
   float q1integ[4];
   float q1triad[4];
-  triad_algorithm(imusensor[0], imusensor[2],  q1triad);
+  triad_algorithm(imusensor[0], imusensor[2], q1triad);
   integrate(imusensor[1], q0, delta_t,  q1integ);
-  
+  if (isnan(q1triad[0]) || isnan(q1triad[1]) || isnan(q1triad[2]) || isnan(q1triad[3])) {
+    q1triad[0] = q0[0];
+    q1triad[1] = q0[1];
+    q1triad[2] = q0[2];
+    q1triad[3] = q0[3];
+    
+  }
+
   combinequat(q1integ, q1triad, alpha, q0);
-  // offset_attitude(q0, qoffset, q1);
+  //offset_attitude(q0, qoffset, q1);
   // Una vez que tenemos la orientacion del frame con respecto al mundo convertimos nuestro cuaternio en angulos de euler devolvemos eso
-  // Q2E(q1,  yawpitchroll);
+  //Q2E(q1,  yawpitchroll);
   Q2E(q0,  yawpitchroll);
+
 }

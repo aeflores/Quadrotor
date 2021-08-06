@@ -17,12 +17,14 @@ class Attitude{
   private:
     float B[3][3];
     float q0[4], q1[4];
+    // float qoffset[4] = {0.99766, 0, 0.068363, 0};
+    //float qoffset[4] = {0.99863, 0.0, -0.052336 , 0.0};
     float qoffset[4] = {1, 0, 0, 0};
     float alpha = 0.95;
 
   public:
   void initial_cond(Euler &yawpitchroll);
-  void triad_algorithm(const int Acc[3], const int Mag[3],  float q[4]);
+  void triad_algorithm(const int Acc[3], const int Mag[3], float q[4]);
   void get_attitude(const int imusensor[3][3], Euler& yawpitchroll, int delta_t);
 
 };

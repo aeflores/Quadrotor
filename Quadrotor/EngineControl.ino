@@ -33,7 +33,7 @@ void EngineControl::configure(ControllerConfiguration &conf) {
 
   pitchPID.init(conf.PIDattitude_Kp,       conf.PIDattitude_Kd,     conf.PIDattitude_Ki, pitchPID.parameters.error_fc,     pitchPID.parameters.error_dot_fc,     pitchPID.parameters.saturation);
   rollPID.init( conf.PIDattitude_Kp,       conf.PIDattitude_Kd,     conf.PIDattitude_Ki, rollPID.parameters.error_fc,      rollPID.parameters.error_dot_fc,      rollPID.parameters.saturation);
-  heightPID.init(conf.PIDheight_Kp,     conf.PIDheight_Kd,    conf.PIDheight_Ki,    conf.PIDheight_error_fc,    conf.PIDheight_error_dot_fc,    conf.PIDheight_saturation);
+  heightPID.init(conf.PIDheight_Kp,     conf.PIDheight_Kd,    conf.PIDheight_Ki,    conf.PIDheight_error_fc,    conf.PIDheight_error_dot_fc,    heightPID.parameters.saturation);
   //yawratePID.init(conf.PIDyawrate_Kp,   conf.PIDyawrate_Kd,   conf.PIDyawrate_Ki,   conf.PIDyawrate_error_fc,   conf.PIDyawrate_error_dot_fc,   conf.PIDyawrate_saturation);
   
 }
@@ -77,6 +77,15 @@ void EngineControl::pdControl(const int control[5], const Euler &yawpitchroll, c
 //  Serial.print(heightPID.derivative);
 //  Serial.print("\t");
 
+//  Serial.print(pitchPID.error);
+//  Serial.print("\t");
+//  Serial.print(pitchPID.derivative);
+//  Serial.print("\t");
+//  Serial.print(rollPID.error);
+//  Serial.print("\t");
+//  Serial.print(rollPID.derivative);
+//  Serial.print("\t");
+
 //  Serial.print(pitchPID.parameters.Kp);
 //  Serial.print("\t");
 //  Serial.print(pitchPID.parameters.Kd);
@@ -118,14 +127,14 @@ void EngineControl::pdControl(const int control[5], const Euler &yawpitchroll, c
 
   
   //
-  //    Serial.print(control[0]);
-  //    Serial.print("\t");
-  //    Serial.print(control[1]);
-  //    Serial.print("\t");
-  //    Serial.print(control[2]);
-  //    Serial.print("\t");
-  //    Serial.print(control[3]);
-  //    Serial.println("\t");
+//      Serial.print(control[0]);
+//      Serial.print("\t");
+//      Serial.print(control[1]);
+//      Serial.print("\t");
+//      Serial.print(control[2]);
+//      Serial.print("\t");
+//      Serial.print(control[3]);
+//      Serial.println("\t");
 
 //      Serial.print(1000);
 //      Serial.print("\t");

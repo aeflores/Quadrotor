@@ -126,9 +126,13 @@ void Print_data() {
   Serial.print("\t");
   Serial.print(state.yaw_rate);
   Serial.print("\t");
-  Serial.print(state.height);
+  Serial.print(-90);
   Serial.print("\t");
-  Serial.println("\t");
+  Serial.print(90);
+  Serial.print("\t");
+  Serial.print(yawpitchroll.yaw_deg());
+  Serial.print("\t");
+
 }
 
 void init_state_vector(){
