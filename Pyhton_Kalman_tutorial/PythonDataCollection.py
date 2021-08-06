@@ -85,12 +85,12 @@ class serialPlot:
 
 
 # portName = 'COM6'
-portName = '/dev/ttyACM0'
-portName = '/dev/ttyUSB0'
+# portName = '/dev/ttyACM1'
+portName = '/dev/ttyUSB1'
 baudRate = 115200
 dataNumBytes = 2        # number of bytes of 1 data point
 numVariables = 9        # number of plots in 1 graph
 s = serialPlot(portName, baudRate, dataNumBytes, numVariables)   # initializes all required variables
 time.sleep(2)
 Data = s.getSerialData(30)
-np.savetxt('MagData01april.csv', Data, delimiter=',', fmt='%f')
+np.savetxt('MagData05August.csv', Data, delimiter=',', fmt='%f')
