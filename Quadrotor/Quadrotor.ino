@@ -4,7 +4,7 @@
 //Authors: Enrique Flores and Antonio Flores
 
 
-bool diagnosis_mode = true;
+bool diagnosis_mode = false;
 
 // Including libraries
 
@@ -18,8 +18,6 @@ bool diagnosis_mode = true;
 #include <MsTimer2.h>
 #include "MedianFilterLib.h"
 #include "SingleEMAFilterLib.h"
-
-
 
 
 // Defining objects
@@ -174,9 +172,6 @@ void setup() {
 // -----------------------------------------------------------------------------
 
 
-float fcut = 10;
-float pitch_0 = state.pitch;
-SingleEMAFilter<float> pitchEMA(0.5);
 
 void loop() {
   
@@ -190,7 +185,6 @@ void loop() {
     RadioCOM.radiolisten(control, configuration);
     curr_state = next_state(curr_state, control.change);
   }
-
   
   //sendpulse(false);
   imu.readsensor(imusensor);
@@ -233,6 +227,6 @@ void loop() {
   }
   engines.updateEngines();
   // Print_data();
-  Serial.println("");
+  // Serial.println("");
   
 }

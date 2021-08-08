@@ -24,17 +24,8 @@ float PID :: pid_step(const float state, const float reference, const int delta_
   
   float RC_error = 1/(2*pi*parameters.error_fc);
   float RC_error_dot = 1/(2*pi*parameters.error_dot_fc);
-
-
-  
   error = error_n_1 +  ((dt/(RC_error + dt))*((reference - state) - error_n_1));
-  //error = parameters.alpha*(reference - state) + (1 - parameters.alpha)*error_n_1;
   derivative = derivative_n_1 + ((dt/(RC_error_dot + dt))*((error - error_n_1)/dt - derivative_n_1));
-  
-  
-  
-  //derivative = (error - error_n_1)/dt*parameters.alpha + derivative_n_1*(1 - parameters.alpha);
-  
   error_n_1 = error;
   derivative_n_1 = derivative;
 
@@ -54,16 +45,7 @@ float PID :: pid_step(const float state, const float reference, const int delta_
     output = controlsignal;
     integral_saturation = false;
   }
-
-//  Serial.print(output);
-//  Serial.print("\t");
-//  Serial.print(integral_saturation);
-//  Serial.print("\t");
-
   return output;
-
-  
-
 
 }
 

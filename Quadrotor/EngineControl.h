@@ -20,11 +20,6 @@ class EngineControl{
 private:
     const short engine_port[4]={6,3,9,5};
     Servo engine[4];
-    float alt2powerCoeff=1;
-    float alt2powerBase=1000;
-    float powerRange=1000;
-    //float powerRange=300;
-
     void computeReference(const int control[5], QuadState &reference);
 
 public:

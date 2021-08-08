@@ -74,12 +74,6 @@ struct ControllerConfiguration{
     float PIDheight_error_fc = 5;
     float PIDheight_error_dot_fc =  5;
   
-//    float error2CorrectionCoeff           = 0;
-//    float derivativeError2CorrectionCoeff = 0;
-//    float upperUnbalanceRange             = 100;
-//    float lowerUnbalanceRange             = 100;
-//    float feedforwardunbalance14          = 0;
-//    float feedforwardunbalance23          = 0;
 };
 
 

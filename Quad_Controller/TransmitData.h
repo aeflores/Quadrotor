@@ -81,13 +81,13 @@ struct TransmitData
 };
 
 struct ControllerConfiguration{
-    float PIDattitude_Kp = 2;
+    float PIDattitude_Kp = 1;
     float PIDattitude_Kd = 0.5;
     float PIDattitude_Ki = 0.0;
 
-    float PIDheight_Kp = 2;
-    float PIDheight_Kd = 0.5;
-    float PIDheight_Ki = 2;
+    float PIDheight_Kp = 0.5;
+    float PIDheight_Kd = 0.02;
+    float PIDheight_Ki = 0.01;
     float PIDheight_error_fc = 1;
     float PIDheight_error_dot_fc =  1;
 
