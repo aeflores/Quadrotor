@@ -11,8 +11,8 @@
 #include "TransmitData.h"
 
 // Declaremos los pines CE y el CSN
-const int CE_PIN=7;
-const int CSN_PIN=8;
+const int CE_PIN = 7;
+const int CSN_PIN = 8;
 
 // Creamos el objeto radio (NRF24L01)
 RF24 radio(CE_PIN, CSN_PIN);
@@ -38,7 +38,7 @@ StateChange stateChange() {
   static unsigned long tiempo_left, tiempo_right;
   static Button left_button, right_button;
 
-  StateChange change= StateChange::NO;
+  StateChange change = StateChange::NO;
   int left = digitalRead(pinJoyButtonLeft);
   int right = digitalRead(pinJoyButtonRight);
 
@@ -47,47 +47,47 @@ StateChange stateChange() {
   // Cambiamos the estado si hemos estado 100 ms con el boton pulsado.
   // Una vez cambiado de estado, no hacemos nada (en el estado DONE) hasta que el boton
   // se deja de pulsar.
-  switch (left_button){
+  switch (left_button) {
     case Button::HI:
-        if (left == LOW){
-          left_button = Button::PUSHED;
-          tiempo_left = millis();
-        }
-    break;
+      if (left == LOW) {
+        left_button = Button::PUSHED;
+        tiempo_left = millis();
+      }
+      break;
     case Button::PUSHED:
-       if (millis()>=tiempo_left+50){
-          left_button = Button::DONE;
-          change = StateChange::PREV;
-       }
-       if(left == HIGH)
-         left_button = Button::HI;
-    break;
+      if (millis() >= tiempo_left + 50) {
+        left_button = Button::DONE;
+        change = StateChange::PREV;
+      }
+      if (left == HIGH)
+        left_button = Button::HI;
+      break;
     case Button::DONE:
-      if(left == HIGH)
-         left_button = Button::HI;
-    break;
+      if (left == HIGH)
+        left_button = Button::HI;
+      break;
   }
 
   // right button state machine
-  switch (right_button){
+  switch (right_button) {
     case Button::HI:
-        if (right == LOW){
-          right_button = Button::PUSHED;
-          tiempo_right = millis();
-        }
-    break;
+      if (right == LOW) {
+        right_button = Button::PUSHED;
+        tiempo_right = millis();
+      }
+      break;
     case Button::PUSHED:
-       if (millis()>=tiempo_right+50){
-          right_button = Button::DONE;
-          change = StateChange::NEXT;
-       }
-       if(right == HIGH)
-         right_button = Button::HI;
-    break;
+      if (millis() >= tiempo_right + 50) {
+        right_button = Button::DONE;
+        change = StateChange::NEXT;
+      }
+      if (right == HIGH)
+        right_button = Button::HI;
+      break;
     case Button::DONE:
-      if(right == HIGH)
-         right_button = Button::HI;
-    break;
+      if (right == HIGH)
+        right_button = Button::HI;
+      break;
   }
 
   return change;
@@ -121,24 +121,26 @@ void loop() {
   datos_send.movement[3] = analogRead(A0);
   // This is for callibrating
   //datos_send.movement[1]= int(analogRead(A4)*3/4);
-  datos_send.movement[4]= int(analogRead(A7));
-  datos_send.change= stateChange();
+  datos_send.movement[4] = int(analogRead(A7));
+  datos_send.change = stateChange();
 
-  if(curr_state== CALIBRATION){
-      datos_send.moreData=true;
-      radio.write(&datos_send, sizeof(datos_send));
-      // send configuration
-      ControllerConfiguration conf;
-      radio.write(&conf, sizeof(conf));
-      conf.print(Serial);
+  if (curr_state == CALIBRATION) {
+    datos_send.moreData = true;
+    radio.write(&datos_send, sizeof(datos_send));
+    // send configuration
+    ControllerConfiguration conf;
+    radio.write(&conf, sizeof(conf));
+    //conf.print(Serial);
 
-  }else{
-      datos_send.moreData=false;
-      radio.write(&datos_send, sizeof(datos_send));
-      Serial.print("Power=  "); 
-      Serial.print(datos_send.movement[4]);
-      Serial.print("\t");
-      datos_rec.print(Serial);
+  } else {
+    datos_send.moreData = false;
+    radio.write(&datos_send, sizeof(datos_send));
+    Serialbufferprint(datos_rec, datos_send.movement[4]);
+    
+    //Serial.print("Power=  ");
+    //Serial.print(datos_send.movement[4]);
+    //Serial.print("\t");
+    //datos_rec.print(Serial);
   }
 
 
@@ -152,17 +154,53 @@ void loop() {
       timeout = true;
   }
   if (timeout) {
-    Serial.print("Error, No ha habido respuesta a tiempo");
+    //Serial.print("Error, No ha habido respuesta a tiempo");
 
   } else {
     // Leemos los datos y los guardamos en la variable datos[]
 
     radio.read(&datos_rec, sizeof(datos_rec));
-    curr_state=datos_rec.state;
+    curr_state = datos_rec.state;
     // reportamos por el puerto serial los datos recibidos
-    
-    
+
+
   }
-  Serial.println("");
+  //Serial.println("");
   radio.stopListening();
+}
+
+
+void Serialbufferprint(TransmitData &data, int power) {
+  int intstate;
+  switch (data.state) {
+    case STANDBY:
+      intstate = 1;
+      break;
+    case CALIBRATION:
+      intstate = 2;
+      break;
+    case FLYMODE:
+      intstate = 3;
+      break;
+    case ABORT:
+      intstate = 4;
+      break;
+  }
+  int nvar = 13;
+  int nbytesvar = 2;
+  int totalbytes = nvar * nbytesvar;
+  byte buff[totalbytes] = { ((uint8_t*)&intstate)[0], ((uint8_t*)&intstate)[1],
+                            ((uint8_t*)&power)[0], ((uint8_t*)&power)[1],
+                            ((uint8_t*)&data.delta_t)[0], ((uint8_t*)&data.delta_t)[1],
+                            ((uint8_t*)&data.quadstate[0])[0], ((uint8_t*)&data.quadstate[0])[1],
+                            ((uint8_t*)&data.quadstate[1])[0], ((uint8_t*)&data.quadstate[1])[1],
+                            ((uint8_t*)&data.quadstate[2])[0], ((uint8_t*)&data.quadstate[2])[1],
+                            ((uint8_t*)&data.quadstate[3])[0], ((uint8_t*)&data.quadstate[3])[1],
+                            ((uint8_t*)&data.errors[0])[0], ((uint8_t*)&data.errors[0])[1],
+                            ((uint8_t*)&data.errors[1])[0], ((uint8_t*)&data.errors[1])[1],
+                            ((uint8_t*)&data.engines[0])[0], ((uint8_t*)&data.engines[0])[1],
+                            ((uint8_t*)&data.engines[1])[0], ((uint8_t*)&data.engines[1])[1],
+                            ((uint8_t*)&data.engines[2])[0], ((uint8_t*)&data.engines[2])[1],
+                            ((uint8_t*)&data.engines[3])[0], ((uint8_t*)&data.engines[3])[1],};
+  Serial.write(buff, totalbytes);
 }

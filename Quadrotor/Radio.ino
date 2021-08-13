@@ -23,7 +23,7 @@ void Radio::radiosend(const State curr_state, const QuadState& datos, const Engi
   data.quadstate[0] = int(datos.yaw_rate*100);
   data.quadstate[1] = int(datos.pitch*100);
   data.quadstate[2] = int(datos.roll*100);
-  data.quadstate[3] = int(datos.height*100);
+  data.quadstate[3] = int(datos.height);
   
   for (int i=0; i<4 ; i++){
     data.engines[i]= engines.engine_speed[i];

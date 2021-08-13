@@ -56,7 +56,7 @@ struct TransmitData
         Serial.print(float(quadstate[2])/100., 2);
         Serial.print("\t");
         Serial.print(" Height= ");
-        Serial.print(float(quadstate[3])/100., 2);
+        Serial.print(float(quadstate[3]), 2);
         Serial.print("\t"); 
         Serial.print(" Error pitch= ");
         // Serial.print("\t"); 
