@@ -87,7 +87,7 @@ struct ControllerConfiguration{
 
     float PIDheight_Kp = 0.5;
     float PIDheight_Kd = 0.02;
-    float PIDheight_Ki = 0.01;
+    float PIDheight_Ki = 0.02;
     float PIDheight_error_fc = 1;
     float PIDheight_error_dot_fc =  1;
 

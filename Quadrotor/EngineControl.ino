@@ -61,7 +61,7 @@ void EngineControl::pdControl(const int control[5], const Euler &yawpitchroll, c
   float unbalance_pitch    = pitchPID.pid_step(state.pitch, reference.pitch, delta_t);
   float unbalance_roll     = rollPID.pid_step(state.roll, reference.roll, delta_t);
   //float unbalance_yaw_rate = yawratePID.pid_step(state.yaw_rate, reference.yaw_rate, delta_t);
-  float power              = 350 +  heightPID.pid_step(state.height, reference.height, delta_t);
+  float power              = 400 +  heightPID.pid_step(state.height, reference.height, delta_t);
   //power                    = control[4];
 
   engine_speed[0] = max(int(MIN_SPEED + power + unbalance_pitch - unbalance_roll), MIN_SPEED);
