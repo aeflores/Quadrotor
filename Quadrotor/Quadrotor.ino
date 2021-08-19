@@ -206,7 +206,7 @@ void loop() {
         break;
       }
     case FLYMODE:
-      if (yawpitchroll.pitch_deg() > 25 ||  yawpitchroll.pitch_deg() < -25 || yawpitchroll.roll_deg() > 25 || yawpitchroll.roll_deg() < -25)
+      if (yawpitchroll.pitch_deg() > 45 ||  yawpitchroll.pitch_deg() < -45 || yawpitchroll.roll_deg() > 45 || yawpitchroll.roll_deg() < -45)
         curr_state = ABORT;
       else
         engines.pdControl(control.movement, yawpitchroll, state, delta_t);

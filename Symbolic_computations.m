@@ -9,7 +9,7 @@ qk1 = (eye(4)*cos(dt*omega/2) + sin(dt*omega/2)/omega*OMEGA)*qk0
 
 yaw = 0.0;
 pitch =  -7.84;
-pitch =  6;
+pitch =  -4;
 roll =  0.0;	
 radtodeg = 180/pi;
 

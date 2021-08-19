@@ -16,7 +16,7 @@ int power;
  */
 void setup() {
     Serial.begin(115200);
-    motA.attach(3, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
+    motA.attach(9, MIN_PULSE_LENGTH, MAX_PULSE_LENGTH);
     motA.writeMicroseconds(MIN_PULSE_LENGTH);
 }
 
