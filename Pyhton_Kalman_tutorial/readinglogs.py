@@ -16,10 +16,11 @@ import time
 import serial.tools.list_ports
 import matplotlib.pyplot as plt
 
+plt.close('all')
 
+# data = np.genfromtxt('../Flighttest_2021_8_16_9_50_43.csv', dtype = float, delimiter='\t')
 
-data = np.genfromtxt('../Flighttest_2021_8_16_9_50_43.csv', dtype = float, delimiter='\t')
-
+data = np.genfromtxt('../Flighttest_2021_8_24_19_32_30.csv', dtype = float, delimiter='\t')
 
 E1 = data[:,-5] -1000
 E2 = data[:,-4] -1000
@@ -33,12 +34,9 @@ height = data[:,6]
 
 dt = data[:,2]/1000
 
-time = np.zeros(len(dt))
-for i in range(len(dt)-1):
-    time[i+1] = time[i]+dt[i]
+time = data[:,-1]
     
-    
-plt.close('all')
+# plt.close('all')
     
 plt.figure()
 # plt.plot(time, pitch, time, roll, time, height)
@@ -53,14 +51,14 @@ plt.subplot(3,1,1)
 plt.plot(time, E1, time, E2, time, E3, time, E4)
 plt.grid(True)
 plt.ylim([0,1000])
-plt.xlim([4000, 6000])
+# plt.xlim([4000, 6000])
 plt.subplot(3,1,2)
 plt.plot(time, pitch, time, roll, '-o')
 plt.grid(True)
 plt.ylim([-45, 45])
-plt.xlim([4000, 6000])
+# plt.xlim([4000, 6000])
 plt.subplot(3,1,3)
 plt.plot(time, height, '-o')
 plt.grid(True)
 plt.ylim([0, 1200])
-plt.xlim([4000, 6000])
+# plt.xlim([4000, 6000])

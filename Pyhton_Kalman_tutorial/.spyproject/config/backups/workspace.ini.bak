@@ -6,5 +6,5 @@ save_non_project_files = False
 
 [main]
 version = 0.2.0
-recent_files = ['Magnetometer_calibration.py', 'PythonDataCollection.py', 'LectureSerial.py', '../log.py', 'readinglogs.py']
+recent_files = ['LectureSerial.py', 'readinglogs.py', 'freqanalysis.py', '../Force_experiment.py', '../log.py']
 

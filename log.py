@@ -59,10 +59,11 @@ class serialPlot:
                 for j in range(self.numVariables):
                     byteData = self.rawData[(j * self.dataNumBytes):((j + 1) * self.dataNumBytes)]
                     value, = struct.unpack(self.dataType, byteData)
-                    dataline = np.append(dataline, value)
-                    
+                    dataline = np.append(dataline, value)   
                     self.data[j].append(copy.copy(value))
                     csv_file.write('{}\t'.format(dataline[j]))
+                deltaT = datetime.now() - startTime                    
+                csv_file.write('{}'.format(deltaT.seconds + deltaT.microseconds*1e-6))
                 csv_file.write('\n')
                 # print(dataline)
                 csvData = np.array(self.data).transpose()

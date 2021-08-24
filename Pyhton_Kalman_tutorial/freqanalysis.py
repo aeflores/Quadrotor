@@ -11,21 +11,63 @@ import scipy as scipy
 import matplotlib.pyplot as plt
 import pylab
 from scipy import signal
-
+import os
 from scipy.optimize import curve_fit
 from scipy.io import wavfile
 
 
-root = '../../audiosmotor/' + 'u800.wav'
+path = '../audiosmotor/Noprop/'
 
+filelist = os.listdir(path)
+
+u = 0.1*np.arange(len(filelist) + 1)
+
+
+F = np.zeros(u.size)
+
+for i in range(1, len(u)):
+    samplerate, Y = wavfile.read(path + filelist[i-1])
+    t = np.arange(Y.shape[0])/samplerate
+    yl = Y[:,0]
+    yr = Y[:,1]
+    y               = np.array(yr, dtype = 'float')
+    x = y - np.mean(y)
+    xf = np.fft.rfft(x)
+    sx = (xf*xf.conj()).real
+    f = np.arange(0, sx.size)*samplerate/sx.size/2
+    df = f[1] - f[0]
+    sxf = (xf*xf.conj()).real*f
+    fmax = f[np.argmax(sxf[(f<50+40*i)])]
+    F[i] = fmax
+
+
+F = np.array([0, 39., 113.1, 152.8, 175.5, 187.7, 197.4, 202.8, 207.1, 213.6, 216.1])
+
+plt.figure()
+plt.plot(u, F)
+plt.xlim([0, 1])
+
+
+
+#%%
+plt.close('all')
+    
+root = path + 'STE-007.wav'
 samplerate, Y = wavfile.read(root)
 t = np.arange(Y.shape[0])/samplerate
  
 yl = Y[:,0]
 yr = Y[:,1]
 
+plt.close('all')
+
 
 y               = np.array(yr, dtype = 'float')
+
+plt.figure()
+plt.plot(t,y)
+plt.grid(True)
+plt.ylim([-2**15, 2**15])
 
 f               = samplerate
 overlapdegree   = 0.95
@@ -38,6 +80,7 @@ Sxx             = 20*np.log10(Sxx)
 
 plt.figure()
 plt.pcolormesh(T,F, Sxx, rasterized = True)
+plt.ylim([0, 300])
 
 #%%
 
@@ -49,11 +92,11 @@ f = np.arange(0, sx.size)*samplerate/sx.size/2
 df = f[1] - f[0]
 sxf = (xf*xf.conj()).real*f
 
-# plt.figure()
-# plt.semilogy(f, sxf)
-# plt.grid(True)
-# plt.xlim([0,1000])
-# plt.ylim([1e4, np.max(sx)])
+plt.figure()
+plt.semilogy(f, sxf)
+plt.grid(True)
+plt.xlim([0,1000])
+plt.ylim([1e4, 10*np.max(sx)])
 
 fmax = f[np.argmax(sxf)]
 
@@ -75,7 +118,7 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=3):
     return y
 
 
-yfilt = butter_bandpass_filter(y, 0.9*fmax, 1.1*fmax, samplerate)
+yfilt = butter_bandpass_filter(y, 10, 1500, samplerate)
 
 plt.figure()
 plt.plot(t, y, t, yfilt)
