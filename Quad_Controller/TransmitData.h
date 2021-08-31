@@ -81,8 +81,8 @@ struct TransmitData
 };
 
 struct ControllerConfiguration{
-    float PIDattitude_Kp = 1;
-    float PIDattitude_Kd = 0.5;
+    float PIDattitude_Kp = 0.12;
+    float PIDattitude_Kd = 0.2;
     float PIDattitude_Ki = 0.0;
 
     float PIDheight_Kp = 0.5;

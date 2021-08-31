@@ -81,7 +81,7 @@ class serialPlot:
             state ="Flightmode"
         elif csvData[0] == 4:
             state ="Abort"
-        print('{}\t power= {}\t dt = {}\t yawrate = {}\t pitch = {}\t roll = {}\t height = {}\t Epitch = {}\t Eroll = {}\t{}\t{}\t{}\t{}'.format(
+        print('{}\t power= {:5.0f}\t dt = {:5.2f}\t yawrate = {:5.2f}\t pitch = {:5.2f}\t roll = {:5.2f}\t height = {:5.0f}\t Epitch = {}\t Eroll = {}\t{}\t{}\t{}\t{}'.format(
             state, csvData[1],  csvData[2]/1000, csvData[3]/100, csvData[4]/100, csvData[5]/100, csvData[6], csvData[7]/100, csvData[8]/100, csvData[9], csvData[10], csvData[11], csvData[12]))
     def close(self):
         self.serialConnection.close()

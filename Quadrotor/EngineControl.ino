@@ -6,10 +6,10 @@ void EngineControl::init() {
     engine[i].attach(engine_port[i]);
     engine[i].writeMicroseconds(engine_speed[i]);
   }
-  pitchPID.init(2.0, 0.7, 0.0, 10, 10, 100);
-  rollPID.init(2.0, 0.7, 0.0, 10, 10, 100);
+  pitchPID.init(0.12, 0.2, 0.0, 5, 10, 100);
+  rollPID.init(0.12, 0.2, 0.0, 5, 10, 100);
   yawratePID.init(1.0, 0.0, 0., 10, 10,  20);
-  heightPID.init(2.0, 0.5, 2, 5, 5,  200);
+  heightPID.init(0.04, 0.12, 0.002, 5, 5,  200);
 
 }
 

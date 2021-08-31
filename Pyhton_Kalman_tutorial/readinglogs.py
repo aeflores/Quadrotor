@@ -20,7 +20,7 @@ plt.close('all')
 
 # data = np.genfromtxt('../Flighttest_2021_8_16_9_50_43.csv', dtype = float, delimiter='\t')
 
-data = np.genfromtxt('../Flighttest_2021_8_24_19_32_30.csv', dtype = float, delimiter='\t')
+data = np.genfromtxt('../Flighttest_2021_8_26_9_39_24.csv', dtype = float, delimiter='\t')
 
 E1 = data[:,-5] -1000
 E2 = data[:,-4] -1000
@@ -62,3 +62,22 @@ plt.plot(time, height, '-o')
 plt.grid(True)
 plt.ylim([0, 1200])
 # plt.xlim([4000, 6000])
+
+
+u1 = E1+E2+E3+E4 - 4*400
+PIDpitch = (E1 - E2)/2
+PIDroll = (E3-E2)/2
+
+plt.figure()
+plt.plot(time, height, time, u1)
+plt.grid(True)
+
+
+plt.figure()
+plt.subplot(2,1,1)
+plt.plot(time, pitch, time, roll)
+plt.grid(True)
+plt.ylim([-45, 45])
+plt.subplot(2,1,2)
+plt.plot(time, PIDpitch, time, PIDroll)
+plt.grid(True)
