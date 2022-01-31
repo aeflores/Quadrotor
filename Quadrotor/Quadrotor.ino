@@ -38,7 +38,7 @@ unsigned long tiempo0;
 int           delta_t;
 QuadState     state;
 short cycle_counter, cycle = 4;
-ControllerConfiguration configuration;
+
 
 
 
@@ -179,12 +179,23 @@ void loop() {
   cycle_counter = (cycle_counter + 1) % cycle;
   delta_t = micros() - tiempo0;
   tiempo0 += delta_t;
-  // En el ciclo 14 recibe datos
   
-  if (cycle_counter == (cycle - 1)) {
-    RadioCOM.radiolisten(control, configuration);
-    curr_state = next_state(curr_state, control.change);
+  ///////////////////////////////////////////////
+  //Comunicacion
+  
+  // En el ciclo 1 empieza el envio
+  if (cycle_counter == 1) {
+    RadioCOM.radiosend(curr_state, state, engines, delta_t);
   }
+  
+  // nos aseguramos que hemos terminado de escribir 
+  // y leemos la resuesta
+  if (cycle_counter == cycle/2){
+    RadioCOM.finishSend(control);
+    curr_state = next_state(curr_state, control.change);
+    
+  }
+  
   
   //sendpulse(false);
   imu.readsensor(imusensor);
@@ -193,8 +204,6 @@ void loop() {
   state.roll = yawpitchroll.roll_deg();
   state.yaw_rate = imusensor[1][2]/ 32.7675f / 60;
   
-  
-
   switch (curr_state) {
     case STANDBY:
       engines.stop();
@@ -202,7 +211,6 @@ void loop() {
     case CALIBRATION:
       {
         engines.stop();
-        engines.configure(configuration);
         break;
       }
     case FLYMODE:
@@ -216,17 +224,5 @@ void loop() {
       break;
   }
 
-  // En el ciclo 1 empieza el envio
-  if (cycle_counter == 1) {
-    RadioCOM.radiosend(curr_state, state, engines, delta_t);
-  }
-  // En el ciclo 7 termina el envio
-  // y empieza a escuchar hasta el ciclo 14
-  if (cycle_counter == cycle / 2) {
-    RadioCOM.finishSend();
-  }
   engines.updateEngines();
-  // Print_data();
-  // Serial.println("");
-  
 }
