@@ -29,7 +29,7 @@ public:
     void init();
     void updateEngines();
     void testControl(const int control[5]);
-    void configure(ControllerConfiguration &conf);
+    //void configure(ControllerConfiguration &conf);
     void pdControl(const int control[5], const Euler &yawpitchroll, const QuadState &state, const int delta_t);
     void stop();
     PID pitchPID, rollPID, yawratePID, heightPID;

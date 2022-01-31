@@ -4,15 +4,12 @@
 
 void Radio::initialize() {
   radio.begin();
-  radio.setDataRate(RF24_2MBPS);
-  // radio.setRetries(15,15);
-  // radio.setPayloadSize(64);
-  // Abrimos un canal de escritura
-  // radio.openWritingPipe(direccion);
+  radio.setDataRate(RF24_250KBPS);
+  radio.enableAckPayload();
+  radio.enableDynamicPayloads();
+  radio.setRetries(5,5);
+  radio.stopListening();
   radio.openWritingPipe(pipe_send);
-  // radio.openReadingPipe(1,direccion);
-  radio.openReadingPipe(1, pipe_read);
-  radio.startListening();
 }
 
 void Radio::radiosend(const State curr_state, const QuadState& datos, const EngineControl &engines, int delta_t) {
@@ -31,36 +28,13 @@ void Radio::radiosend(const State curr_state, const QuadState& datos, const Engi
   data.errors[0] = int(engines.pitchPID.error*100);
   data.errors[1] = int(engines.rollPID.error*100);
 
-  radio.stopListening();
-  radio.startWrite(&data, sizeof(data), false);
+  
+  radio.startWrite(&data, sizeof(data),false);
 }
 
-void Radio::finishSend(){
+void Radio::finishSend(ControlData& data){
   radio.txStandBy();
-  radio.startListening();
-}
-
-void Radio::radiolisten(void *data, int numBytes) {
-  // RECEPCION DE DATOS
-  // Empezamos a escuchar por el canal
-  //radio.startListening();
-  unsigned long started_waiting_at = millis();
-  bool timeout = false;
-  while (!radio.available() && !timeout) { // Esperamos 10ms
-    if (millis() - started_waiting_at > 5)
-      timeout = true;
+  if(radio.isAckPayloadAvailable()){
+    radio.read(&data,sizeof(data));
   }
-  if (timeout) {
-//    Serial.println("Error, No ha habido respuesta a tiempo");
-  } else {
-    // Leemos los datos y los guardamos en la variable datos[]
-    radio.read(data, numBytes);
-  }
-  //radio.stopListening();
-}
-
-void Radio::radiolisten(ControlData& data, ControllerConfiguration &conf) {
-  radiolisten(&data, sizeof(data));
-  if(data.moreData)
-    radiolisten(&conf, sizeof(conf));
 }

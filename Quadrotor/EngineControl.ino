@@ -29,14 +29,14 @@ void EngineControl::testControl(const int control[5]) {
   }
 }
 
-void EngineControl::configure(ControllerConfiguration &conf) {
+/*void EngineControl::configure(ControllerConfiguration &conf) {
 
   pitchPID.init(conf.PIDattitude_Kp,       conf.PIDattitude_Kd,     conf.PIDattitude_Ki, pitchPID.parameters.error_fc,     pitchPID.parameters.error_dot_fc,     pitchPID.parameters.saturation);
   rollPID.init( conf.PIDattitude_Kp,       conf.PIDattitude_Kd,     conf.PIDattitude_Ki, rollPID.parameters.error_fc,      rollPID.parameters.error_dot_fc,      rollPID.parameters.saturation);
   heightPID.init(conf.PIDheight_Kp,     conf.PIDheight_Kd,    conf.PIDheight_Ki,    conf.PIDheight_error_fc,    conf.PIDheight_error_dot_fc,    heightPID.parameters.saturation);
   //yawratePID.init(conf.PIDyawrate_Kp,   conf.PIDyawrate_Kd,   conf.PIDyawrate_Ki,   conf.PIDyawrate_error_fc,   conf.PIDyawrate_error_dot_fc,   conf.PIDyawrate_saturation);
 
-}
+}*/
 
 void EngineControl::computeReference(const int control[5], QuadState &reference) {
   // control[0] --> RV --> height_rate --> 517

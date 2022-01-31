@@ -18,7 +18,6 @@ const int CSN_PIN = 8;
 RF24 radio(CE_PIN, CSN_PIN);
 
 // Variable con la dirección del canal por donde se va a transmitir
-const uint64_t pipe_send = 0xE8E8F0F0E1LL;
 const uint64_t pipe_read = 0xF0F0F0F0D2LL;
 
 //Variables necesarias para la maquina de estados
@@ -100,73 +99,37 @@ void setup() {
   Serial.begin(115200);
   // Inicializamos el NRF24L01
   radio.begin();
-  radio.setDataRate(RF24_2MBPS);
-  // radio.setRetries(15,15);
-  // radio.setPayloadSize(64);
-  // Abrimos un canal de escritura
-  // radio.openWritingPipe(direccion);
-  radio.openWritingPipe(pipe_send);
-  // radio.openReadingPipe(1,direccion);
+  radio.setDataRate(RF24_250KBPS);
   radio.openReadingPipe(1, pipe_read);
-
-
+  // Envia respuesta con la confirmacion
+  // de recibo.
+  radio.enableAckPayload();
+  radio.enableDynamicPayloads();
+  radio.startListening();
+  radio.writeAckPayload(1,&datos_send,sizeof(datos_send));
 }
 
 void loop() {
-  // EMISION DE DATOS
-  // cargamos los datos en la variable datos[]
-  datos_send.movement[0] = analogRead(A3);
-  datos_send.movement[1] = analogRead(A2);
-  datos_send.movement[2] = analogRead(A1);
-  datos_send.movement[3] = analogRead(A0);
-  // This is for callibrating
-  //datos_send.movement[1]= int(analogRead(A4)*3/4);
-  datos_send.movement[4] = int(analogRead(A7));
-  datos_send.change = stateChange();
+  
 
-  if (curr_state == CALIBRATION) {
-    datos_send.moreData = true;
-    radio.write(&datos_send, sizeof(datos_send));
-    // send configuration
-    ControllerConfiguration conf;
-    radio.write(&conf, sizeof(conf));
-    //conf.print(Serial);
-
-  } else {
-    datos_send.moreData = false;
-    radio.write(&datos_send, sizeof(datos_send));
-    Serialbufferprint(datos_rec, datos_send.movement[4]);
+  if (radio.available()){
     
-    //Serial.print("Power=  ");
-    //Serial.print(datos_send.movement[4]);
-    //Serial.print("\t");
-    //datos_rec.print(Serial);
-  }
-
-
-  // RECEPCION DE DATOS
-  // Empezamos a escuchar por el canal
-  radio.startListening();
-  unsigned long started_waiting_at = millis();
-  bool timeout = false;
-  while (!radio.available() && !timeout) { // Esperamos 200ms
-    if (millis() - started_waiting_at > 50)
-      timeout = true;
-  }
-  if (timeout) {
-    //Serial.print("Error, No ha habido respuesta a tiempo");
-
-  } else {
-    // Leemos los datos y los guardamos en la variable datos[]
-
+    // Lectura de datos
     radio.read(&datos_rec, sizeof(datos_rec));
     curr_state = datos_rec.state;
-    // reportamos por el puerto serial los datos recibidos
+    Serialbufferprint(datos_rec, datos_send.movement[4]);
 
-
+    // Emision de datos
+    datos_send.movement[0] = analogRead(A3);
+    datos_send.movement[1] = analogRead(A2);
+    datos_send.movement[2] = analogRead(A1);
+    datos_send.movement[3] = analogRead(A0);
+    // This is for callibrating
+    //datos_send.movement[1]= int(analogRead(A4)*3/4);
+    datos_send.movement[4] = int(analogRead(A7));
+    datos_send.change = stateChange();
+    radio.writeAckPayload(1,&datos_send,sizeof(datos_send)); 
   }
-  //Serial.println("");
-  radio.stopListening();
 }
 
 
